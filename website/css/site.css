@@ -617,3 +617,166 @@ body[data-page-kind="project"] .project-stack .list li{text-align:center}
 .project-explore-panel{border-color:rgba(112,240,202,.3);background:linear-gradient(145deg,rgba(48,39,71,.82),rgba(28,18,38,.92))}
 .project-explore-panel .centered-actions{margin-top:18px}
 .project-explore-panel .button{min-width:210px}
+
+/* ==========================================================
+   VISUAL SYSTEM 3.5 — HERO ACTION PILLS + FLOOR-PLAN VIEWER
+   ========================================================== */
+.project-hero-actions{
+  width:min(680px,100%);
+  margin:20px auto 0;
+  display:grid;
+  gap:12px;
+  position:relative;
+  z-index:4;
+}
+.project-hero-actions.dual-action{grid-template-columns:repeat(2,minmax(0,1fr))}
+.project-hero-actions.single-action{grid-template-columns:minmax(0,340px);justify-content:center}
+.project-hero-actions .button{width:100%;min-width:0;white-space:normal;text-align:center}
+
+.floor-grid{align-items:start}
+.floor-card{
+  align-self:start;
+  display:flex;
+  flex-direction:column;
+  height:auto;
+  min-height:0;
+  overflow:hidden;
+}
+.floor-card h2{margin-bottom:14px}
+.floor-card .muted{margin:14px auto 0;max-width:620px}
+.floor-card .actions{justify-content:center;margin-top:16px}
+.floor-card-index{padding-bottom:22px}
+.floor-plan-preview{
+  position:relative;
+  display:block;
+  width:100%;
+  margin:0;
+  border-radius:18px;
+  overflow:hidden;
+  background:#fff;
+  text-decoration:none;
+  cursor:zoom-in;
+  border:1px solid rgba(255,255,255,.16);
+}
+.floor-grid .floor-plan-preview img{
+  display:block;
+  width:100%;
+  height:auto;
+  max-height:640px;
+  margin:0;
+  object-fit:contain;
+  background:#fff;
+  transition:transform .28s ease,filter .28s ease;
+}
+.floor-card-index .floor-plan-preview img{max-height:360px}
+.floor-plan-preview:hover img,.floor-plan-preview:focus-visible img{transform:scale(1.018);filter:contrast(1.03)}
+.floor-plan-preview:focus-visible{outline:3px solid var(--mint);outline-offset:3px}
+.floor-plan-preview-label{
+  position:absolute;
+  right:12px;
+  bottom:12px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:36px;
+  padding:7px 11px;
+  border-radius:999px;
+  background:rgba(18,10,25,.82);
+  color:#fff;
+  font-size:.76rem;
+  font-weight:900;
+  backdrop-filter:blur(10px);
+  box-shadow:0 8px 24px rgba(0,0,0,.28);
+}
+body.plan-lightbox-open{overflow:hidden}
+.plan-lightbox{
+  position:fixed;
+  inset:0;
+  z-index:450;
+  display:none;
+  place-items:center;
+  padding:18px;
+}
+.plan-lightbox.is-open{display:grid}
+.plan-lightbox-backdrop{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  border:0;
+  background:rgba(8,5,12,.88);
+  backdrop-filter:blur(15px);
+  cursor:zoom-out;
+}
+.plan-lightbox-card{
+  position:relative;
+  z-index:2;
+  display:grid;
+  grid-template-rows:auto minmax(0,1fr) auto;
+  width:min(1280px,100%);
+  height:min(92dvh,900px);
+  min-height:0;
+  padding:16px;
+  border:1px solid rgba(255,248,238,.2);
+  border-radius:28px;
+  background:linear-gradient(150deg,rgba(45,27,55,.98),rgba(18,11,24,.99));
+  box-shadow:0 35px 120px rgba(0,0,0,.65);
+  outline:none;
+}
+.plan-lightbox-toolbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:18px;
+  padding:0 2px 12px;
+}
+.plan-lightbox-toolbar h2{
+  margin:4px 0 0;
+  font-family:var(--serif);
+  font-size:clamp(1.55rem,3vw,2.5rem);
+  font-style:italic;
+  line-height:1;
+}
+.plan-lightbox-controls{display:flex;align-items:center;gap:7px;flex-wrap:wrap;justify-content:flex-end}
+.plan-lightbox-controls button,.plan-lightbox-controls output{
+  min-width:40px;
+  min-height:40px;
+  display:inline-grid;
+  place-items:center;
+  padding:7px 11px;
+  border:1px solid rgba(255,255,255,.17);
+  border-radius:12px;
+  background:rgba(255,255,255,.065);
+  color:var(--paper);
+  font:800 .82rem/1 var(--sans);
+}
+.plan-lightbox-controls button{cursor:pointer}
+.plan-lightbox-controls button:hover,.plan-lightbox-controls button:focus-visible{border-color:var(--mint);color:var(--mint);outline:none}
+.plan-lightbox-controls .plan-lightbox-close{font-size:1.5rem;color:var(--coral)}
+.plan-lightbox-stage{
+  min-height:0;
+  overflow:hidden;
+  display:grid;
+  place-items:center;
+  border-radius:18px;
+  background:#fff;
+  touch-action:none;
+  cursor:zoom-in;
+  user-select:none;
+}
+.plan-lightbox-stage.is-zoomed{cursor:grab}
+.plan-lightbox-stage.is-zoomed:active{cursor:grabbing}
+.plan-lightbox-stage img{
+  display:block;
+  max-width:100%;
+  max-height:100%;
+  width:auto;
+  height:auto;
+  transform-origin:center center;
+  will-change:transform;
+  pointer-events:none;
+}
+.plan-lightbox-help{margin:10px 4px 0;text-align:center;color:var(--muted);font-size:.78rem}
+
+/* Only the footer logo that opens About on the homepage uses the black disc. */
+body[data-page-kind="home"] .footer-logo-orbit .logo-orbit-disc{background:#08070a}

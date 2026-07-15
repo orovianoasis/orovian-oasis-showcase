@@ -146,10 +146,34 @@ modal controls, focus management, scroll preservation, and optional motion.
     </div>
   </section>
 
+  <section class="plan-lightbox" data-plan-lightbox role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="plan-lightbox-title">
+    <button class="plan-lightbox-backdrop" type="button" data-plan-close aria-label="Close floor-plan viewer"></button>
+    <div class="plan-lightbox-card" tabindex="-1">
+      <div class="plan-lightbox-toolbar">
+        <div>
+          <div class="eyebrow">📐 Floor-plan viewer</div>
+          <h2 id="plan-lightbox-title" data-plan-title>Floor Plan</h2>
+        </div>
+        <div class="plan-lightbox-controls" aria-label="Floor-plan zoom controls">
+          <button type="button" data-plan-zoom-out aria-label="Zoom out">−</button>
+          <output data-plan-zoom-status aria-live="polite">100%</output>
+          <button type="button" data-plan-zoom-in aria-label="Zoom in">+</button>
+          <button type="button" data-plan-reset>Reset</button>
+          <button class="plan-lightbox-close" type="button" data-plan-close aria-label="Close floor-plan viewer">×</button>
+        </div>
+      </div>
+      <div class="plan-lightbox-stage" data-plan-stage>
+        <img src="" alt="" data-plan-image draggable="false">
+      </div>
+      <p class="plan-lightbox-help">Use +/− or the mouse wheel to zoom. Drag the plan while zoomed. On touch screens, pinch and drag.</p>
+    </div>
+  </section>
+
   <div class="pointer-glow" data-pointer-glow aria-hidden="true"></div>
   <script src="{{ROOT}}js/site.js"></script>
   <script src="{{ROOT}}js/contact.js" defer></script>
   <script src="{{ROOT}}js/carousel.js" defer></script>
+  <script src="{{ROOT}}js/floor-plan-viewer.js" defer></script>
   <script src="{{ROOT}}js/filters.js" defer></script>
   <script src="{{ROOT}}js/dynamics.js" defer></script>
   <script src="{{ROOT}}js/mobile.js" defer></script>
