@@ -43,13 +43,15 @@ The repository contains one published structure demo. It proves the gallery, pro
 
 ## 5. Add the first real project
 
-The easiest route on Windows:
+Extract the completed property package, add `cover.webp`, and upload the entire folder into:
 
 ```text
-tools/New_Project.bat
+content/projects/
 ```
 
-Or duplicate one folder inside `content/project-templates/` and place the copy inside `content/projects/`.
+Keep the original walkthrough HTML, GLB, DXF, OBJ, README, and filenames. The website importer connects everything automatically. Do not upload the ZIP itself.
+
+See `docs/editing/ONE_FOLDER_PROJECT_UPLOAD.md`.
 
 ## Folder convention
 

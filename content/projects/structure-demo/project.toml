@@ -4,10 +4,10 @@
 slug = "structure-demo"
 category = "concept-home"
 published = true
-featured = false
+featured = true
 status = "available"
 status_label = "Structure Demo"
-sort_order = 99
+sort_order = 1
 updated = "2026-07-15"
 
 [identity]

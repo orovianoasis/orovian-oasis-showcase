@@ -8,17 +8,19 @@ Public GitHub Pages repository for:
 
 Target domain: **showcase.orovianoasis.com**
 
-## The main editing rule
+## The main project-upload rule
 
-Every project has one control panel:
+For the normal workflow, extract a completed property package, add `cover.webp`, and upload that **one folder** into:
 
 ```text
-content/projects/PROJECT-SLUG/project.toml
+content/projects/
 ```
 
-Edit that file to change price, status, featured placement, public description, checkout links, facts, floor plans, materials, purchase options, and search metadata. Replace media in the same project folder. GitHub Actions validates, builds, and deploys the website automatically after a push to `main`.
+`project.toml` is optional. The build automatically reads `README.txt`, detects the walkthrough HTML, GLB, and DXFs, generates the website connection files, creates browser previews, and publishes the property. Original long filenames and underscores are accepted; public URLs are converted to hyphens automatically.
 
-Start with the [Quick Start Guide](docs/getting-started/QUICK_START.md).
+Use `project.toml` only for advanced overrides such as exact pricing, checkout links, status, category, SEO, or licensing details.
+
+Start with the [One-folder upload guide](docs/editing/ONE_FOLDER_PROJECT_UPLOAD.md).
 
 ## Folder convention
 
@@ -45,6 +47,7 @@ See the [Mobile design editing guide](docs/editing/MOBILE_DESIGN_GUIDE.md).
 
 - [Quick start](docs/getting-started/QUICK_START.md)
 - [Editing guide](docs/editing/EDITING_GUIDE.md)
+- [One-folder project upload](docs/editing/ONE_FOLDER_PROJECT_UPLOAD.md)
 - [Content workflow](docs/editing/CONTENT_WORKFLOW.md)
 - [Custom-domain setup](docs/deployment/CUSTOM_DOMAIN_SETUP.md)
 - [Repository map](docs/reference/REPOSITORY_MAP.md)

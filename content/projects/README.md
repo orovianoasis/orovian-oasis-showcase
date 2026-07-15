@@ -1,21 +1,29 @@
-# Projects
+# Upload property folders here
 
-Each live project receives one folder:
+For the easiest workflow, upload **one extracted property folder** directly into this directory.
 
 ```text
-content/projects/project-slug/
-├── project.toml
-├── assets/
-│   ├── cover.webp
-│   ├── card.webp
-│   ├── share.webp
-│   └── gallery/
-├── floor-plans/
-└── tour/
+content/projects/luxury_custom_home/
+├── cover.webp
+├── README.txt
+├── ...Walkthrough....html
+├── ...Model....glb
+└── one or more .dxf files
 ```
 
-- Edit `project.toml` for price, status, facts, purchase links, labels, and other fluid data.
-- Put that project's PNG, JPEG, WebP, SVG, and gallery media inside its own `assets/` folder.
-- Put customer-facing floor plans, PDFs, and optional DXFs in `floor-plans/`.
-- Put `viewer.html`, `house.glb`, `collision.json`, and `manifest.json` in `tour/` only when the walkthrough is ready.
-- Set `published = true` only after the referenced files exist.
+That is enough. `project.toml` is optional.
+
+The GitHub Actions build automatically:
+
+- Creates a hyphenated public URL from the folder name.
+- Reads project details from `README.txt`.
+- Connects the walkthrough HTML and GLB.
+- Generates the required tour metadata.
+- Creates visible SVG previews from the DXF drawings.
+- Uses `cover.webp` as the public project image.
+
+Do **not** upload the ZIP itself. Extract it first, add `cover.webp`, then drag the entire folder here.
+
+Full instructions: `docs/editing/ONE_FOLDER_PROJECT_UPLOAD.md`
+
+Folders containing `project.toml` remain supported for advanced manual control.

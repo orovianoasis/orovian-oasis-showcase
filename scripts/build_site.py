@@ -10,6 +10,8 @@ import tomllib
 import urllib.parse
 from pathlib import Path
 
+from raw_project import RawProjectError, auto_project_from_folder, stage_raw_project
+
 ROOT = Path(__file__).resolve().parents[1]
 CONTENT = ROOT / "content"
 WEBSITE = ROOT / "website"
@@ -183,36 +185,48 @@ def load_projects(strict=True):
         if not folder.is_dir() or folder.name.startswith("_"): continue
         path=folder/"project.toml"
         if not path.exists():
-            errors.append(f"{folder.name}: missing project.toml")
-            continue
-        try: p=read_toml(path)
-        except Exception as exc:
-            errors.append(f"{folder.name}: TOML error: {exc}")
-            continue
+            try:
+                p, warnings = auto_project_from_folder(folder)
+                for warning in warnings:
+                    print(f"AUTO PROJECT {p['slug']}: {warning}")
+                print(f"AUTO PROJECT {p['slug']}: imported from {folder.name} without project.toml")
+            except RawProjectError as exc:
+                errors.append(f"{folder.name}: {exc}")
+                continue
+        else:
+            try: p=read_toml(path)
+            except Exception as exc:
+                errors.append(f"{folder.name}: TOML error: {exc}")
+                continue
+            slug=p.get("slug","")
+            if slug != folder.name: errors.append(f"{folder.name}: slug must match folder name")
+            if not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", slug): errors.append(f"{folder.name}: invalid slug")
+            if p.get("category") not in CATEGORY_PATHS: errors.append(f"{folder.name}: invalid category")
+            ident=p.get("identity",{})
+            for required in ("title","summary"):
+                if not ident.get(required): errors.append(f"{folder.name}: identity.{required} is required")
+            if p.get("published"):
+                media=p.get("media",{})
+                for field in ("cover","card","share"):
+                    rel=media.get(field,"")
+                    if rel and not (folder/rel).is_file(): errors.append(f"{folder.name}: media.{field} not found: {rel}")
+                for item in p.get("floor_plans",[]):
+                    for field in ("image","pdf","dxf"):
+                        rel=item.get(field,"")
+                        if rel and not (folder/rel).is_file(): errors.append(f"{folder.name}: floor_plans.{field} not found: {rel}")
+                if p.get("tour",{}).get("enabled"):
+                    for required in ("viewer.html","house.glb","collision.json","manifest.json"):
+                        target=folder/"tour"/required
+                        if not target.is_file() or target.stat().st_size==0: errors.append(f"{folder.name}: enabled tour missing or empty {required}")
+            p["_source"]=folder
+
         slug=p.get("slug","")
-        if slug != folder.name: errors.append(f"{folder.name}: slug must match folder name")
-        if not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", slug): errors.append(f"{folder.name}: invalid slug")
-        if slug in seen: errors.append(f"{folder.name}: duplicate slug")
+        if not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", slug):
+            errors.append(f"{folder.name}: generated invalid slug: {slug}")
+        if slug in seen: errors.append(f"{folder.name}: duplicate slug: {slug}")
         seen.add(slug)
-        if p.get("category") not in CATEGORY_PATHS: errors.append(f"{folder.name}: invalid category")
-        ident=p.get("identity",{})
-        for required in ("title","summary"):
-            if not ident.get(required): errors.append(f"{folder.name}: identity.{required} is required")
-        if p.get("published"):
-            media=p.get("media",{})
-            for field in ("cover","card","share"):
-                rel=media.get(field,"")
-                if rel and not (folder/rel).is_file(): errors.append(f"{folder.name}: media.{field} not found: {rel}")
-            for item in p.get("floor_plans",[]):
-                for field in ("image","pdf","dxf"):
-                    rel=item.get(field,"")
-                    if rel and not (folder/rel).is_file(): errors.append(f"{folder.name}: floor_plans.{field} not found: {rel}")
-            if p.get("tour",{}).get("enabled"):
-                for required in ("viewer.html","house.glb","collision.json","manifest.json"):
-                    target=folder/"tour"/required
-                    if not target.is_file() or target.stat().st_size==0: errors.append(f"{folder.name}: enabled tour missing or empty {required}")
-        p["_source"]=folder
         projects.append(p)
+
     if errors and strict:
         raise SystemExit("\n".join("ERROR: "+e for e in errors))
     for e in errors: print("WARNING:", e)
@@ -236,10 +250,23 @@ def project_grid(projects, site, root_prefix=""):
 
 
 def copy_project_assets(project, destination):
+    if project.get("_raw"):
+        stage_raw_project(project, destination)
+        return
     src=project["_source"]
     for name in ("assets","floor-plans"):
         source=src/name
         if source.exists(): shutil.copytree(source,destination/name,dirs_exist_ok=True)
+
+
+def public_data(value):
+    if isinstance(value, dict):
+        return {key: public_data(item) for key, item in value.items() if not str(key).startswith("_")}
+    if isinstance(value, list):
+        return [public_data(item) for item in value]
+    if isinstance(value, Path):
+        return value.as_posix()
+    return value
 
 
 def cta_buttons(project, site):
@@ -300,6 +327,13 @@ def build(args):
     (out/".nojekyll").write_text("",encoding="utf-8")
     if site.get("custom_domain"): (out/"CNAME").write_text(site["custom_domain"]+"\n",encoding="utf-8")
     projects=load_projects(args.strict)
+    real_published=[p for p in projects if p.get("published") and p.get("slug") != "structure-demo" and not p.get("seo",{}).get("noindex")]
+    if real_published:
+        for project in projects:
+            if project.get("slug") == "structure-demo":
+                project["published"] = False
+        if not any(project.get("featured") for project in real_published):
+            real_published[0]["featured"] = True
     published=[p for p in projects if p.get("published") and not p.get("seo",{}).get("noindex")]
     published.sort(key=lambda p:(not p.get("featured",False),p.get("sort_order",100),p.get("identity",{}).get("title","")))
     base_url="https://"+site.get("custom_domain","").strip("/")
@@ -378,18 +412,23 @@ def build(args):
         floor_page=apply_base(floor_body,site=site,nav=nav,root_prefix="../../../",title=f"Floor Plans — {ident.get('title')}",description=f"Floor plans for {ident.get('title')}",og_image=og,canonical=project_url+"floor-plans/")
         (fp_folder/"index.html").write_text(floor_page,encoding="utf-8")
 
-        tour_src=p["_source"]/"tour"; tour_dest=folder/"tour"
-        if tour.get("enabled") and (tour_src/"viewer.html").exists():
-            shutil.copytree(tour_src,tour_dest,dirs_exist_ok=True)
-            if not (tour_dest/"index.html").exists():
-                (tour_dest/"index.html").write_text('<meta http-equiv="refresh" content="0;url=viewer.html"><script>location.replace("viewer.html")</script>',encoding="utf-8")
+        tour_dest=folder/"tour"
+        if p.get("_raw") and tour.get("enabled"):
+            # The one-folder importer staged the complete tour while copying project assets.
+            pass
         else:
-            tour_dest.mkdir(exist_ok=True)
-            tour_body=tour_placeholder.replace("{{PROJECT_TITLE}}",esc(ident.get("title")))
-            tour_page=apply_base(tour_body,site=site,nav=nav,root_prefix="../../../",title=f"3D Walkthrough — {ident.get('title')}",description=f"3D walkthrough for {ident.get('title')}",og_image=og,canonical=project_url+"tour/")
-            (tour_dest/"index.html").write_text(tour_page,encoding="utf-8")
+            tour_src=p["_source"]/"tour"
+            if tour.get("enabled") and (tour_src/"viewer.html").exists():
+                shutil.copytree(tour_src,tour_dest,dirs_exist_ok=True)
+                if not (tour_dest/"index.html").exists():
+                    (tour_dest/"index.html").write_text('<meta http-equiv="refresh" content="0;url=viewer.html"><script>location.replace("viewer.html")</script>',encoding="utf-8")
+            else:
+                tour_dest.mkdir(exist_ok=True)
+                tour_body=tour_placeholder.replace("{{PROJECT_TITLE}}",esc(ident.get("title")))
+                tour_page=apply_base(tour_body,site=site,nav=nav,root_prefix="../../../",title=f"3D Walkthrough — {ident.get('title')}",description=f"3D walkthrough for {ident.get('title')}",og_image=og,canonical=project_url+"tour/")
+                (tour_dest/"index.html").write_text(tour_page,encoding="utf-8")
 
-        public={k:v for k,v in p.items() if not k.startswith("_")}
+        public=public_data(p)
         public["url"]=f"/{category_path}/{p['slug']}/"; public["price_display"]=html.unescape(money(p,site))
         api.append(public)
 

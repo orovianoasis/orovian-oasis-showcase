@@ -6,6 +6,8 @@ import sys
 import tomllib
 from pathlib import Path
 
+from raw_project import RawProjectError, inspect_raw_project
+
 ROOT = Path(__file__).resolve().parents[1]
 errors: list[str] = []
 
@@ -30,6 +32,7 @@ required_files = [
     "assets/brand/logo-badge.webp",
     "assets/brand/favicon.png",
     "scripts/build_site.py",
+    "scripts/raw_project.py",
 ]
 for relative in required_files:
     path = ROOT / relative
@@ -57,12 +60,23 @@ for toml_path in [ROOT / "content/site.toml", ROOT / "content/navigation.toml"]:
 
 projects = ROOT / "content/projects"
 if projects.exists():
+    seen_slugs: set[str] = set()
     for folder in sorted(projects.iterdir()):
         if not folder.is_dir() or folder.name.startswith("_"):
             continue
         project_file = folder / "project.toml"
         if not project_file.exists():
-            errors.append(f"{folder.name}: missing project.toml")
+            try:
+                raw_root, files, warnings = inspect_raw_project(folder)
+                slug = re.sub(r"[^a-z0-9]+", "-", raw_root.name.lower()).strip("-")
+                if slug in seen_slugs:
+                    errors.append(f"{folder.name}: generated duplicate slug: {slug}")
+                seen_slugs.add(slug)
+                print(f"AUTO PROJECT {slug}: one-folder package recognized")
+                for warning in warnings:
+                    print(f"AUTO PROJECT {slug}: {warning}")
+            except RawProjectError as exc:
+                errors.append(f"{folder.name}: {exc}")
             continue
         try:
             with project_file.open("rb") as handle:
@@ -75,6 +89,10 @@ if projects.exists():
             errors.append(f"{folder.name}: slug must match folder name")
         if not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", slug):
             errors.append(f"{folder.name}: invalid slug")
+        if slug in seen_slugs:
+            errors.append(f"{folder.name}: duplicate slug: {slug}")
+        seen_slugs.add(slug)
+
 
 if errors:
     print("\n".join("ERROR: " + error for error in errors))

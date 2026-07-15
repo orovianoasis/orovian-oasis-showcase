@@ -9,6 +9,7 @@ The repository root stays intentionally clean. Guides, references, deployment no
 
 ## Editing and content
 
+- [One-folder Project Upload](editing/ONE_FOLDER_PROJECT_UPLOAD.md)
 - [Editing Guide](editing/EDITING_GUIDE.md)
 - [Content Workflow](editing/CONTENT_WORKFLOW.md)
 - [Folder Naming Guide](editing/FOLDER_NAMING_GUIDE.md)

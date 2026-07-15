@@ -1,17 +1,32 @@
-OROVIAN OASIS SHOWCASE — VALIDATION REPORT 3.1
+OROVIAN OASIS SHOWCASE — VALIDATION REPORT 3.2
 
-PASS: source structure validation
-PASS: strict site generation
-PASS: generated output validation
-PASS: Python syntax compilation
-PASS: JavaScript syntax checks
-PASS: GLB 2.0 header and declared size
-PASS: extracted collision JSON — 259 collision boxes
-PASS: valid tour manifest JSON
-PASS: generated project, floor-plan, and tour routes
-PASS: all property package paths use hyphens instead of underscores
-PASS: fresh ZIP extraction and rebuild
+PASS: rebuilt from v2.9 source package
+PASS: source structure validation with no raw property present
+PASS: strict baseline site generation
+PASS: baseline generated output validation
+PASS: Python syntax compilation — build and validation scripts
+PASS: JavaScript syntax — site.js
+PASS: JavaScript syntax — contact.js
+PASS: JavaScript syntax — dynamics.js
+PASS: JavaScript syntax — mobile.js
+PASS: one-folder import using the supplied Luxury Custom Home package
+PASS: underscored source folder converted to hyphenated public slug
+PASS: nested wrapper-folder import
+PASS: README title and project-summary extraction
+PASS: README facts extraction — 5,850 sq. ft., 4 beds, 4.5 baths, 3-car garage, 2 stories
+PASS: original walkthrough HTML preserved and connected
+PASS: original GLB preserved and canonical house.glb generated
+PASS: collision.json and manifest.json generated
+PASS: DXF source downloads preserved
+PASS: browser-viewable SVG previews generated from all supplied DXFs
+PASS: real project automatically replaces Structure Demo in published output
+PASS: first real project automatically becomes featured
+PASS: final raw-project generated output validation
+PASS: ZIP integrity test
 
-Property publication note:
-- Chief Architect Premier is not required for this publication because the supplied package already includes a browser-ready HTML walkthrough, GLB model, and DXF drawings.
-- The OBJ source is preserved but is not used by the browser website.
+Version 3.2 one-folder contract:
+- Upload one extracted property folder into content/projects/.
+- Add cover.webp to that folder for the public card image.
+- Keep the original README, walkthrough HTML, GLB, DXF, OBJ, and filenames.
+- project.toml is optional and reserved for advanced overrides.
+- ZIP files are not unpacked by the site and should not be uploaded as the project itself.

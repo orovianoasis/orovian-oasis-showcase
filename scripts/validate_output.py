@@ -19,21 +19,28 @@ for project in catalog.get("projects",[]):
         if not p.exists() or p.stat().st_size==0: errors.append(f"{project.get('slug')}: missing {required}")
     if project.get("tour",{}).get("enabled"):
         tour=folder/"tour"
-        for required in ("viewer.html","house.glb","collision.json","manifest.json"):
+        for required in ("viewer.html","collision.json","manifest.json"):
             target=tour/required
             if not target.exists() or target.stat().st_size==0: errors.append(f"{project.get('slug')}: enabled tour missing or empty {required}")
+        manifest={}
         for name in ("collision.json","manifest.json"):
             target=tour/name
             if target.exists():
-                try: json.loads(target.read_text(encoding="utf-8"))
+                try:
+                    parsed=json.loads(target.read_text(encoding="utf-8"))
+                    if name=="manifest.json": manifest=parsed
                 except Exception as exc: errors.append(f"{project.get('slug')}: invalid {name}: {exc}")
-        glb=tour/"house.glb"
-        if glb.exists():
-            header=glb.read_bytes()[:12]
-            if len(header)!=12: errors.append(f"{project.get('slug')}: truncated GLB")
+        model_name=str(manifest.get("model", "house.glb") or "").strip()
+        if model_name:
+            glb=tour/model_name
+            if not glb.exists() or glb.stat().st_size==0:
+                errors.append(f"{project.get('slug')}: enabled tour missing or empty {model_name}")
             else:
-                magic,version,declared=struct.unpack("<III",header)
-                if magic!=0x46546C67 or version!=2 or declared!=glb.stat().st_size: errors.append(f"{project.get('slug')}: invalid GLB 2.0 header")
+                header=glb.read_bytes()[:12]
+                if len(header)!=12: errors.append(f"{project.get('slug')}: truncated GLB")
+                else:
+                    magic,version,declared=struct.unpack("<III",header)
+                    if magic!=0x46546C67 or version!=2 or declared!=glb.stat().st_size: errors.append(f"{project.get('slug')}: invalid GLB 2.0 header")
 if errors:
     print("\n".join("ERROR: "+x for x in errors)); raise SystemExit(1)
 print(f"Output validation passed for {len(catalog.get('projects',[]))} project(s).")
