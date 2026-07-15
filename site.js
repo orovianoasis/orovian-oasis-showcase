@@ -1,0 +1,97 @@
+<!--
+OROVIAN OASIS SHOWCASE — HOMEPAGE SOURCE
+Edit this file for homepage sections. Shared chrome lives in _layout.html.
+Motion is progressive enhancement from js/dynamics.js; the page remains functional without it.
+-->
+<section class="hero showcase-hero">
+  <div class="hero-art buildscape" data-buildscape aria-hidden="true">
+    <span class="orbit orbit-a"></span><span class="orbit orbit-b"></span>
+
+    <svg class="build-shape shape-house" data-build-depth="0.30" viewBox="0 0 260 190">
+      <path d="M22 150V82l106-60 109 60v68M49 150V98h64v52M142 150V87h67v63M22 150h215M113 98l15-9 14 8M164 111h24v24h-24z"/>
+      <path class="accent" d="M13 163h234M128 22v67"/>
+    </svg>
+
+    <svg class="build-shape shape-crane" data-build-depth="0.48" viewBox="0 0 230 210">
+      <path d="M55 190V35h23v155M31 35h166M78 56h99M128 35l-29 21M184 35v69M171 104h26l-7 19h-12zM42 190h50"/>
+      <path class="accent" d="M55 82h23M55 119h23M55 156h23"/>
+    </svg>
+
+    <svg class="build-shape shape-plan" data-build-depth="0.22" viewBox="0 0 260 190">
+      <path d="M18 20h224v150H18zM82 20v58H18M82 78h63v92M145 78h97M196 78v43h46M18 124h64M51 124v46M145 132h51M170 132v38"/>
+      <path class="accent" d="M91 96h35M34 39h31M209 96v15"/>
+    </svg>
+
+    <svg class="build-shape shape-tower" data-build-depth="0.38" viewBox="0 0 210 230">
+      <path d="M31 210V93h60v117M91 210V38h84v172M52 116h19M52 142h19M52 168h19M112 67h42M112 96h42M112 125h42M112 154h42M112 183h42M18 210h176"/>
+      <path class="accent" d="M106 38h54M48 93h28"/>
+    </svg>
+
+    <span class="build-datum datum-a"></span>
+    <span class="build-datum datum-b"></span>
+    <span class="trace-light trace-light-a"></span>
+    <span class="trace-light trace-light-b"></span>
+    <span class="trace-light trace-light-c"></span>
+  </div>
+
+  <div class="shell hero-shell" data-reveal>
+    <div class="eyebrow">🏗️ Orovian Oasis Development Showcase</div>
+    <h1><span>Plans built beyond paper</span><em>Walk the vision before it rises.</em></h1>
+    <p>Explore original home concepts, coordinated floor plans, transformations, and market-ready properties—built to be understood before the first wall goes up.</p>
+    <div class="actions hero-actions">
+      <a class="button primary" href="concept-homes/">🏗️ Explore Concept Homes</a>
+      <a class="button" href="transformations/">🛠️ View Transformations</a>
+      <a class="button" href="properties/">🏡 Browse Properties</a>
+    </div>
+  </div>
+</section>
+
+<section class="section featured-section">
+  <div class="shell">
+    <header class="section-heading center" data-reveal>
+      <div class="eyebrow">✨ Selected development work</div>
+      <h2>Featured Projects</h2>
+      <p>Current concepts and properties pulled directly from the project control panels.</p>
+    </header>
+    {{PROJECT_GRID}}
+  </div>
+</section>
+
+<section class="section lanes-section">
+  <div class="shell">
+    <header class="section-heading center" data-reveal>
+      <div class="eyebrow">🧭 Explore by project type</div>
+      <h2>Build it. Rework it. Move it.</h2>
+      <p>Concept designs, rehab stories, and active real estate—each with plans, visuals, and the details that matter.</p>
+    </header>
+    <div class="grid lane-grid">
+      <article class="panel lane-card lane-design" data-reveal data-tilt>
+        <div class="lane-number">1</div><div class="lane-icon" aria-hidden="true">🏗️</div>
+        <div class="eyebrow">Design</div><h3>Concept Homes</h3>
+        <p class="muted">Original architecture, 3D walkthroughs, floor plans, materials, licensing, and customization paths.</p>
+        <a class="button" href="concept-homes/">🏗️ View Concept Homes</a>
+      </article>
+      <article class="panel lane-card lane-rehab" data-reveal data-tilt>
+        <div class="lane-number">2</div><div class="lane-icon" aria-hidden="true">🛠️</div>
+        <div class="eyebrow">Rehab</div><h3>Transformations</h3>
+        <p class="muted">Fix-and-flip stories, before-and-after comparisons, redesigned plans, scopes, and outcomes.</p>
+        <a class="button" href="transformations/">🛠️ View Transformations</a>
+      </article>
+      <article class="panel lane-card lane-realty" data-reveal data-tilt>
+        <div class="lane-number">3</div><div class="lane-icon" aria-hidden="true">🏡</div>
+        <div class="eyebrow">Real Estate</div><h3>Properties</h3>
+        <p class="muted">Physical listings, galleries, floor plans, virtual tours, availability, and buyer-facing actions.</p>
+        <a class="button" href="properties/">🏡 View Properties</a>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="section intake-ribbon">
+  <div class="shell">
+    <div class="ribbon-panel" data-reveal>
+      <div><div class="eyebrow">🏚️ Property with potential?</div><h2>Let’s turn the address into its strongest next move.</h2></div>
+      <a class="button primary" href="https://orovianoasis.com" target="_blank" rel="noopener">📋 Open Property Intake <span aria-hidden="true">↗</span></a>
+    </div>
+  </div>
+</section>

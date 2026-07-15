@@ -1,17 +1,10 @@
-OROVIAN OASIS SHOWCASE REPOSITORY STARTER v1.2
-
-This package replaces v1.1.
-
-Major source-layout change:
-- All editable website HTML, CSS, and JavaScript now live under website/.
-- assets/ remains reserved for visual media.
-- content/ remains the control center for prices, status, metadata, links, and project records.
-- dist/ remains generated output and is intentionally excluded from Git.
-
-Run tools/Preview_Local.bat to build and view the finished website.
-
-Starter package revision: 1.3 (organized documentation layout).
-
-Visual redesign 2.2 adds an optional progressive-enhancement dynamics layer while preserving the data-driven build and static fallback.
-
-Revision 2.2 separates mobile presentation and behavior from desktop.
+<!-- OROVIAN OASIS SHOWCASE — CATEGORY LISTING PAGE SOURCE -->
+<section class="hero listing-hero listing-{{LISTING_SLUG}}"><div class="shell hero-shell" data-reveal>
+  <div class="eyebrow">{{EYEBROW}}</div><h1>{{HEADING}}</h1><p>{{INTRO}}</p>
+  <div class="listing-pulse" aria-hidden="true"><span></span><span></span><span></span></div>
+</div></section>
+<section class="section listing-catalog"><div class="shell">
+  {{FILTER_BAR}}
+  <div class="listing-results" data-project-results>{{PROJECT_GRID}}</div>
+  <div class="empty filter-empty" data-filter-empty hidden>🔎 No projects match those filters yet. Try widening the search.</div>
+</div></section>
