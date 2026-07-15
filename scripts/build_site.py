@@ -72,6 +72,78 @@ def facts_html(project):
     return "".join(bits)
 
 
+def media_gallery(project):
+    media = project.get("media", {})
+    raw_gallery = media.get("gallery", [])
+    if isinstance(raw_gallery, str):
+        raw_gallery = [raw_gallery]
+    gallery = []
+    for value in raw_gallery or []:
+        value = str(value or "").strip()
+        if value and value not in gallery:
+            gallery.append(value)
+    for fallback in (media.get("cover"), media.get("card")):
+        fallback = str(fallback or "").strip()
+        if fallback and fallback not in gallery:
+            gallery.append(fallback)
+    return gallery or ["assets/cover.svg"]
+
+
+def carousel_settings(project, site):
+    settings = project.get("carousel", {})
+    autoplay = settings.get("autoplay", site.get("project_carousel_autoplay", True))
+    interval = settings.get("interval_ms", site.get("project_carousel_interval_ms", 5000))
+    try:
+        interval = max(2000, int(interval))
+    except (TypeError, ValueError):
+        interval = 5000
+    return bool(autoplay), interval
+
+
+def _cover_label(path):
+    stem = Path(str(path)).stem
+    cleaned = re.sub(r"(?i)^project[-_ ]?cover[-_ ]?", "", stem)
+    cleaned = re.sub(r"(?i)^cover[-_ ]?", "", cleaned)
+    cleaned = re.sub(r"[-_]+", " ", cleaned).strip()
+    return cleaned.title() if cleaned else "Exterior view"
+
+
+def project_carousel_html(project, site, project_base="", link_url="", mode="hero"):
+    ident = project.get("identity", {})
+    title = ident.get("title", "Project")
+    gallery = media_gallery(project)
+    autoplay, interval = carousel_settings(project, site)
+    slides = []
+    dots = []
+    for index, relative in enumerate(gallery):
+        image_url = f"{project_base}{relative}"
+        label = _cover_label(relative)
+        active = " is-active" if index == 0 else ""
+        loading = "eager" if index == 0 else "lazy"
+        hidden = "false" if index == 0 else "true"
+        current = "true" if index == 0 else "false"
+        image = f'<img src="{esc(image_url)}" alt="{esc(title)} — {esc(label)}" loading="{loading}">'
+        if link_url:
+            slide_content = f'<a class="carousel-slide{active}" href="{esc(link_url)}" data-carousel-slide aria-hidden="{hidden}">{image}</a>'
+        else:
+            slide_content = f'<div class="carousel-slide{active}" data-carousel-slide aria-hidden="{hidden}">{image}</div>'
+        slides.append(slide_content)
+        dots.append(f'<button type="button" class="carousel-dot{active}" data-carousel-dot data-index="{index}" aria-label="Show {esc(label)}" aria-current="{current}"></button>')
+    multi = len(gallery) > 1
+    controls = ""
+    if multi:
+        controls = (
+            '<button type="button" class="carousel-arrow carousel-prev" data-carousel-prev aria-label="Previous image">‹</button>'
+            '<button type="button" class="carousel-arrow carousel-next" data-carousel-next aria-label="Next image">›</button>'
+            f'<div class="carousel-dots" aria-label="Choose project image">{"".join(dots)}</div>'
+        )
+    return (
+        f'<div class="project-carousel {esc(mode)}-carousel{" has-multiple" if multi else ""}" data-carousel '
+        f'data-autoplay="{"true" if autoplay and multi else "false"}" data-interval="{interval}" aria-label="{esc(title)} image gallery">'
+        f'<div class="carousel-viewport">{"".join(slides)}</div>{controls}</div>'
+    )
+
+
 def project_filter_values(project):
     facts = project.get("facts", {})
     full_baths = _number(facts.get("full_bathrooms"))
@@ -116,21 +188,20 @@ def filter_bar_html(projects, category):
         "property": "properties",
     }.get(category, "projects")
     project_word = "project" if len(projects) == 1 else "projects"
-    return f'''<section class="project-filter-panel" data-project-filters aria-label="Filter {esc(category_label)}">
-  <div class="filter-heading">
-    <div><div class="eyebrow">🎛️ Find your fit</div><h2>Filter {esc(category_label)}</h2></div>
-    <output class="filter-count" data-filter-count>{len(projects)} {project_word}</output>
+    return f'''<details class="project-filter-menu" data-project-filters>
+  <summary class="filter-menu-trigger" aria-label="Open filters for {esc(category_label)}">
+    <span>🎛️ Filters</span><output class="filter-count" data-filter-count>{len(projects)} {project_word}</output><span class="filter-chevron" aria-hidden="true">⌄</span>
+  </summary>
+  <div class="filter-menu-panel" aria-label="Filter {esc(category_label)}">
+    <label class="filter-row filter-tone-mint"><span>🔎 Search</span><input type="search" data-filter="query" placeholder="Name or location"></label>
+    <label class="filter-row filter-tone-coral"><span>📐 Square footage</span><select data-filter="square-feet"><option value="">Any size</option><option value="under-2000">Under 2,000</option><option value="2000-3999">2,000–3,999</option><option value="4000-5999">4,000–5,999</option><option value="6000-plus">6,000+</option></select></label>
+    <label class="filter-row filter-tone-violet"><span>🛏️ Bedrooms</span><select data-filter="bedrooms"><option value="">Any beds</option><option value="1">1+</option><option value="2">2+</option><option value="3">3+</option><option value="4">4+</option><option value="5">5+</option></select></label>
+    <label class="filter-row filter-tone-gold"><span>🛁 Bathrooms</span><select data-filter="bathrooms"><option value="">Any baths</option><option value="1">1+</option><option value="2">2+</option><option value="3">3+</option><option value="4">4+</option><option value="5">5+</option></select></label>
+    <label class="filter-row filter-tone-blue"><span>🚗 Garage</span><select data-filter="garage"><option value="">Any garage</option><option value="1">1+ car</option><option value="2">2+ car</option><option value="3">3+ car</option><option value="4">4+ car</option></select></label>
+    <label class="filter-row filter-tone-rose"><span>🏢 Stories</span><select data-filter="stories"><option value="">Any stories</option><option value="1">1 story</option><option value="2">2 stories</option><option value="3">3+ stories</option></select></label>
+    <button class="filter-reset" type="button" data-filter-reset>↺ Reset</button>
   </div>
-  <div class="filter-pills">
-    <label class="filter-pill filter-tone-mint"><span>🔎 Search</span><input type="search" data-filter="query" placeholder="Name or location"></label>
-    <label class="filter-pill filter-tone-coral"><span>📐 Square footage</span><select data-filter="square-feet"><option value="">Any size</option><option value="under-2000">Under 2,000</option><option value="2000-3999">2,000–3,999</option><option value="4000-5999">4,000–5,999</option><option value="6000-plus">6,000+</option></select></label>
-    <label class="filter-pill filter-tone-violet"><span>🛏️ Bedrooms</span><select data-filter="bedrooms"><option value="">Any beds</option><option value="1">1+</option><option value="2">2+</option><option value="3">3+</option><option value="4">4+</option><option value="5">5+</option></select></label>
-    <label class="filter-pill filter-tone-gold"><span>🛁 Bathrooms</span><select data-filter="bathrooms"><option value="">Any baths</option><option value="1">1+</option><option value="2">2+</option><option value="3">3+</option><option value="4">4+</option><option value="5">5+</option></select></label>
-    <label class="filter-pill filter-tone-blue"><span>🚗 Garage</span><select data-filter="garage"><option value="">Any garage</option><option value="1">1+ car</option><option value="2">2+ car</option><option value="3">3+ car</option><option value="4">4+ car</option></select></label>
-    <label class="filter-pill filter-tone-rose"><span>🏢 Stories</span><select data-filter="stories"><option value="">Any stories</option><option value="1">1 story</option><option value="2">2 stories</option><option value="3">3+ stories</option></select></label>
-  </div>
-  <button class="filter-reset" type="button" data-filter-reset>↺ Reset filters</button>
-</section>'''
+</details>'''
 
 
 def relative_root(depth):
@@ -289,6 +360,10 @@ def load_projects(strict=True):
                 for field in ("cover","card","share"):
                     rel=media.get(field,"")
                     if rel and not (folder/rel).is_file(): errors.append(f"{folder.name}: media.{field} not found: {rel}")
+                gallery = media.get("gallery", [])
+                if isinstance(gallery, str): gallery = [gallery]
+                for rel in gallery:
+                    if rel and not (folder/rel).is_file(): errors.append(f"{folder.name}: media.gallery item not found: {rel}")
                 for item in p.get("floor_plans",[]):
                     for field in ("image","pdf","dxf"):
                         rel=item.get(field,"")
@@ -314,15 +389,15 @@ def load_projects(strict=True):
 
 def card_html(project, site, root_prefix=""):
     category=CATEGORY_PATHS[project["category"]]
-    ident=project.get("identity",{}); media=project.get("media",{})
+    ident=project.get("identity",{})
     url=f'{root_prefix}{category}/{project["slug"]}/'
-    image=f'{root_prefix}{category}/{project["slug"]}/{media.get("card") or media.get("cover") or "assets/placeholders/project-card.svg"}'
     values = project_filter_values(project)
     search_text = " ".join(str(value or "") for value in (ident.get("title"), ident.get("location"), ident.get("summary"), project.get("status_label"), project.get("status"))).lower()
+    carousel = project_carousel_html(project, site, project_base=url, link_url=url, mode="card")
     return f'''<article class="card project-card" data-project-card data-reveal data-tilt
  data-search="{esc(search_text)}" data-square-feet="{values['square_feet']}" data-bedrooms="{values['bedrooms']}"
  data-bathrooms="{values['bathrooms']}" data-garage="{values['garage']}" data-stories="{values['stories']}"
- data-status="{esc(project.get('status', ''))}"><a class="card-media" href="{esc(url)}"><img src="{esc(image)}" alt="{esc(ident.get("title"))}"><span class="media-sheen" aria-hidden="true"></span></a><div class="card-body">
+ data-status="{esc(project.get('status', ''))}">{carousel}<div class="card-body">
 <span class="badge">{esc(project.get("status_label", project.get("status", "")))}</span><h3>{esc(ident.get("title"))}</h3>
 <p class="muted">📍 {esc(ident.get("location"))}</p><p>{esc(ident.get("summary"))}</p><div class="facts">{facts_html(project)}</div>
 {price_block_html(project, site, url)}<div class="actions"><a class="button primary" href="{esc(url)}">👁️ View Project</a></div></div></article>'''
@@ -481,12 +556,14 @@ def build(args):
         explore=[]
         if floor_plans and site.get("show_floor_plans",True): explore.append('<a class="button primary" href="floor-plans/">📐 View Floor Plans</a>')
         if tour.get("enabled"): explore.append(f'<a class="button" href="{esc(tour.get("path","tour/"))}"{" target=\"_blank\" rel=\"noopener\"" if tour.get("open_new_tab") else ""}>🎮 {esc(tour.get("label","Launch 3D Walkthrough"))}</a>')
+        explore_content=''.join(explore) or '<span class="muted">Additional project media is being prepared.</span>'
+        explore_section=f'<div class="panel project-explore-panel" data-reveal><div class="panel-kicker">🧭 Explore the build</div><h2>📐 Plans &amp; 3D Tour</h2><div class="actions centered-actions">{explore_content}</div></div>'
         body=project_template
         replacements={
             "{{CATEGORY_LABEL}}":CATEGORY_LABELS[p["category"]],"{{PROJECT_TITLE}}":esc(ident.get("title")),"{{PROJECT_SUBTITLE}}":esc(ident.get("subtitle")),
-            "{{COVER_URL}}":esc(media.get("cover","assets/cover.svg")),"{{SUMMARY}}":esc(ident.get("summary")),"{{FACTS}}":facts_html(p),
+            "{{PROJECT_CAROUSEL}}":project_carousel_html(p,site,project_base="",mode="hero"),"{{SUMMARY}}":esc(ident.get("summary")),"{{FACTS}}":facts_html(p),
             "{{STATUS_LABEL}}":esc(p.get("status_label",p.get("status",""))),"{{PRICE_BLOCK}}":price_block_html(p,site,project_url,project_page=True),"{{CTA_BUTTONS}}":cta_buttons(p,site,project_url),
-            "{{EXPLORE_BUTTONS}}":''.join(explore) or '<span class="muted">Additional project media is being prepared.</span>',
+            "{{EXPLORE_SECTION}}":explore_section,
             "{{SPECIAL_SECTION}}":special_section(p),"{{MATERIALS_SECTION}}":materials_section(p,site),"{{DELIVERABLES_SECTION}}":deliverables_section(p,site)}
         for k,v in replacements.items(): body=body.replace(k,v)
         title=p.get("seo",{}).get("title") or f"{ident.get('title')} | {site['site_name']}"

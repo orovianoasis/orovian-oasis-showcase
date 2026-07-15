@@ -117,10 +117,33 @@ def discover_raw_files(raw_root: Path) -> dict[str, Any]:
     readmes = [p for p in files if p.name.lower() in {"readme.txt", "readme.md"}]
     covers = [
         p for p in files
-        if p.suffix.lower() in IMAGE_SUFFIXES and p.stem.lower() in {"cover", "project-cover", "hero", "featured"}
+        if p.suffix.lower() in IMAGE_SUFFIXES
+        and (
+            p.stem.lower() in {"cover", "project-cover", "hero", "featured"}
+            or p.stem.lower().startswith("cover-")
+            or p.stem.lower().startswith("cover_")
+            or p.stem.lower().startswith("cover ")
+            or p.stem.lower().startswith("project-cover-")
+            or p.stem.lower().startswith("project_cover_")
+            or p.stem.lower().startswith("project cover ")
+        )
     ]
     if not covers:
         covers = [p for p in files if p.suffix.lower() in IMAGE_SUFFIXES and "cover" in p.stem.lower()]
+
+    def cover_sort_key(path: Path) -> tuple[int, int, str]:
+        stem = slugify(path.stem)
+        if stem in {"cover", "project-cover", "hero", "featured"}:
+            priority = 0
+        elif "front" in stem:
+            priority = 1
+        elif "back" in stem or "rear" in stem:
+            priority = 2
+        else:
+            priority = 3
+        return priority, len(path.relative_to(raw_root).parts), path.name.lower()
+
+    covers = sorted(covers, key=cover_sort_key)
     viewers = [p for p in files if p.suffix.lower() == ".html"]
     glbs = [p for p in files if p.suffix.lower() == ".glb"]
     dxfs = sorted([p for p in files if p.suffix.lower() == ".dxf"], key=lambda p: p.name.lower())
@@ -137,7 +160,7 @@ def discover_raw_files(raw_root: Path) -> dict[str, Any]:
 
     viewer = max(viewers, key=viewer_score) if viewers else None
     glb = max(glbs, key=glb_score) if glbs else None
-    cover = min(covers, key=lambda p: (len(p.relative_to(raw_root).parts), p.name.lower())) if covers else None
+    cover = covers[0] if covers else None
     readme = min(readmes, key=lambda p: (len(p.relative_to(raw_root).parts), p.name.lower())) if readmes else None
     collision = next((p for p in files if p.name.lower() == "collision.json"), None)
 
@@ -145,6 +168,7 @@ def discover_raw_files(raw_root: Path) -> dict[str, Any]:
         "all": files,
         "readme": readme,
         "cover": cover,
+        "covers": covers,
         "viewer": viewer,
         "glb": glb,
         "dxfs": dxfs,
@@ -294,13 +318,42 @@ def _floor_level(path: Path, project_slug: str) -> str:
 def inspect_raw_project(project_folder: Path) -> tuple[Path, dict[str, Any], list[str]]:
     raw_root = find_raw_root(project_folder)
     files = discover_raw_files(raw_root)
-    if not files["cover"] and raw_root != project_folder:
+    if raw_root != project_folder:
         outer_covers = [
             path for path in project_folder.iterdir()
-            if path.is_file() and path.suffix.lower() in IMAGE_SUFFIXES and path.stem.lower() in {"cover", "project-cover", "hero", "featured"}
+            if path.is_file()
+            and path.suffix.lower() in IMAGE_SUFFIXES
+            and (
+                path.stem.lower() in {"cover", "project-cover", "hero", "featured"}
+                or path.stem.lower().startswith("cover-")
+                or path.stem.lower().startswith("cover_")
+                or path.stem.lower().startswith("cover ")
+                or path.stem.lower().startswith("project-cover-")
+                or path.stem.lower().startswith("project_cover_")
+                or path.stem.lower().startswith("project cover ")
+            )
         ]
         if outer_covers:
-            files["cover"] = sorted(outer_covers, key=lambda path: path.name.lower())[0]
+            def outer_cover_key(path: Path) -> tuple[int, str]:
+                stem = slugify(path.stem)
+                if stem in {"cover", "project-cover", "hero", "featured"}:
+                    priority = 0
+                elif "front" in stem:
+                    priority = 1
+                elif "back" in stem or "rear" in stem:
+                    priority = 2
+                else:
+                    priority = 3
+                return priority, path.name.lower()
+            outer_covers = sorted(outer_covers, key=outer_cover_key)
+            existing = list(files.get("covers", []))
+            seen = {path.resolve() for path in existing}
+            for path in outer_covers:
+                if path.resolve() not in seen:
+                    existing.append(path)
+                    seen.add(path.resolve())
+            files["covers"] = existing
+            files["cover"] = existing[0]
     warnings: list[str] = []
     if not files["viewer"]:
         raise RawProjectError("is missing the walkthrough HTML file")
@@ -310,7 +363,7 @@ def inspect_raw_project(project_folder: Path) -> tuple[Path, dict[str, Any], lis
             raise RawProjectError("is missing a GLB model and the HTML does not appear self-contained")
         warnings.append("no GLB found; using the self-contained walkthrough HTML")
     if not files["cover"]:
-        warnings.append("cover.webp not found; a generated placeholder will be used")
+        warnings.append("cover image not found; a generated placeholder will be used")
     if not files["dxfs"]:
         warnings.append("no DXF floor plans found")
     return raw_root, files, warnings
@@ -324,9 +377,28 @@ def auto_project_from_folder(project_folder: Path) -> tuple[dict[str, Any], list
     combined_text = "\n".join((readme_text, title, summary))
     slug = slugify(raw_root.name)
     category = infer_category(combined_text)
+    covers = list(files.get("covers", []))
     cover = files["cover"]
-    media_suffix = cover.suffix.lower() if cover else ".svg"
-    media_path = f"assets/cover{media_suffix}"
+    if cover and cover not in covers:
+        covers.insert(0, cover)
+
+    gallery_paths: list[str] = []
+    used_names: set[str] = set()
+    for index, source in enumerate(covers, start=1):
+        base = slugify(source.stem)
+        if base in {"project-cover", "hero", "featured"}:
+            base = "cover"
+        if not base.startswith("cover"):
+            base = f"cover-{base}"
+        candidate = base
+        suffix_number = 2
+        while candidate in used_names:
+            candidate = f"{base}-{suffix_number}"
+            suffix_number += 1
+        used_names.add(candidate)
+        gallery_paths.append(f"assets/{candidate}{source.suffix.lower()}")
+
+    media_path = gallery_paths[0] if gallery_paths else "assets/cover.svg"
 
     floor_plans = []
     for dxf in files["dxfs"]:
@@ -369,7 +441,7 @@ def auto_project_from_folder(project_folder: Path) -> tuple[dict[str, Any], list
             "inquiry_label": "Request Details",
         },
         "facts": infer_facts(combined_text),
-        "media": {"cover": media_path, "card": media_path, "share": media_path},
+        "media": {"cover": media_path, "card": media_path, "share": media_path, "gallery": gallery_paths},
         "tour": {
             "enabled": bool(files["viewer"]),
             "label": "Launch 3D Walkthrough",
@@ -394,6 +466,8 @@ def auto_project_from_folder(project_folder: Path) -> tuple[dict[str, Any], list
         "_project_folder": project_folder,
         "_raw": True,
         "_raw_files": files,
+        "_raw_cover_sources": covers,
+        "_raw_cover_paths": gallery_paths,
         "_raw_warnings": warnings,
     }
     return project, warnings
@@ -556,7 +630,14 @@ def stage_raw_project(project: dict[str, Any], destination: Path) -> None:
     assets_dir = destination / "assets"
     assets_dir.mkdir(parents=True, exist_ok=True)
     cover: Path | None = files.get("cover")
-    if cover:
+    cover_sources: list[Path] = list(project.get("_raw_cover_sources", []))
+    cover_paths: list[str] = list(project.get("_raw_cover_paths", []))
+    if cover_sources and cover_paths:
+        for source, relative_path in zip(cover_sources, cover_paths):
+            target = destination / relative_path
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(source, target)
+    elif cover:
         shutil.copy2(cover, assets_dir / f"cover{cover.suffix.lower()}")
     else:
         _write_cover_placeholder(assets_dir / "cover.svg", title)
@@ -572,9 +653,11 @@ def stage_raw_project(project: dict[str, Any], destination: Path) -> None:
 
     tour_dir = destination / "tour"
     tour_dir.mkdir(parents=True, exist_ok=True)
-    cover_resolved = cover.resolve() if cover else None
+    cover_resolved = {source.resolve() for source in cover_sources}
+    if cover and not cover_resolved:
+        cover_resolved.add(cover.resolve())
     for source in files["all"]:
-        if cover_resolved and source.resolve() == cover_resolved:
+        if source.resolve() in cover_resolved:
             continue
         if source.suffix.lower() in IGNORED_TOUR_SUFFIXES:
             continue
