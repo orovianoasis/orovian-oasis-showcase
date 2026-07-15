@@ -417,3 +417,12 @@ html,body{max-width:100%;overflow-x:clip}
   text-wrap:balance;
 }
 .listing-hero + .section .empty{width:100%;margin-inline:auto}
+
+
+/* ==========================================================
+   OROVIAN OASIS 2.9 — ABOUT BADGE + OPEN CONTACT COPY
+   Scoped intentionally so no other logo badge is affected.
+   ========================================================== */
+.about-modal-card .contact-modal-logo .logo-orbit-disc{
+  background:#08070a;
+}
