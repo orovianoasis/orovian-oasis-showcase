@@ -21,6 +21,10 @@ show_contact_cta = true
 # Homepage automatically shows up to this many projects. Explicit featured projects appear first.
 homepage_featured_limit = 3
 
+# Project cover galleries. Set autoplay to false for a fully manual/static carousel.
+project_carousel_autoplay = true
+project_carousel_interval_ms = 5000
+
 [contact]
 # Add the real public contact details below. The quick-contact popup and contact form use these values.
 phone_display = ""

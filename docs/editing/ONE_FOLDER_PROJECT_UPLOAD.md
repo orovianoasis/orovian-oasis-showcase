@@ -4,11 +4,12 @@ The default workflow does **not** require `project.toml`.
 
 ## What to upload
 
-Extract the property package and add one `cover.webp` image to the same folder as the exported files.
+Extract the property package and add one or more WebP cover images to the same folder as the exported files. Use `cover-front.webp` and `cover-back.webp` for the normal front/rear slideshow. Additional files such as `cover-03.webp` are also detected.
 
 ```text
 luxury_custom_home/
-├── cover.webp
+├── cover-front.webp
+├── cover-back.webp
 ├── Luxury_Custom_Home_Ground_Floor.dxf
 ├── Luxury_Custom_Home_Upper_Floor.dxf
 ├── Luxury_Custom_Home_Drawing_Index.dxf
@@ -36,7 +37,8 @@ During the GitHub Actions build, the importer:
 - Copies all required walkthrough support files while excluding source-only OBJ, PLAN, DWG, and ZIP files from the public tour.
 - Generates `viewer.html`, `house.glb`, `collision.json`, and `manifest.json` in the published output.
 - Detects every DXF file, creates a browser-viewable SVG preview, and keeps the original DXF as a download.
-- Uses `cover.webp` for the homepage card, project page, and sharing image.
+- Detects every image whose filename begins with `cover` and creates the homepage-card and project-page carousel. With only one cover, it behaves as a static image.
+- Uses `project_carousel_autoplay` and `project_carousel_interval_ms` from `content/site.toml` for global slideshow behavior.
 - Publishes the property automatically.
 - Hides the Structure Demo after the first real property is detected.
 - Features the first real property automatically when no project has been explicitly featured.
@@ -54,3 +56,14 @@ The importer reads the folder and README text:
 A manually organized project containing `project.toml` still works exactly as before. Use it only when you need precise control over price, status, category, checkout links, licensing text, SEO, or featured placement.
 
 The simple one-folder workflow and advanced `project.toml` workflow can exist together in the same repository.
+
+## Autoplay or manual/static mode
+
+The default rotates every five seconds and still supports arrows, dots, mouse clicks, and touch swipes. In `content/site.toml`:
+
+```toml
+project_carousel_autoplay = true
+project_carousel_interval_ms = 5000
+```
+
+Change autoplay to `false` to keep every carousel manual/static while preserving its arrows and swipe controls. Advanced `project.toml` projects can override this with a `[carousel]` section.

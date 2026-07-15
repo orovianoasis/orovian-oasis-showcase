@@ -3,15 +3,15 @@
   <div class="eyebrow">{{CATEGORY_LABEL}}</div>
   <h1>{{PROJECT_TITLE}}</h1>
   <p class="project-subtitle">{{PROJECT_SUBTITLE}}</p>
-  <div class="project-cover-wrap" data-tilt-soft><img class="project-cover" src="{{COVER_URL}}" alt="{{PROJECT_TITLE}}"><span class="cover-glow" aria-hidden="true"></span></div>
+  <div class="project-cover-wrap" data-tilt-soft>{{PROJECT_CAROUSEL}}<span class="cover-glow" aria-hidden="true"></span></div>
 </div></section>
-<section class="section"><div class="shell two-col">
+<section class="section"><div class="shell two-col project-layout">
   <article class="project-stack">
-    <div class="panel" data-reveal><div class="panel-kicker">📐 The blueprint</div><h2>🏠 Overview</h2><p>{{SUMMARY}}</p><div class="facts">{{FACTS}}</div></div>
+    <div class="panel project-overview-panel" data-reveal><div class="panel-kicker">📐 The blueprint</div><h2>🏠 Overview</h2><p>{{SUMMARY}}</p><div class="facts">{{FACTS}}</div></div>
+    {{EXPLORE_SECTION}}
     {{SPECIAL_SECTION}}
     {{MATERIALS_SECTION}}
     {{DELIVERABLES_SECTION}}
   </article>
   <aside class="panel purchase-panel" data-reveal><span class="badge">{{STATUS_LABEL}}</span><div class="price-label">💰 Current offering</div>{{PRICE_BLOCK}}<div class="actions">{{CTA_BUTTONS}}</div><p class="small muted">Project information is public-facing presentation material and may change as the project develops.</p></aside>
 </div></section>
-<section class="section explore-section"><div class="shell center" data-reveal><div class="eyebrow">🧭 Keep exploring</div><h2>Plans, tour, and project details.</h2><div class="actions centered-actions">{{EXPLORE_BUTTONS}}</div></div></section>

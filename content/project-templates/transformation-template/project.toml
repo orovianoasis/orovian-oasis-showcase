@@ -42,6 +42,11 @@ lot_size = ""
 cover = "assets/cover.svg"
 card = "assets/card.svg"
 share = "assets/share.svg"
+gallery = ["assets/cover.svg"]
+
+[carousel]
+autoplay = true
+interval_ms = 5000
 
 [tour]
 enabled = false

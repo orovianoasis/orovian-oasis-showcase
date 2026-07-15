@@ -565,3 +565,55 @@ html,body{max-width:100%;overflow-x:clip}
 .listing-results>.grid{align-items:stretch}
 .project-card[hidden]{display:none!important}
 .filter-empty{margin-top:24px}
+
+/* ==========================================================
+   VISUAL SYSTEM 3.4 — COVER CAROUSELS, SLIM FILTERS, PROJECT FLOW
+   ========================================================== */
+.project-carousel{position:relative;overflow:hidden;isolation:isolate;touch-action:pan-y;background:#2c1c35}
+.carousel-viewport{position:relative;aspect-ratio:16/9;overflow:hidden}
+.carousel-slide{position:absolute;inset:0;display:block;opacity:0;pointer-events:none;transition:opacity .5s ease;z-index:1}
+.project-carousel:not(.carousel-ready) .carousel-slide:first-child,.project-carousel.carousel-ready .carousel-slide.is-active{opacity:1;pointer-events:auto;z-index:2}
+.carousel-slide img{display:block;width:100%;height:100%;object-fit:cover;object-position:center;background:#2c1c35}
+.carousel-arrow,.carousel-dots{display:none}
+.project-carousel.carousel-ready.has-multiple .carousel-arrow{position:absolute;z-index:5;top:50%;display:grid;place-items:center;width:46px;height:46px;margin-top:-23px;border:1px solid rgba(255,255,255,.34);border-radius:50%;background:rgba(18,10,25,.72);backdrop-filter:blur(10px);color:#fff;font:700 2rem/1 var(--sans);cursor:pointer;box-shadow:0 10px 28px rgba(0,0,0,.3);transition:transform .2s ease,background .2s ease,border-color .2s ease}
+.project-carousel.carousel-ready.has-multiple .carousel-arrow:hover,.project-carousel.carousel-ready.has-multiple .carousel-arrow:focus-visible{transform:scale(1.08);background:rgba(18,10,25,.9);border-color:var(--mint);outline:none}
+.carousel-prev{left:16px}.carousel-next{right:16px}
+.project-carousel.carousel-ready.has-multiple .carousel-dots{position:absolute;z-index:5;left:50%;bottom:14px;display:flex;align-items:center;justify-content:center;gap:7px;transform:translateX(-50%);padding:7px 10px;border-radius:999px;background:rgba(18,10,25,.58);backdrop-filter:blur(9px)}
+.carousel-dot{width:8px;height:8px;padding:0;border:0;border-radius:50%;background:rgba(255,255,255,.45);cursor:pointer;transition:width .2s ease,background .2s ease}
+.carousel-dot.is-active{width:22px;border-radius:999px;background:var(--mint)}
+.card-carousel{border-radius:calc(var(--radius) - 1px) calc(var(--radius) - 1px) 0 0}
+.card-carousel .carousel-viewport{aspect-ratio:16/9}
+.card-carousel .carousel-slide img{aspect-ratio:auto}
+.project-card:hover .card-carousel .carousel-slide.is-active img{transform:scale(1.045);filter:saturate(1.12)}
+.hero-carousel{border-radius:34px;border:1px solid rgba(255,248,238,.17);box-shadow:var(--shadow)}
+.hero-carousel .carousel-viewport{aspect-ratio:16/9}
+.project-cover-wrap{max-width:1080px}
+.project-cover-wrap .cover-glow{pointer-events:none}
+
+/* The category filter is now a small dropdown instead of a full content card. */
+.project-filter-menu{position:relative;z-index:20;width:min(520px,100%);margin:0 auto 20px}
+.filter-menu-trigger{display:flex;align-items:center;justify-content:center;gap:10px;min-height:44px;padding:8px 14px;border:1px solid rgba(112,240,202,.3);border-radius:999px;background:linear-gradient(135deg,rgba(58,33,69,.9),rgba(28,17,37,.94));box-shadow:0 12px 32px rgba(7,3,12,.2);color:var(--paper);font-weight:900;cursor:pointer;list-style:none;user-select:none}
+.filter-menu-trigger::-webkit-details-marker{display:none}
+.filter-menu-trigger:hover,.filter-menu-trigger:focus-visible{border-color:var(--mint);outline:none}
+.filter-menu-trigger .filter-count{padding:4px 8px;border-radius:999px;background:rgba(255,255,255,.08);color:var(--muted);font-size:.7rem;letter-spacing:.04em}
+.filter-chevron{transition:transform .2s ease;color:var(--mint)}
+.project-filter-menu[open] .filter-chevron{transform:rotate(180deg)}
+.filter-menu-panel{position:absolute;top:calc(100% + 8px);left:0;right:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:12px;border:1px solid rgba(255,248,238,.15);border-radius:20px;background:rgba(29,17,38,.97);box-shadow:0 28px 70px rgba(7,3,12,.55);backdrop-filter:blur(18px)}
+.filter-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(108px,.85fr);align-items:center;gap:8px;min-height:38px;padding:6px 8px;border:1px solid rgba(255,255,255,.1);border-radius:12px;background:rgba(255,255,255,.035)}
+.filter-row>span{font-size:.7rem;font-weight:900;letter-spacing:.02em;color:var(--paper-2)}
+.filter-row input,.filter-row select{width:100%;min-width:0;min-height:28px;padding:4px 7px;border:0;border-radius:8px;background:rgba(255,255,255,.08);color:var(--paper);font:inherit;font-size:.77rem;outline:none}
+.filter-row input::placeholder{color:rgba(255,255,255,.48)}
+.filter-row select{cursor:pointer}.filter-row select option{background:#24152e;color:var(--paper)}
+.filter-row:focus-within{border-color:currentColor}
+.filter-row.filter-tone-mint{color:var(--mint)}.filter-row.filter-tone-coral{color:var(--coral)}.filter-row.filter-tone-violet{color:#b9a7ff}.filter-row.filter-tone-gold{color:var(--sun)}.filter-row.filter-tone-blue{color:#7ac7ff}.filter-row.filter-tone-rose{color:#ff9ec8}
+.filter-menu-panel .filter-reset{grid-column:1/-1;justify-self:center;margin:2px 0 0;padding:6px 12px}
+
+/* Individual project pages are deliberately centered and put the strongest actions first. */
+body[data-page-kind="project"] .project-layout,body[data-page-kind="project"] .project-stack,body[data-page-kind="project"] .project-stack>.panel,body[data-page-kind="project"] .purchase-panel{text-align:center}
+body[data-page-kind="project"] .project-stack>.panel p,body[data-page-kind="project"] .purchase-panel p{max-width:760px;margin-left:auto;margin-right:auto}
+body[data-page-kind="project"] .project-stack .facts,body[data-page-kind="project"] .project-stack .actions,body[data-page-kind="project"] .purchase-panel .actions{justify-content:center}
+body[data-page-kind="project"] .project-stack .list{max-width:760px;margin-inline:auto}
+body[data-page-kind="project"] .project-stack .list li{text-align:center}
+.project-explore-panel{border-color:rgba(112,240,202,.3);background:linear-gradient(145deg,rgba(48,39,71,.82),rgba(28,18,38,.92))}
+.project-explore-panel .centered-actions{margin-top:18px}
+.project-explore-panel .button{min-width:210px}

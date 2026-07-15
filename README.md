@@ -10,13 +10,13 @@ Target domain: **showcase.orovianoasis.com**
 
 ## The main project-upload rule
 
-For the normal workflow, extract a completed property package, add `cover.webp`, and upload that **one folder** into:
+For the normal workflow, extract a completed property package, add `cover-front.webp` and `cover-back.webp` (or a single `cover.webp`), and upload that **one folder** into:
 
 ```text
 content/projects/
 ```
 
-`project.toml` is optional. The build automatically reads `README.txt`, detects the walkthrough HTML, GLB, and DXFs, generates the website connection files, creates browser previews, and publishes the property. Original long filenames and underscores are accepted; public URLs are converted to hyphens automatically.
+`project.toml` is optional. The build automatically reads `README.txt`, detects every image whose filename begins with `cover`, builds the project carousel, detects the walkthrough HTML, GLB, and DXFs, generates the website connection files, creates browser previews, and publishes the property. Original long filenames and underscores are accepted; public URLs are converted to hyphens automatically.
 
 Use `project.toml` only for advanced overrides such as exact pricing, checkout links, status, category, SEO, or licensing details.
 

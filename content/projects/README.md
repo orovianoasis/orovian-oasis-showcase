@@ -4,7 +4,8 @@ For the easiest workflow, upload **one extracted property folder** directly into
 
 ```text
 content/projects/luxury_custom_home/
-├── cover.webp
+├── cover-front.webp
+├── cover-back.webp
 ├── README.txt
 ├── ...Walkthrough....html
 ├── ...Model....glb
@@ -20,9 +21,9 @@ The GitHub Actions build automatically:
 - Connects the walkthrough HTML and GLB.
 - Generates the required tour metadata.
 - Creates visible SVG previews from the DXF drawings.
-- Uses `cover.webp` as the public project image.
+- Uses every `cover*.webp` image as a swipeable project slideshow. A single `cover.webp` still works.
 
-Do **not** upload the ZIP itself. Extract it first, add `cover.webp`, then drag the entire folder here.
+Do **not** upload the ZIP itself. Extract it first, add one or more `cover*.webp` images, then drag the entire folder here.
 
 Full instructions: `docs/editing/ONE_FOLDER_PROJECT_UPLOAD.md`
 
