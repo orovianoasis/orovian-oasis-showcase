@@ -345,3 +345,30 @@ body.contact-modal-open{overflow:hidden}
   margin:0;
   transform-origin:50% 50%;
 }
+
+
+/* ==========================================================
+   VISUAL SYSTEM 2.7 — CATEGORY PAGE WIDTH + TITLE SAFETY
+   Keeps long category names centered and fully visible.
+   ========================================================== */
+html,body{max-width:100%;overflow-x:clip}
+.listing-hero{overflow-x:clip}
+.listing-hero .hero-shell{min-width:0;width:min(1180px,calc(100% - 34px))}
+.listing-hero h1{
+  width:fit-content;
+  max-width:100%;
+  margin-inline:auto;
+  padding:.08em .14em .16em;
+  font-size:clamp(3.2rem,9.2vw,8.25rem);
+  line-height:.92;
+  letter-spacing:-.045em;
+  text-align:center;
+  overflow:visible;
+}
+.listing-hero p{
+  width:100%;
+  max-width:760px;
+  margin-inline:auto;
+  padding-inline:2px;
+  overflow-wrap:break-word;
+}

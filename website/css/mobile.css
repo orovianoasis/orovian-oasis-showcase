@@ -296,3 +296,61 @@ html.mobile-view .menu-popover{max-height:min(72svh,620px);overflow:auto;overscr
     bottom:8px;
   }
 }
+
+
+/* ==========================================================
+   MOBILE 2.7 — CATEGORY LISTING ALIGNMENT + OVERFLOW FIX
+   Long titles stay on-canvas and category pages remain one column.
+   ========================================================== */
+@media(max-width:880px){
+  html,body{width:100%;max-width:100%;overflow-x:clip}
+  .listing-hero{
+    min-height:auto;
+    padding-top:142px;
+    padding-bottom:42px;
+    overflow-x:clip;
+  }
+  .listing-hero .hero-shell{
+    width:calc(100% - (var(--mobile-edge) * 2));
+    max-width:none;
+    min-width:0;
+    margin-inline:auto;
+    text-align:center;
+  }
+  .listing-hero h1{
+    display:block;
+    width:100%;
+    max-width:100%;
+    margin:16px auto 18px;
+    padding:.08em .04em .15em;
+    font-size:clamp(2.55rem,11.8vw,5.2rem);
+    line-height:.96;
+    letter-spacing:-.045em;
+    white-space:normal;
+    overflow-wrap:normal;
+    word-break:normal;
+    text-align:center;
+  }
+  .listing-hero p{
+    width:100%;
+    max-width:680px;
+    margin-inline:auto;
+    padding-inline:0;
+    line-height:1.62;
+    text-align:center;
+    overflow-wrap:break-word;
+  }
+  .listing-hero + .section,
+  .listing-hero + .section .shell,
+  .listing-hero + .section .grid,
+  .listing-hero + .section .empty{
+    min-width:0;
+    max-width:100%;
+  }
+  .listing-hero + .section .grid{grid-template-columns:minmax(0,1fr)}
+}
+
+@media(max-width:380px){
+  .listing-hero h1{font-size:clamp(2.35rem,11.4vw,3.1rem)}
+  .listing-hero p{font-size:.94rem}
+}

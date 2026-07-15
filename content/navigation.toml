@@ -1,20 +1,20 @@
 [[items]]
-label = "Showcase"
+label = "✨ Showcase"
 url = "/"
 
 [[items]]
-label = "Concept Homes"
+label = "🏗️ Concept Homes"
 url = "/concept-homes/"
 
 [[items]]
-label = "Transformations"
+label = "🛠️ Transformations"
 url = "/transformations/"
 
 [[items]]
-label = "Properties"
+label = "🏡 Properties"
 url = "/properties/"
 
 [[items]]
-label = "Property Intake"
+label = "📋 Property Intake"
 url = "https://orovianoasis.com"
 external = true
