@@ -1,41 +1,83 @@
 /*
-OROVIAN OASIS SHOWCASE — CONTACT LAYER 2.3
-The popups themselves use CSS :target and remain usable without JavaScript.
-This file adds focus management, Escape-to-close, body scroll locking, and enhanced form submission.
+OROVIAN OASIS SHOWCASE — CONTACT LAYER 2.4
+The popups use CSS :target and remain visible without JavaScript.
+This file adds focus management, Escape/close controls, scroll-position preservation,
+body scroll locking, and enhanced form submission.
 */
 (() => {
   'use strict';
 
   const modalIds = new Set(['quick-contact', 'contact-us']);
+  const modalLinks = 'a[href="#quick-contact"], a[href="#contact-us"]';
   const form = document.querySelector('[data-contact-form]');
   const status = document.querySelector('[data-contact-status]');
   let previousFocus = null;
+  let returnScrollX = window.scrollX;
+  let returnScrollY = window.scrollY;
 
   const activeModal = () => {
     const id = window.location.hash.slice(1);
     return modalIds.has(id) ? document.getElementById(id) : null;
   };
 
+  const restorePagePosition = () => {
+    window.requestAnimationFrame(() => {
+      window.scrollTo(returnScrollX, returnScrollY);
+    });
+  };
+
   const syncModalState = () => {
     const modal = activeModal();
+    const wasOpen = document.body.classList.contains('contact-modal-open');
     document.body.classList.toggle('contact-modal-open', Boolean(modal));
+
     if (modal) {
-      previousFocus = document.activeElement;
-      window.requestAnimationFrame(() => modal.querySelector('.contact-modal-card')?.focus());
-    } else if (previousFocus instanceof HTMLElement) {
+      if (!wasOpen) previousFocus = document.activeElement;
+      window.requestAnimationFrame(() => modal.querySelector('.contact-modal-card')?.focus({ preventScroll: true }));
+      return;
+    }
+
+    if (previousFocus instanceof HTMLElement) {
       previousFocus.focus({ preventScroll: true });
       previousFocus = null;
     }
   };
 
-  window.addEventListener('hashchange', syncModalState);
+  const closeModal = () => {
+    history.replaceState(null, '', `${location.pathname}${location.search}`);
+    syncModalState();
+    restorePagePosition();
+  };
+
+  document.addEventListener('click', (event) => {
+    const opener = event.target.closest(modalLinks);
+    if (opener && !activeModal()) {
+      returnScrollX = window.scrollX;
+      returnScrollY = window.scrollY;
+    }
+
+    const closer = event.target.closest('[data-contact-close]');
+    if (closer && activeModal()) {
+      event.preventDefault();
+      closeModal();
+    }
+  });
+
+  window.addEventListener('hashchange', () => {
+    if (window.location.hash === '#contact-closed') {
+      closeModal();
+      return;
+    }
+    syncModalState();
+  });
+
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape' && activeModal()) {
       event.preventDefault();
-      history.replaceState(null, '', `${location.pathname}${location.search}`);
-      syncModalState();
+      closeModal();
     }
   });
+
   syncModalState();
 
   if (!form) return;

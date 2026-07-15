@@ -1,5 +1,5 @@
 /*
-OROVIAN OASIS SHOWCASE — MOBILE / TABLET VISUAL LAYER 2.3
+OROVIAN OASIS SHOWCASE — MOBILE / TABLET VISUAL LAYER 2.4
 
 EDIT THIS FILE for phone- and tablet-only visual changes.
 It is loaded with media="(max-width: 880px)", so these rules do not affect desktop.
@@ -63,8 +63,8 @@ html.mobile-view .menu-popover{max-height:min(72svh,620px);overflow:auto;overscr
   .contact-modal{padding:16px}
   .contact-modal-card{width:min(600px,100%);padding:30px 22px;text-align:center}
   .contact-choice{text-align:left}
-  .contact-form{grid-template-columns:1fr;text-align:center}
-  .contact-form-wide{grid-column:1}
+  .contact-form{grid-template-columns:repeat(2,minmax(0,1fr));text-align:center}
+  .contact-form-wide{grid-column:1/-1}
   .contact-form label>span{text-align:center}
   .contact-form input,.contact-form select,.contact-form textarea{text-align:left}
   .contact-form-actions{justify-content:center;flex-direction:column}
@@ -115,16 +115,35 @@ html.mobile-view .menu-popover{max-height:min(72svh,620px);overflow:auto;overscr
   .trace-light-c{display:none}
 
   .contact-modal{padding:10px}
-  .contact-modal-card{max-height:92svh;padding:26px 17px 22px;border-radius:27px}
-  .contact-modal-logo{width:76px;height:76px;margin-bottom:15px}
-  .contact-modal-logo img{width:69px;height:69px}
-  .contact-modal-card h2{font-size:clamp(2.1rem,11vw,3.1rem)}
-  .contact-modal-copy{font-size:.92rem}
+  .contact-modal-card{max-height:calc(100dvh - 12px);overflow:hidden;padding:22px 17px 18px;border-radius:27px}
+  .contact-modal-logo{width:66px;height:66px;margin-bottom:10px}
+  .contact-modal-logo img{width:60px;height:60px}
+  .contact-modal-card h2{font-size:clamp(1.9rem,9.5vw,2.7rem);margin-top:7px;margin-bottom:7px}
+  .contact-modal-copy{margin-bottom:14px;font-size:.86rem;line-height:1.42}
   .contact-modal-close{right:12px;top:12px;width:38px;height:38px}
   .contact-choice{padding:13px 14px}
   .contact-choice-icon{width:43px;height:43px;border-radius:14px}
   .call-text-actions{grid-template-columns:1fr 1fr}
-  .contact-form{gap:12px}
+  .contact-form{gap:8px 9px;margin-top:8px}
+  .contact-form input,.contact-form select,.contact-form textarea{padding:9px 8px;font-size:.86rem}
+  .contact-form textarea{min-height:70px}
+  .contact-form-actions .button{min-height:40px;padding-inline:15px}
+}
+
+@media(max-width:560px) and (max-height:700px){
+  .contact-form-card{padding:14px 14px 15px}
+  .contact-form-card .contact-modal-logo{width:48px;height:48px;margin-bottom:4px}
+  .contact-form-card .contact-modal-logo img{width:43px;height:43px}
+  .contact-form-card .eyebrow{font-size:.58rem;letter-spacing:.13em}
+  .contact-form-card h2{font-size:1.65rem;margin:3px 0 4px}
+  .contact-form-card .contact-modal-copy{display:none}
+  .contact-form{gap:6px 8px;margin-top:6px}
+  .contact-form label{gap:2px;font-size:.69rem}
+  .contact-form input,.contact-form select,.contact-form textarea{padding:7px 8px;font-size:.8rem}
+  .contact-form textarea{min-height:54px}
+  .contact-form-actions{gap:4px}
+  .contact-form-actions .button{min-height:36px;font-size:.8rem}
+  .contact-form-status{font-size:.7rem}
 }
 
 /* Add future mobile-only overrides below this line. */

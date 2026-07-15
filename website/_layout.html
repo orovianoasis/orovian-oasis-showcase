@@ -1,5 +1,5 @@
 <!--
-OROVIAN OASIS SHOWCASE — SHARED PAGE SHELL 2.3
+OROVIAN OASIS SHOWCASE — SHARED PAGE SHELL 2.4
 Edit this file for the site-wide header, menu, footer, metadata, and script loading.
 site.css contains shared/desktop styling; mobile.css is isolated to screens up to 880px.
 The left menu works natively without JavaScript. dynamics.js and mobile.js add optional polish.
@@ -73,9 +73,9 @@ The left menu works natively without JavaScript. dynamics.js and mobile.js add o
   </footer>
 
   <section class="contact-modal quick-contact-modal" id="quick-contact" role="dialog" aria-modal="true" aria-labelledby="quick-contact-title">
-    <a class="contact-modal-backdrop" href="#" aria-label="Close contact options"></a>
+    <a class="contact-modal-backdrop" href="#contact-closed" data-contact-close aria-label="Close contact options"></a>
     <div class="contact-modal-card" tabindex="-1">
-      <a class="contact-modal-close" href="#" aria-label="Close contact options">×</a>
+      <a class="contact-modal-close" href="#contact-closed" data-contact-close aria-label="Close contact options">×</a>
       <div class="contact-modal-logo"><img src="{{ROOT}}assets/brand/logo.webp" alt="Orovian Oasis"></div>
       <div class="eyebrow">📬 Contact Orovian Oasis</div>
       <h2 id="quick-contact-title">How would you like to connect?</h2>
@@ -86,9 +86,9 @@ The left menu works natively without JavaScript. dynamics.js and mobile.js add o
   </section>
 
   <section class="contact-modal contact-form-modal" id="contact-us" role="dialog" aria-modal="true" aria-labelledby="contact-form-title">
-    <a class="contact-modal-backdrop" href="#" aria-label="Close contact form"></a>
+    <a class="contact-modal-backdrop" href="#contact-closed" data-contact-close aria-label="Close contact form"></a>
     <div class="contact-modal-card contact-form-card" tabindex="-1">
-      <a class="contact-modal-close" href="#" aria-label="Close contact form">×</a>
+      <a class="contact-modal-close" href="#contact-closed" data-contact-close aria-label="Close contact form">×</a>
       <div class="contact-modal-logo"><img src="{{ROOT}}assets/brand/logo.webp" alt="Orovian Oasis"></div>
       <div class="eyebrow">✉️ Contact Us</div>
       <h2 id="contact-form-title">Tell us what you’re building.</h2>
