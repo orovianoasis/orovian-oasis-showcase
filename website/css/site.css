@@ -1,5 +1,5 @@
 /*
-OROVIAN OASIS SHOWCASE — SHARED + DESKTOP VISUAL SYSTEM 2.5
+OROVIAN OASIS SHOWCASE — SHARED + DESKTOP VISUAL SYSTEM 2.8
 This file contains shared rules and the desktop presentation.
 Mobile and tablet overrides live only in website/css/mobile.css.
 Motion-only enhancements are activated by website/js/dynamics.js.
@@ -372,3 +372,48 @@ html,body{max-width:100%;overflow-x:clip}
   padding-inline:2px;
   overflow-wrap:break-word;
 }
+
+
+/* ==========================================================
+   VISUAL SYSTEM 2.8 — SINGLE INTAKE CTA + CATEGORY TITLE FIT
+   ========================================================== */
+.nav a.nav-intake{
+  margin-top:8px;
+  padding:14px 16px;
+  border:1px solid rgba(255,248,238,.72);
+  background:var(--paper);
+  color:var(--ink);
+  font-weight:950;
+  box-shadow:0 12px 30px rgba(7,3,12,.24);
+}
+.nav a.nav-intake:after{opacity:.72}
+.nav a.nav-intake:hover,.nav a.nav-intake:focus-visible{
+  background:#fff;
+  color:var(--ink);
+  border-color:var(--mint);
+  transform:translateX(4px);
+}
+
+/* Keep category content centered and inside the viewport at every desktop width. */
+.listing-hero,
+.listing-hero .hero-shell,
+.listing-hero h1,
+.listing-hero p,
+.listing-hero + .section,
+.listing-hero + .section .shell,
+.listing-hero + .section .grid,
+.listing-hero + .section .empty{
+  min-width:0;
+  max-width:100%;
+}
+.listing-hero{overflow:hidden}
+.listing-hero .hero-shell{padding-inline:clamp(4px,1.2vw,16px)}
+.listing-transformations h1{
+  width:100%;
+  font-size:clamp(3rem,7.15vw,7rem);
+  line-height:.94;
+  letter-spacing:-.058em;
+  padding-inline:.08em;
+  text-wrap:balance;
+}
+.listing-hero + .section .empty{width:100%;margin-inline:auto}

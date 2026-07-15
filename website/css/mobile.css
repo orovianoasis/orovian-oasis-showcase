@@ -1,5 +1,5 @@
 /*
-OROVIAN OASIS SHOWCASE — MOBILE / TABLET VISUAL LAYER 2.6
+OROVIAN OASIS SHOWCASE — MOBILE / TABLET VISUAL LAYER 2.8
 
 EDIT THIS FILE for phone- and tablet-only visual changes.
 It is loaded with media="(max-width: 880px)", so these rules do not affect desktop.
@@ -353,4 +353,75 @@ html.mobile-view .menu-popover{max-height:min(72svh,620px);overflow:auto;overscr
 @media(max-width:380px){
   .listing-hero h1{font-size:clamp(2.35rem,11.4vw,3.1rem)}
   .listing-hero p{font-size:.94rem}
+}
+
+
+/* ==========================================================
+   MOBILE 2.8 — TRANSFORMATIONS FULL-WIDTH REPAIR
+   This block is intentionally last so older responsive patches cannot override it.
+   ========================================================== */
+@media(max-width:880px){
+  html,body{width:100%;max-width:100%;overflow-x:hidden}
+  main,.listing-hero,.listing-hero + .section{width:100%;max-width:100%;overflow-x:hidden}
+  .listing-hero{
+    min-height:auto;
+    padding:138px 0 36px;
+  }
+  .listing-hero .hero-shell{
+    width:min(100% - 34px,720px);
+    max-width:calc(100% - 34px);
+    margin-inline:auto;
+    padding-inline:2px;
+  }
+  .listing-hero .eyebrow{
+    max-width:100%;
+    line-height:1.45;
+    overflow-wrap:anywhere;
+  }
+  .listing-hero h1{
+    display:block;
+    width:100%;
+    max-width:100%;
+    margin:15px auto 18px;
+    padding:.05em .08em .14em;
+    line-height:.98;
+    letter-spacing:-.05em;
+    white-space:normal;
+    overflow:visible;
+    overflow-wrap:normal;
+    word-break:normal;
+    text-align:center;
+  }
+  .listing-transformations h1{
+    font-size:clamp(2.1rem,9.25vw,4.35rem);
+    letter-spacing:-.058em;
+  }
+  .listing-hero p{
+    width:100%;
+    max-width:680px;
+    margin-inline:auto;
+    padding-inline:2px;
+    text-align:center;
+  }
+  .listing-pulse{margin-top:25px}
+  .listing-hero + .section{padding:34px 0 48px}
+  .listing-hero + .section .shell{
+    width:calc(100% - 34px);
+    max-width:calc(100% - 34px);
+    margin-inline:auto;
+  }
+  .listing-hero + .section .grid{
+    width:100%;
+    grid-template-columns:minmax(0,1fr);
+  }
+  .listing-hero + .section .empty{
+    width:100%;
+    max-width:100%;
+    padding:clamp(34px,10vw,54px) 20px;
+    margin:0 auto;
+    overflow-wrap:anywhere;
+  }
+}
+@media(max-width:380px){
+  .listing-transformations h1{font-size:clamp(2rem,8.9vw,2.35rem)}
 }

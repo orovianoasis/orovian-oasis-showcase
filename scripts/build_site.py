@@ -66,7 +66,9 @@ def nav_html(nav, root_prefix):
         if url.startswith("/"):
             url=root_prefix + url.lstrip("/")
         attrs=' target="_blank" rel="noopener"' if item.get("external") else ""
-        out.append(f'<a href="{esc(url)}"{attrs}>{esc(item.get("label"))}</a>')
+        css_class=str(item.get("class", "")).strip()
+        class_attr=f' class="{esc(css_class)}"' if css_class else ""
+        out.append(f'<a href="{esc(url)}"{class_attr}{attrs}>{esc(item.get("label"))}</a>')
     return "".join(out)
 
 
@@ -152,17 +154,20 @@ def quick_contact_html(site):
     return ''.join(parts)
 
 
-def apply_base(content, *, site, nav, root_prefix, title, description, og_image, canonical, head_extra=""):
+def apply_base(content, *, site, nav, root_prefix, title, description, og_image, canonical, head_extra="", brand_url=None, brand_label=None):
     base=(WEBSITE/"_layout.html").read_text(encoding="utf-8")
     contact = contact_values(site)
     form_action = contact["endpoint"] or (f'mailto:{contact["email"]}' if contact["email"] else "#contact-us")
     legal = site.get("legal", {})
     privacy_url = resolved_site_url(legal.get("privacy_url"), root_prefix, "/privacy/")
     terms_url = resolved_site_url(legal.get("terms_url"), root_prefix, "/terms/")
+    resolved_brand_url = brand_url if brand_url is not None else root_prefix
+    resolved_brand_label = brand_label or "Orovian Oasis Showcase home"
     replacements={
         "{{PAGE_TITLE}}":esc(title), "{{PAGE_DESCRIPTION}}":esc(description), "{{OG_IMAGE}}":esc(og_image),
         "{{CANONICAL_URL}}":esc(canonical), "{{ROOT}}":root_prefix, "{{HEAD_EXTRA}}":head_extra,
         "{{NAV}}":nav_html(nav, root_prefix), "{{CONTENT}}":content, "{{MAIN_SITE_URL}}":esc(site.get("main_site_url", "#")),
+        "{{BRAND_URL}}":esc(resolved_brand_url), "{{BRAND_LABEL}}":esc(resolved_brand_label),
         "{{SOCIAL_LINKS}}":social_html(site), "{{QUICK_CONTACT_ACTIONS}}":quick_contact_html(site),
         "{{CONTACT_EMAIL}}":esc(contact["email"]), "{{CONTACT_FORM_ENDPOINT}}":esc(contact["endpoint"]),
         "{{CONTACT_FORM_ACTION}}":esc(form_action), "{{PRIVACY_URL}}":esc(privacy_url), "{{TERMS_URL}}":esc(terms_url)
@@ -302,7 +307,7 @@ def build(args):
     home_template=(WEBSITE/"index.html").read_text(encoding="utf-8")
     featured=[p for p in published if p.get("featured")]
     content=home_template.replace("{{PROJECT_GRID}}",project_grid(featured or published[:6],site,""))
-    page=apply_base(content,site=site,nav=nav,root_prefix="",title=site.get("seo",{}).get("title",site["site_name"]),description=site.get("seo",{}).get("description",""),og_image=base_url+site.get("seo",{}).get("image",""),canonical=base_url+"/")
+    page=apply_base(content,site=site,nav=nav,root_prefix="",title=site.get("seo",{}).get("title",site["site_name"]),description=site.get("seo",{}).get("description",""),og_image=base_url+site.get("seo",{}).get("image",""),canonical=base_url+"/",brand_url=site.get("main_site_url","#"),brand_label="Open the Orovian Oasis property intake home page")
     (out/"index.html").write_text(page,encoding="utf-8")
 
     legal_pages = [
@@ -329,7 +334,7 @@ def build(args):
         folder=out/path; folder.mkdir(parents=True,exist_ok=True)
         heading,intro=listing_meta[category]
         subset=[p for p in published if p["category"]==category]
-        body=listing_template.replace("{{EYEBROW}}","Orovian Oasis Showcase").replace("{{HEADING}}",heading).replace("{{INTRO}}",intro).replace("{{PROJECT_GRID}}",project_grid(subset,site,"../"))
+        body=listing_template.replace("{{LISTING_SLUG}}",path).replace("{{EYEBROW}}","Orovian Oasis Showcase").replace("{{HEADING}}",heading).replace("{{INTRO}}",intro).replace("{{PROJECT_GRID}}",project_grid(subset,site,"../"))
         page=apply_base(body,site=site,nav=nav,root_prefix="../",title=f"{heading} | {site['site_name']}",description=intro,og_image=base_url+site.get("seo",{}).get("image",""),canonical=f"{base_url}/{path}/")
         (folder/"index.html").write_text(page,encoding="utf-8")
 
