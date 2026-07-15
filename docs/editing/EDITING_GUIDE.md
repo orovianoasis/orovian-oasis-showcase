@@ -45,3 +45,8 @@ That control file manages price, status, featured placement, checkout link, inqu
 Run `tools/Preview_Local.bat`. It validates the source, builds `dist/`, starts a local server, and opens the finished website.
 
 Never edit `dist/` directly. It is generated output and will be replaced on the next build.
+
+
+## Dynamics
+
+Edit `website/js/dynamics.js` for optional motion effects. Core year output remains in `website/js/site.js`. The HTML and CSS are designed to remain usable when dynamics.js is removed or blocked.

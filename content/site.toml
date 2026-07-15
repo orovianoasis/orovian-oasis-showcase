@@ -26,6 +26,7 @@ email = ""
 inquiry_url = "https://orovianoasis.com"
 
 [social]
+# Add the complete profile URL for each account. Empty values remain visible as muted placeholders.
 instagram = ""
 facebook = ""
 youtube = ""

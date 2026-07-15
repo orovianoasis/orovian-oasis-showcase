@@ -1,19 +1,74 @@
 <!--
 OROVIAN OASIS SHOWCASE — HOMEPAGE SOURCE
-Edit the sections below to change the front page layout.
-Shared header, navigation, metadata, and footer live in _layout.html.
-CSS lives in css/site.css. JavaScript lives in js/site.js.
-The build creates the finished public file at dist/index.html.
+Edit this file for homepage sections. Shared chrome lives in _layout.html.
+Motion is progressive enhancement from js/dynamics.js; the page remains functional without it.
 -->
-<section class="hero"><div class="shell">
-  <div class="eyebrow">Orovian Oasis</div>
-  <h1>Showcase</h1>
-  <p>A structured home for original concept designs, property transformations, interactive walkthroughs, floor plans, and physical properties.</p>
-  <div class="actions"><a class="button primary" href="concept-homes/">Explore Concept Homes</a><a class="button" href="transformations/">View Transformations</a><a class="button" href="properties/">Browse Properties</a></div>
-</div></section>
-<section class="section"><div class="shell"><h2>Featured Projects</h2>{{PROJECT_GRID}}</div></section>
-<section class="section"><div class="shell"><h2>Three Clear Lanes</h2><div class="grid">
-  <article class="panel"><div class="eyebrow">Design</div><h3>Concept Homes</h3><p class="muted">Original architectural concepts, 3D walkthroughs, floor plans, materials, licensing, and customization.</p><a class="button" href="concept-homes/">Open Concept Homes</a></article>
-  <article class="panel"><div class="eyebrow">Rehab</div><h3>Transformations</h3><p class="muted">Fix-and-flip projects, before-and-after comparisons, redesigned floor plans, scopes, and outcomes.</p><a class="button" href="transformations/">Open Transformations</a></article>
-  <article class="panel"><div class="eyebrow">Real Estate</div><h3>Properties</h3><p class="muted">Physical listings, availability, galleries, floor plans, virtual tours, and customer-facing actions.</p><a class="button" href="properties/">Open Properties</a></article>
-</div></div></section>
+<section class="hero showcase-hero">
+  <div class="hero-art" aria-hidden="true">
+    <span class="orbit orbit-a"></span><span class="orbit orbit-b"></span>
+    <span class="float-token token-design">DESIGN</span>
+    <span class="float-token token-rehab">REHAB</span>
+    <span class="float-token token-realty">REAL ESTATE</span>
+  </div>
+  <div class="shell hero-shell" data-reveal>
+    <div class="eyebrow">Orovian Oasis presents</div>
+    <h1><span>Spaces with a</span><em>second heartbeat.</em></h1>
+    <p>Original concept homes, dramatic transformations, interactive walkthroughs, floor plans, and real properties—organized under one evolving roof.</p>
+    <div class="actions hero-actions">
+      <a class="button primary" href="concept-homes/">Explore Concept Homes</a>
+      <a class="button" href="transformations/">View Transformations</a>
+      <a class="button" href="properties/">Browse Properties</a>
+    </div>
+    <div class="scroll-note" aria-hidden="true"><span></span>Scroll into the work</div>
+  </div>
+</section>
+
+<section class="section featured-section">
+  <div class="shell">
+    <header class="section-heading center" data-reveal>
+      <div class="eyebrow">Selected work</div>
+      <h2>Featured Projects</h2>
+      <p>Current concepts and properties pulled directly from the project control panels.</p>
+    </header>
+    {{PROJECT_GRID}}
+  </div>
+</section>
+
+<section class="section lanes-section">
+  <div class="shell">
+    <header class="section-heading center" data-reveal>
+      <div class="eyebrow">Three clear lanes</div>
+      <h2>One showcase. Different plays.</h2>
+      <p>Browse by what is being imagined, transformed, or actively moved through the market.</p>
+    </header>
+    <div class="grid lane-grid">
+      <article class="panel lane-card lane-design" data-reveal data-tilt>
+        <div class="lane-number">01</div><div class="lane-icon" aria-hidden="true">◇</div>
+        <div class="eyebrow">Design</div><h3>Concept Homes</h3>
+        <p class="muted">Original architecture, 3D walkthroughs, floor plans, materials, licensing, and customization paths.</p>
+        <a class="button" href="concept-homes/">Open Concept Homes</a>
+      </article>
+      <article class="panel lane-card lane-rehab" data-reveal data-tilt>
+        <div class="lane-number">02</div><div class="lane-icon" aria-hidden="true">↺</div>
+        <div class="eyebrow">Rehab</div><h3>Transformations</h3>
+        <p class="muted">Fix-and-flip stories, before-and-after comparisons, redesigned plans, scopes, and outcomes.</p>
+        <a class="button" href="transformations/">Open Transformations</a>
+      </article>
+      <article class="panel lane-card lane-realty" data-reveal data-tilt>
+        <div class="lane-number">03</div><div class="lane-icon" aria-hidden="true">⌂</div>
+        <div class="eyebrow">Real Estate</div><h3>Properties</h3>
+        <p class="muted">Physical listings, galleries, floor plans, virtual tours, availability, and buyer-facing actions.</p>
+        <a class="button" href="properties/">Open Properties</a>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="section intake-ribbon">
+  <div class="shell">
+    <div class="ribbon-panel" data-reveal>
+      <div><div class="eyebrow">Have a property?</div><h2>Bring the opportunity. We’ll find the angle.</h2></div>
+      <a class="button primary" href="https://orovianoasis.com" target="_blank" rel="noopener">Open Property Intake <span aria-hidden="true">↗</span></a>
+    </div>
+  </div>
+</section>

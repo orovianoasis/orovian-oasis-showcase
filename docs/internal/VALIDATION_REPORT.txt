@@ -1,34 +1,31 @@
-OROVIAN OASIS SHOWCASE REPOSITORY STARTER v1.3
+OROVIAN OASIS SHOWCASE — VISUAL SYSTEM 2.0
 VALIDATION REPORT
 Generated: 2026-07-15
 
-ORGANIZATION CHANGES
-- Repository root reduced to folders plus .gitignore, .python-version, NOTICE.txt, and README.md.
-- Setup files moved to docs/getting-started/.
-- Editing and content guides moved to docs/editing/.
-- Domain instructions moved to docs/deployment/.
-- Field references and release documents moved to docs/reference/.
-- Checksums, structure manifest, and validation records moved to docs/internal/.
-- Root README and documentation links updated to the new paths.
+DESIGN TRANSFORMATION
+- Replaced the original navy/gold interface with a plum, mint, coral, violet, and ivory system.
+- Replaced the horizontal navigation banner with a floating left-side native dropdown menu.
+- Added a centered floating logo and top-right Property Intake action.
+- Added an auto-hiding header on downward scroll with automatic return on upward scroll.
+- Centered project cards, project actions, featured headings, and major page hierarchy.
+- Added floating hero tokens, orbital decoration, reveal motion, pointer glow, card tilt, and button ripple effects.
+- Added Instagram, YouTube, TikTok, and Facebook icon positions in the footer.
+- Added a separate website/js/dynamics.js progressive-enhancement layer.
+
+FUNCTIONAL PRESERVATION
+- Project TOML data remains the source for prices, status, facts, media, materials, and purchase links.
+- Category routes, project routes, floor-plan routes, API output, sitemap, and 3D-tour routing remain intact.
+- The left navigation uses native HTML details/summary and works without JavaScript.
+- If dynamics.js is removed or blocked, content remains visible and all normal links remain functional.
+- GitHub Actions deployment workflow remains unchanged.
 
 VALIDATION COMPLETED
+PASS  Python syntax compilation
+PASS  JavaScript syntax validation for site.js and dynamics.js
 PASS  Source structure validation
 PASS  TOML parsing and project-data validation
 PASS  Strict site generation
 PASS  Generated-output validation
-PASS  Homepage and category route generation
-PASS  Catalog JSON generation
-PASS  JavaScript syntax validation
-PASS  Documentation-link validation
-PASS  Local HTTP checks for /, /concept-homes/, /transformations/, /properties/, and /api/catalog.json
+PASS  Homepage, category, project, floor-plan, tour-placeholder, API, sitemap, and 404 generation
+PASS  No unreplaced template placeholders in generated output
 PASS  Generated dist/ removed before packaging; GitHub Actions recreates it during deployment
-
-EDITING MAP
-website/  = editable HTML, CSS, and JavaScript
-assets/   = global images, logos, icons, thumbnails, and media
-content/  = site settings and frequently changing project records
-docs/     = organized documentation
-scripts/  = build and validation automation
-tools/    = Windows creation, build, and preview launchers
-
-The package is intended to be uploaded as the root contents of a new public GitHub repository named orovian-showcase.

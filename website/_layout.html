@@ -1,13 +1,14 @@
 <!--
 OROVIAN OASIS SHOWCASE — SHARED PAGE SHELL
-Edit this file for site-wide <head>, header, navigation placement, and footer changes.
-Page-specific sections live in the other HTML files in this same website folder.
+Edit this file for the site-wide header, menu, footer, metadata, and script loading.
+The left menu works natively without JavaScript. dynamics.js only adds motion and polish.
 -->
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#17101f">
   <title>{{PAGE_TITLE}}</title>
   <meta name="description" content="{{PAGE_DESCRIPTION}}">
   <meta property="og:title" content="{{PAGE_TITLE}}">
@@ -18,11 +19,59 @@ Page-specific sections live in the other HTML files in this same website folder.
   {{HEAD_EXTRA}}
 </head>
 <body>
-  <header class="site-header"><div class="shell header-row">
-    <a class="brand" href="{{ROOT}}"><img src="{{ROOT}}assets/brand/logo.webp" alt="Orovian Oasis"><span>Orovian Oasis Showcase</span></a>
-    <nav class="nav" aria-label="Primary">{{NAV}}</nav>
-  </div></header>
-  <main>{{CONTENT}}</main>
-  <footer class="site-footer"><div class="shell">© <span data-year></span> Orovian Oasis · <a href="{{MAIN_SITE_URL}}">Main company website</a></div></footer>
+  <a class="skip-link" href="#main-content">Skip to content</a>
+  <div class="ambient-canvas" aria-hidden="true">
+    <span class="ambient-blob blob-one"></span>
+    <span class="ambient-blob blob-two"></span>
+    <span class="ambient-grid"></span>
+  </div>
+
+  <header class="site-header" data-site-header>
+    <div class="shell header-row">
+      <details class="site-menu" data-site-menu>
+        <summary class="menu-trigger" aria-label="Open showcase menu">
+          <span class="menu-glyph" aria-hidden="true"><i></i><i></i><i></i></span>
+          <span class="menu-word">Explore</span>
+        </summary>
+        <div class="menu-popover">
+          <div class="menu-kicker">Navigate the Oasis</div>
+          <div class="menu-title">Choose your lane.</div>
+          <nav class="nav" aria-label="Primary">{{NAV}}</nav>
+          <a class="menu-intake" href="{{MAIN_SITE_URL}}" target="_blank" rel="noopener">Open Property Intake <span aria-hidden="true">↗</span></a>
+        </div>
+      </details>
+
+      <a class="brand-orbit" href="{{ROOT}}" aria-label="Orovian Oasis Showcase home">
+        <span class="brand-ring" aria-hidden="true"></span>
+        <span class="brand-disc"><img src="{{ROOT}}assets/brand/logo.webp" alt="Orovian Oasis"></span>
+      </a>
+
+      <a class="intake-cta" href="{{MAIN_SITE_URL}}" target="_blank" rel="noopener">
+        <span>Property Intake</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg>
+      </a>
+    </div>
+  </header>
+
+  <main id="main-content">{{CONTENT}}</main>
+
+  <footer class="site-footer">
+    <div class="shell footer-grid">
+      <div class="footer-brand">
+        <img src="{{ROOT}}assets/brand/logo.webp" alt="" aria-hidden="true">
+        <div><strong>Orovian Oasis Showcase</strong><p>Concepts, transformations, property stories, floor plans, and walkable ideas.</p></div>
+      </div>
+      <div class="footer-actions">
+        <div class="footer-label">Follow the build</div>
+        <div class="social-links" aria-label="Orovian Oasis social media">{{SOCIAL_LINKS}}</div>
+        <a class="footer-intake" href="{{MAIN_SITE_URL}}" target="_blank" rel="noopener">Property Intake Page <span aria-hidden="true">↗</span></a>
+      </div>
+    </div>
+    <div class="shell footer-bottom"><span>© <span data-year></span> Orovian Oasis</span><span>Designed to evolve without losing the blueprint.</span></div>
+  </footer>
+
+  <div class="pointer-glow" data-pointer-glow aria-hidden="true"></div>
   <script src="{{ROOT}}js/site.js"></script>
-</body></html>
+  <script src="{{ROOT}}js/dynamics.js" defer></script>
+</body>
+</html>

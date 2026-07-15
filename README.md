@@ -40,3 +40,14 @@ The homepage source is `website/index.html`. All page HTML, CSS, and JavaScript 
 - [Repository map](docs/reference/REPOSITORY_MAP.md)
 - [Project-field reference](docs/reference/PROJECT_FIELD_REFERENCE.md)
 - [Release checklist](docs/reference/RELEASE_CHECKLIST.md)
+
+
+## Visual system 2.0
+
+The redesigned interface uses a floating auto-hiding header, a native left-side dropdown menu, centered project cards, a plum/mint/coral palette, and social icons in the footer.
+
+- `website/css/site.css` controls the complete visual system.
+- `website/js/site.js` contains only essential lightweight behavior.
+- `website/js/dynamics.js` contains optional scroll reveals, header auto-hide, tilt, pointer glow, and button ripple effects.
+- Removing `dynamics.js` does not break navigation, project data, pricing, floor plans, or the native menu.
+- Add social profile URLs under `[social]` in `content/site.toml`.

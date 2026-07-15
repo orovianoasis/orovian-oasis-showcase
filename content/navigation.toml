@@ -15,6 +15,6 @@ label = "Properties"
 url = "/properties/"
 
 [[items]]
-label = "Orovian Oasis"
+label = "Property Intake"
 url = "https://orovianoasis.com"
 external = true

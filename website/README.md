@@ -23,3 +23,8 @@ This folder contains the editable visual website in one place.
 - Do not manually edit `dist/`; it is regenerated.
 
 Run `tools/Preview_Local.bat` to build and preview the finished site.
+
+
+## Motion layer
+
+`js/dynamics.js` adds scroll reveals, header auto-hide, card tilt, pointer glow, and button ripples. Removing its script tag disables those effects without breaking navigation or content.

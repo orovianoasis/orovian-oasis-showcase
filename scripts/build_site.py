@@ -70,12 +70,33 @@ def nav_html(nav, root_prefix):
     return "".join(out)
 
 
+def social_html(site):
+    social = site.get("social", {})
+    icons = {
+        "instagram": '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".8" fill="currentColor" stroke="none"/></svg>',
+        "facebook": '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 8h3V4.5c-.7-.1-1.7-.2-2.8-.2-2.8 0-4.7 1.7-4.7 4.9V12H6.4v4h3.1v7h4.2v-7h3.1l.5-4h-3.6V9.6c0-1.1.3-1.6 1.3-1.6Z" fill="currentColor" stroke="none"/></svg>',
+        "youtube": '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="5.5" width="19" height="13" rx="4"/><path d="m10 9 5 3-5 3Z" fill="currentColor" stroke="none"/></svg>',
+        "tiktok": '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4v10.2a4.2 4.2 0 1 1-3.5-4.1V14a1.8 1.8 0 1 0 1.2 1.7V4h2.3Zm0 0c.4 2.2 1.7 3.5 4 3.9v3.3c-1.6-.1-3-.6-4-1.5"/></svg>'
+    }
+    labels = {"instagram":"Instagram", "facebook":"Facebook", "youtube":"YouTube", "tiktok":"TikTok"}
+    parts=[]
+    for key in ("instagram", "youtube", "tiktok", "facebook"):
+        url = str(social.get(key, "") or "").strip()
+        label = labels[key]
+        if url:
+            parts.append(f'<a class="social-link" href="{esc(url)}" target="_blank" rel="noopener" aria-label="{label}">{icons[key]}</a>')
+        else:
+            parts.append(f'<span class="social-link is-placeholder" title="Add the {label} URL in content/site.toml" aria-label="{label} link not configured">{icons[key]}</span>')
+    return "".join(parts)
+
+
 def apply_base(content, *, site, nav, root_prefix, title, description, og_image, canonical, head_extra=""):
     base=(WEBSITE/"_layout.html").read_text(encoding="utf-8")
     replacements={
         "{{PAGE_TITLE}}":esc(title), "{{PAGE_DESCRIPTION}}":esc(description), "{{OG_IMAGE}}":esc(og_image),
         "{{CANONICAL_URL}}":esc(canonical), "{{ROOT}}":root_prefix, "{{HEAD_EXTRA}}":head_extra,
-        "{{NAV}}":nav_html(nav, root_prefix), "{{CONTENT}}":content, "{{MAIN_SITE_URL}}":esc(site.get("main_site_url", "#"))
+        "{{NAV}}":nav_html(nav, root_prefix), "{{CONTENT}}":content, "{{MAIN_SITE_URL}}":esc(site.get("main_site_url", "#")),
+        "{{SOCIAL_LINKS}}":social_html(site)
     }
     for k,v in replacements.items(): base=base.replace(k,v)
     return base
@@ -129,7 +150,7 @@ def card_html(project, site, root_prefix=""):
     ident=project.get("identity",{}); media=project.get("media",{})
     url=f'{root_prefix}{category}/{project["slug"]}/'
     image=f'{root_prefix}{category}/{project["slug"]}/{media.get("card") or media.get("cover") or "assets/placeholders/project-card.svg"}'
-    return f'''<article class="card"><img src="{esc(image)}" alt="{esc(ident.get("title"))}"><div class="card-body">
+    return f'''<article class="card project-card" data-reveal data-tilt><a class="card-media" href="{esc(url)}"><img src="{esc(image)}" alt="{esc(ident.get("title"))}"><span class="media-sheen" aria-hidden="true"></span></a><div class="card-body">
 <span class="badge">{esc(project.get("status_label", project.get("status", "")))}</span><h3>{esc(ident.get("title"))}</h3>
 <p class="muted">{esc(ident.get("location"))}</p><p>{esc(ident.get("summary"))}</p><div class="facts">{facts_html(project)}</div>
 <div class="price">{money(project,site)}</div><div class="actions"><a class="button primary" href="{esc(url)}">View Project</a></div></div></article>'''
@@ -165,17 +186,17 @@ def special_section(project):
         if t.get("public_financials"):
             for label,key in [("Acquisition","acquisition_price"),("Rehab budget","rehab_budget"),("After-repair value","after_repair_value")]:
                 if t.get(key): rows.append(f'<li><b>{label}</b><br>${float(t[key]):,.0f}</li>')
-        return f'<div class="panel"><h2>Transformation</h2><ul class="list">{"".join(rows) or "<li>Project story coming soon.</li>"}</ul></div>'
+        return f'<div class="panel" data-reveal><h2>Transformation</h2><ul class="list">{"".join(rows) or "<li>Project story coming soon.</li>"}</ul></div>'
     if category=="property":
         p=project.get("property",{}); rows=[]
         for label,key in [("Listing type","listing_type"),("MLS","mls_number"),("Agent","agent_name")]:
             if p.get(key): rows.append(f'<li><b>{label}</b><br>{esc(p[key])}</li>')
-        return f'<div class="panel"><h2>Property Details</h2><ul class="list">{"".join(rows) or "<li>Listing details coming soon.</li>"}</ul></div>'
+        return f'<div class="panel" data-reveal><h2>Property Details</h2><ul class="list">{"".join(rows) or "<li>Listing details coming soon.</li>"}</ul></div>'
     c=project.get("concept",{}); rows=[]
     for label,key in [("Product type","product_type"),("License","license_type")]:
         if c.get(key): rows.append(f'<li><b>{label}</b><br>{esc(c[key])}</li>')
     rows.append(f'<li><b>Customizable</b><br>{"Yes" if c.get("customizable") else "No"}</li>')
-    return f'<div class="panel"><h2>Design Package</h2><ul class="list">{"".join(rows)}</ul></div>'
+    return f'<div class="panel" data-reveal><h2>Design Package</h2><ul class="list">{"".join(rows)}</ul></div>'
 
 
 def materials_section(project, site):
@@ -183,7 +204,7 @@ def materials_section(project, site):
     items=project.get("materials",[])
     if not items: return ""
     rows=''.join(f'<li><b>{esc(x.get("category"))}: {esc(x.get("name"))}</b><br><span class="muted">{esc(x.get("description"))}</span></li>' for x in items)
-    return f'<div class="panel"><h2>Materials & Highlights</h2><ul class="list">{rows}</ul></div>'
+    return f'<div class="panel" data-reveal><h2>Materials & Highlights</h2><ul class="list">{rows}</ul></div>'
 
 
 def deliverables_section(project, site):
@@ -191,7 +212,7 @@ def deliverables_section(project, site):
     items=project.get("deliverables",[])
     if not items: return ""
     rows=''.join(f'<li>{"✓" if x.get("included") else "○"} {esc(x.get("name"))}</li>' for x in items)
-    return f'<div class="panel"><h2>Deliverables</h2><ul class="list">{rows}</ul></div>'
+    return f'<div class="panel" data-reveal><h2>Deliverables</h2><ul class="list">{rows}</ul></div>'
 
 
 def build(args):
@@ -263,7 +284,7 @@ def build(args):
             links=[]
             if item.get("pdf"): links.append(f'<a class="button" href="../{esc(item["pdf"])}">Open PDF</a>')
             if item.get("dxf"): links.append(f'<a class="button" href="../{esc(item["dxf"])}">Download DXF</a>')
-            cards.append(f'<article class="panel"><h2>{esc(item.get("level"))}</h2><img src="{esc(image_url)}" alt="{esc(item.get("level"))} floor plan"><p class="muted">{esc(item.get("caption"))}</p><div class="actions">{"".join(links)}</div></article>')
+            cards.append(f'<article class="panel" data-reveal><h2>{esc(item.get("level"))}</h2><img src="{esc(image_url)}" alt="{esc(item.get("level"))} floor plan"><p class="muted">{esc(item.get("caption"))}</p><div class="actions">{"".join(links)}</div></article>')
         floor_body=floor_template.replace("{{PROJECT_TITLE}}",esc(ident.get("title"))).replace("{{INTRO}}","Customer-facing floor plans and available downloads.").replace("{{FLOOR_PLAN_CARDS}}",''.join(cards) or '<div class="empty">Floor plans have not been published yet.</div>')
         floor_page=apply_base(floor_body,site=site,nav=nav,root_prefix="../../../",title=f"Floor Plans — {ident.get('title')}",description=f"Floor plans for {ident.get('title')}",og_image=og,canonical=project_url+"floor-plans/")
         (fp_folder/"index.html").write_text(floor_page,encoding="utf-8")
