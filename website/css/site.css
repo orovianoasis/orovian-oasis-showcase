@@ -1,6 +1,7 @@
 /*
-OROVIAN OASIS SHOWCASE — VISUAL SYSTEM 2.1
-Plum, mint, coral, and ivory. Layout and interaction remain functional without JavaScript.
+OROVIAN OASIS SHOWCASE — SHARED + DESKTOP VISUAL SYSTEM 2.2
+This file contains shared rules and the desktop presentation.
+Mobile and tablet overrides live only in website/css/mobile.css.
 Motion-only enhancements are activated by website/js/dynamics.js.
 */
 :root{
@@ -26,8 +27,8 @@ main{position:relative}.hero{position:relative;min-height:70vh;display:grid;plac
 .pointer-glow{position:fixed;z-index:200;left:0;top:0;width:180px;height:180px;border-radius:50%;pointer-events:none;opacity:0;background:radial-gradient(circle,rgba(112,240,202,.13),rgba(138,108,255,.06) 42%,transparent 70%);transform:translate(-50%,-50%);transition:opacity .25s ease}.motion-ready .pointer-glow.is-visible{opacity:1}.motion-ready [data-reveal]{opacity:0;transform:translateY(28px);transition:opacity .75s ease,transform .75s cubic-bezier(.2,.8,.2,1)}.motion-ready [data-reveal].is-revealed{opacity:1;transform:none}.ripple{position:absolute;border-radius:50%;background:rgba(255,255,255,.3);transform:scale(0);animation:ripple .6s linear;pointer-events:none}
 @keyframes ripple{to{transform:scale(4);opacity:0}}@keyframes sheen{to{transform:translateX(120%)}}
 @media(prefers-reduced-motion:no-preference){.brand-ring{animation:spin 12s linear infinite}.float-token{animation:float 5s ease-in-out infinite}.token-rehab{animation-delay:-1.7s}.token-realty{animation-delay:-3.1s}.listing-pulse span{animation:pulse 1.6s ease-in-out infinite}.listing-pulse span:nth-child(2){animation-delay:.2s}.listing-pulse span:nth-child(3){animation-delay:.4s}@keyframes spin{to{transform:rotate(360deg)}}@keyframes float{50%{translate:0 -12px}}@keyframes pulse{50%{transform:scale(1.75);opacity:.35}}}
-@media(max-width:880px){.header-row{grid-template-columns:1fr auto 1fr}.menu-word{display:none}.intake-cta span{display:none}.intake-cta{width:48px;padding:0}.intake-cta svg{margin:auto}.hero h1{font-size:clamp(3.4rem,15vw,6.6rem)}.float-token{display:none}.two-col{grid-template-columns:1fr}.purchase-panel{position:relative;top:auto}.footer-grid{grid-template-columns:1fr}.footer-actions{text-align:left}.social-links{justify-content:flex-start}.ribbon-panel{align-items:flex-start;flex-direction:column}.footer-bottom{flex-direction:column}}
-@media(max-width:560px){.site-header{padding-top:10px}.header-row{min-height:64px;padding:6px 8px}.brand-orbit{width:60px;height:60px}.brand-disc{width:50px;height:50px}.brand-disc img{width:45px;height:45px}.menu-trigger,.intake-cta{min-height:44px}.menu-trigger{padding:0 12px}.intake-cta{width:44px}.hero{padding-top:145px}.showcase-hero{min-height:94svh}.hero h1 span{font-size:.29em}.section{padding:58px 0}.card-body{padding:20px}.ribbon-panel{padding:28px}.footer-brand{align-items:flex-start}.footer-brand img{width:58px;height:58px}.footer-brand strong{font-size:1.55rem}.footer-bottom{font-size:.76rem}}
+
+
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{animation:none!important;transition-duration:.01ms!important}.motion-ready [data-reveal]{opacity:1;transform:none}}
 
 /* ==========================================================
@@ -90,19 +91,5 @@ main{position:relative}.hero{position:relative;min-height:70vh;display:grid;plac
   .shape-crane{animation-delay:-2.1s}.shape-plan{animation-delay:-4.2s}.shape-tower{animation-delay:-5.3s}
   @keyframes build-float{50%{translate:0 -10px}}
 }
-@media(max-width:880px){
-  .showcase-hero{min-height:72svh;padding-bottom:34px}
-  .build-shape{opacity:.12}.shape-house{left:-8%}.shape-crane{right:-6%}.shape-plan{left:-9%;bottom:4%}.shape-tower{right:-5%}
-}
-@media(max-width:560px){
-  .showcase-hero{min-height:70svh;padding-top:132px;padding-bottom:28px}
-  .showcase-hero h1{font-size:clamp(3rem,15vw,4.8rem)}
-  .showcase-hero h1 span{font-size:.24em;line-height:1.25}
-  .showcase-hero p{font-size:.96rem}
-  .featured-section{padding-top:20px}
-  .section{padding:44px 0}
-  .lane-card{min-height:330px}
-  .ribbon-panel{padding:25px}
-  .shape-plan,.shape-tower{display:none}
-}
+
 

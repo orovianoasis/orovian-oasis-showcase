@@ -18,7 +18,9 @@ required_files = [
     "website/tour-placeholder.html",
     "website/404.html",
     "website/css/site.css",
+    "website/css/mobile.css",
     "website/js/site.js",
+    "website/js/mobile.js",
     "content/site.toml",
     "content/navigation.toml",
     "scripts/build_site.py",
@@ -31,7 +33,7 @@ for relative in required_files:
 layout = (ROOT / "website/_layout.html")
 if layout.exists():
     text = layout.read_text(encoding="utf-8", errors="replace")
-    for token in ("{{CONTENT}}", "{{NAV}}", "{{ROOT}}css/site.css", "{{ROOT}}js/site.js"):
+    for token in ("{{CONTENT}}", "{{NAV}}", "{{ROOT}}css/site.css", "{{ROOT}}css/mobile.css", "{{ROOT}}js/site.js", "{{ROOT}}js/mobile.js"):
         if token not in text:
             errors.append(f"website/_layout.html is missing required token: {token}")
 

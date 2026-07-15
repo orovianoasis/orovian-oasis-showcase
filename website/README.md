@@ -11,8 +11,18 @@ This folder contains the editable visual website in one place.
 | `floor-plans.html` | Customer-facing floor-plan layout |
 | `tour-placeholder.html` | Message shown before a 3D tour is published |
 | `404.html` | Page-not-found layout |
-| `css/site.css` | All shared website styling |
-| `js/site.js` | All shared website interactions |
+| `css/site.css` | Shared styling and desktop presentation |
+| `css/mobile.css` | Phone/tablet-only styling; does not affect desktop |
+| `js/site.js` | Tiny shared essential behavior |
+| `js/dynamics.js` | Optional shared motion and polish |
+| `js/mobile.js` | Optional phone/tablet-only behavior |
+
+## Desktop and mobile separation
+
+- Edit `css/site.css` for shared or desktop-facing design.
+- Edit `css/mobile.css` for phone/tablet-only visual changes. It is applied only at 880px and below.
+- Edit `js/mobile.js` for mobile-only behavior. It is guarded by the same breakpoint.
+- Shared HTML and project data continue to update both views automatically.
 
 ## Editing rule
 
@@ -27,4 +37,4 @@ Run `tools/Preview_Local.bat` to build and preview the finished site.
 
 ## Motion layer
 
-`js/dynamics.js` adds scroll reveals, header auto-hide, card tilt, pointer glow, and button ripples. Removing its script tag disables those effects without breaking navigation or content.
+`js/dynamics.js` adds shared scroll reveals, header auto-hide, card tilt, pointer glow, and button ripples. `js/mobile.js` is reserved for mobile-only behavior. Removing either optional script does not break navigation or content.

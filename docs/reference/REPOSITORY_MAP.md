@@ -33,8 +33,10 @@ orovian-showcase/
 ## Where to edit
 
 - Overall page layout: `website/*.html`
-- Site appearance: `website/css/site.css`
-- Menus, animation, galleries, filters, and interaction: `website/js/site.js`
+- Site appearance: `website/css/site.css
+website/css/mobile.css`
+- Menus, animation, galleries, filters, and interaction: `website/js/site.js
+website/js/mobile.js`
 - Global uploaded media: `assets/`
 - Property-specific media: `content/projects/SLUG/assets/`
 - Price, availability, dimensions, links, and metadata: `content/projects/SLUG/project.toml`

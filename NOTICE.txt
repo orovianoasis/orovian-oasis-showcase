@@ -12,4 +12,6 @@ Run tools/Preview_Local.bat to build and view the finished website.
 
 Starter package revision: 1.3 (organized documentation layout).
 
-Visual redesign 2.1 adds an optional progressive-enhancement dynamics layer while preserving the data-driven build and static fallback.
+Visual redesign 2.2 adds an optional progressive-enhancement dynamics layer while preserving the data-driven build and static fallback.
+
+Revision 2.2 separates mobile presentation and behavior from desktop.

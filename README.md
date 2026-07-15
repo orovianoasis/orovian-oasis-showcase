@@ -31,6 +31,16 @@ Start with the [Quick Start Guide](docs/getting-started/QUICK_START.md).
 The homepage source is `website/index.html`. All page HTML, CSS, and JavaScript are grouped under `website/`, while `assets/` remains reserved for images and other media. The generated public homepage is `dist/index.html`.
 
 
+## Desktop and mobile editing
+
+The presentation layers are separated for safer visual updates:
+
+- `website/css/site.css` — shared and desktop styling
+- `website/css/mobile.css` — mobile/tablet-only styling
+- `website/js/mobile.js` — optional mobile-only behavior
+
+See the [Mobile design editing guide](docs/editing/MOBILE_DESIGN_GUIDE.md).
+
 ## Documentation
 
 - [Quick start](docs/getting-started/QUICK_START.md)

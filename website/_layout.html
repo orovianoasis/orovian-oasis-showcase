@@ -1,7 +1,8 @@
 <!--
 OROVIAN OASIS SHOWCASE — SHARED PAGE SHELL
 Edit this file for the site-wide header, menu, footer, metadata, and script loading.
-The left menu works natively without JavaScript. dynamics.js only adds motion and polish.
+site.css contains shared/desktop styling; mobile.css is isolated to screens up to 880px.
+The left menu works natively without JavaScript. dynamics.js and mobile.js add optional polish.
 -->
 <!doctype html>
 <html lang="en">
@@ -16,6 +17,7 @@ The left menu works natively without JavaScript. dynamics.js only adds motion an
   <meta property="og:image" content="{{OG_IMAGE}}">
   <link rel="canonical" href="{{CANONICAL_URL}}">
   <link rel="stylesheet" href="{{ROOT}}css/site.css">
+  <link rel="stylesheet" href="{{ROOT}}css/mobile.css" media="(max-width: 880px)">
   {{HEAD_EXTRA}}
 </head>
 <body>
@@ -73,5 +75,6 @@ The left menu works natively without JavaScript. dynamics.js only adds motion an
   <div class="pointer-glow" data-pointer-glow aria-hidden="true"></div>
   <script src="{{ROOT}}js/site.js"></script>
   <script src="{{ROOT}}js/dynamics.js" defer></script>
+  <script src="{{ROOT}}js/mobile.js" defer></script>
 </body>
 </html>

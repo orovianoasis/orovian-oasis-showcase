@@ -1,23 +1,18 @@
-OROVIAN OASIS SHOWCASE — VISUAL SYSTEM 2.1
-VALIDATION REPORT
-Generated: 2026-07-15
+OROVIAN OASIS SHOWCASE — VALIDATION REPORT 2.2
 
-TARGETED HOMEPAGE REFINEMENT
-- Preserved the visual system 2.0 color palette and all project/data functions.
-- Replaced floating DESIGN / REHAB / REAL ESTATE text tokens with architectural line-art: a house, crane, floor plan, and building elevation.
-- Added optional pointer parallax to architectural artwork while preserving a fully visible static fallback.
-- Replaced the hero statement and tightened the hero height and spacing.
-- Removed the Scroll into the work prompt.
-- Pulled Featured Projects closer to the hero.
-- Corrected project-card media from 16:10 to 16:9 so placeholder lettering is no longer horizontally cropped.
-- Increased project-card title line height and internal padding to prevent glyph clipping.
-- Reworked category copy, added restrained emoji accents, and tightened category-card dimensions.
-- Replaced the property-intake headline and moved the callout upward.
-- Tightened footer and section spacing.
+PASS: source structure validation
+PASS: strict site generation
+PASS: generated output validation
+PASS: JavaScript syntax — site.js
+PASS: JavaScript syntax — dynamics.js
+PASS: JavaScript syntax — mobile.js
+PASS: desktop stylesheet contains no max-width mobile blocks
+PASS: mobile stylesheet contains isolated 880px and 560px responsive blocks
+PASS: generated pages load site.css and mobile.css separately
+PASS: generated pages load mobile.js as an optional layer
+PASS: shared content and project routes remain unchanged
 
-FUNCTIONAL PRESERVATION
-- GitHub Actions workflows are unchanged.
-- Project TOML data remains the source for prices, status, facts, media, materials, and purchase links.
-- Category, project, floor-plan, API, sitemap, and 3D-tour routes remain unchanged.
-- The native menu continues to work without JavaScript.
-- dynamics.js remains optional; removing it leaves all content and navigation functional.
+Desktop/mobile architecture:
+- site.css = shared + desktop
+- mobile.css = applied only up to 880px
+- mobile.js = guarded mobile-only optional behavior

@@ -1,86 +1,90 @@
-OROVIAN OASIS SHOWCASE — VISUAL SYSTEM 2.1
-CURRENT FILE MANIFEST
+OROVIAN OASIS SHOWCASE — SOURCE STRUCTURE 2.2
 
-.github/workflows/deploy-pages.yml	1171 bytes
-.github/workflows/validate.yml	607 bytes
-NOTICE.txt	664 bytes
-README.md	2448 bytes
-assets/brand/logo.png	10696 bytes
-assets/brand/logo.webp	127742 bytes
-assets/brand/share-card.svg	1843 bytes
-assets/placeholders/project-card.svg	887 bytes
-content/navigation.toml	300 bytes
-content/project-templates/README.md	349 bytes
-content/project-templates/concept-home-template/README.md	168 bytes
-content/project-templates/concept-home-template/assets/after-exterior.svg	1795 bytes
-content/project-templates/concept-home-template/assets/before-exterior.svg	1785 bytes
-content/project-templates/concept-home-template/assets/card.svg	1839 bytes
-content/project-templates/concept-home-template/assets/cover.svg	1839 bytes
-content/project-templates/concept-home-template/assets/share.svg	1839 bytes
-content/project-templates/concept-home-template/floor-plans/after.svg	901 bytes
-content/project-templates/concept-home-template/floor-plans/before.svg	903 bytes
-content/project-templates/concept-home-template/floor-plans/ground-floor.svg	901 bytes
-content/project-templates/concept-home-template/project.toml	1908 bytes
-content/project-templates/concept-home-template/tour/README.md	96 bytes
-content/project-templates/property-template/README.md	168 bytes
-content/project-templates/property-template/assets/after-exterior.svg	1795 bytes
-content/project-templates/property-template/assets/before-exterior.svg	1785 bytes
-content/project-templates/property-template/assets/card.svg	1845 bytes
-content/project-templates/property-template/assets/cover.svg	1845 bytes
-content/project-templates/property-template/assets/share.svg	1845 bytes
-content/project-templates/property-template/floor-plans/after.svg	901 bytes
-content/project-templates/property-template/floor-plans/before.svg	903 bytes
-content/project-templates/property-template/floor-plans/ground-floor.svg	901 bytes
-content/project-templates/property-template/project.toml	1643 bytes
-content/project-templates/property-template/tour/README.md	96 bytes
-content/project-templates/transformation-template/README.md	168 bytes
-content/project-templates/transformation-template/assets/after-exterior.svg	1795 bytes
-content/project-templates/transformation-template/assets/before-exterior.svg	1785 bytes
-content/project-templates/transformation-template/assets/card.svg	1855 bytes
-content/project-templates/transformation-template/assets/cover.svg	1855 bytes
-content/project-templates/transformation-template/assets/share.svg	1855 bytes
-content/project-templates/transformation-template/floor-plans/after.svg	901 bytes
-content/project-templates/transformation-template/floor-plans/before.svg	903 bytes
-content/project-templates/transformation-template/floor-plans/ground-floor.svg	901 bytes
-content/project-templates/transformation-template/project.toml	1900 bytes
-content/project-templates/transformation-template/tour/README.md	96 bytes
-content/projects/README.md	730 bytes
-content/projects/structure-demo/assets/card.svg	1859 bytes
-content/projects/structure-demo/assets/cover.svg	1859 bytes
-content/projects/structure-demo/assets/share.svg	1859 bytes
-content/projects/structure-demo/floor-plans/ground-floor.svg	919 bytes
-content/projects/structure-demo/project.toml	2015 bytes
-content/projects/structure-demo/tour/README.md	68 bytes
-content/site.toml	1312 bytes
-docs/README.md	834 bytes
-docs/deployment/CUSTOM_DOMAIN_SETUP.md	692 bytes
-docs/editing/CONTENT_WORKFLOW.md	1153 bytes
-docs/editing/EDITING_GUIDE.md	1853 bytes
-docs/editing/FOLDER_NAMING_GUIDE.md	681 bytes
-docs/getting-started/QUICK_START.md	1669 bytes
-docs/getting-started/UPLOAD_THIS_FOLDER.txt	351 bytes
-docs/internal/VALIDATION_REPORT.txt	1419 bytes
-docs/reference/PROJECT_FIELD_REFERENCE.md	1756 bytes
-docs/reference/RELEASE_CHECKLIST.md	653 bytes
-docs/reference/REPOSITORY_MAP.md	2211 bytes
-scripts/build_site.py	20538 bytes
-scripts/new_project.py	1245 bytes
-scripts/validate_output.py	2115 bytes
-scripts/validate_source.py	2578 bytes
-tools/Build_Local.bat	95 bytes
-tools/Build_Local.ps1	611 bytes
-tools/New_Project.bat	95 bytes
-tools/New_Project.ps1	722 bytes
-tools/Preview_Local.bat	97 bytes
-tools/Preview_Local.ps1	857 bytes
-website/404.html	407 bytes
-website/README.md	1342 bytes
-website/_layout.html	3430 bytes
-website/css/site.css	24195 bytes
-website/floor-plans.html	436 bytes
-website/index.html	4937 bytes
-website/js/dynamics.js	5457 bytes
-website/js/site.js	325 bytes
-website/listing.html	408 bytes
-website/project.html	1413 bytes
-website/tour-placeholder.html	441 bytes
+.github/workflows/deploy-pages.yml
+.github/workflows/validate.yml
+NOTICE.txt
+README.md
+assets/brand/logo.png
+assets/brand/logo.webp
+assets/brand/share-card.svg
+assets/placeholders/project-card.svg
+content/navigation.toml
+content/project-templates/README.md
+content/project-templates/concept-home-template/README.md
+content/project-templates/concept-home-template/assets/after-exterior.svg
+content/project-templates/concept-home-template/assets/before-exterior.svg
+content/project-templates/concept-home-template/assets/card.svg
+content/project-templates/concept-home-template/assets/cover.svg
+content/project-templates/concept-home-template/assets/share.svg
+content/project-templates/concept-home-template/floor-plans/after.svg
+content/project-templates/concept-home-template/floor-plans/before.svg
+content/project-templates/concept-home-template/floor-plans/ground-floor.svg
+content/project-templates/concept-home-template/project.toml
+content/project-templates/concept-home-template/tour/README.md
+content/project-templates/property-template/README.md
+content/project-templates/property-template/assets/after-exterior.svg
+content/project-templates/property-template/assets/before-exterior.svg
+content/project-templates/property-template/assets/card.svg
+content/project-templates/property-template/assets/cover.svg
+content/project-templates/property-template/assets/share.svg
+content/project-templates/property-template/floor-plans/after.svg
+content/project-templates/property-template/floor-plans/before.svg
+content/project-templates/property-template/floor-plans/ground-floor.svg
+content/project-templates/property-template/project.toml
+content/project-templates/property-template/tour/README.md
+content/project-templates/transformation-template/README.md
+content/project-templates/transformation-template/assets/after-exterior.svg
+content/project-templates/transformation-template/assets/before-exterior.svg
+content/project-templates/transformation-template/assets/card.svg
+content/project-templates/transformation-template/assets/cover.svg
+content/project-templates/transformation-template/assets/share.svg
+content/project-templates/transformation-template/floor-plans/after.svg
+content/project-templates/transformation-template/floor-plans/before.svg
+content/project-templates/transformation-template/floor-plans/ground-floor.svg
+content/project-templates/transformation-template/project.toml
+content/project-templates/transformation-template/tour/README.md
+content/projects/README.md
+content/projects/structure-demo/assets/card.svg
+content/projects/structure-demo/assets/cover.svg
+content/projects/structure-demo/assets/share.svg
+content/projects/structure-demo/floor-plans/ground-floor.svg
+content/projects/structure-demo/project.toml
+content/projects/structure-demo/tour/README.md
+content/site.toml
+docs/README.md
+docs/deployment/CUSTOM_DOMAIN_SETUP.md
+docs/editing/CONTENT_WORKFLOW.md
+docs/editing/EDITING_GUIDE.md
+docs/editing/FOLDER_NAMING_GUIDE.md
+docs/editing/MOBILE_DESIGN_GUIDE.md
+docs/getting-started/QUICK_START.md
+docs/getting-started/UPLOAD_THIS_FOLDER.txt
+docs/internal/SHA256SUMS.txt
+docs/internal/STRUCTURE_MANIFEST.txt
+docs/internal/VALIDATION_REPORT.txt
+docs/reference/PROJECT_FIELD_REFERENCE.md
+docs/reference/RELEASE_CHECKLIST.md
+docs/reference/REPOSITORY_MAP.md
+scripts/build_site.py
+scripts/new_project.py
+scripts/validate_output.py
+scripts/validate_source.py
+tools/Build_Local.bat
+tools/Build_Local.ps1
+tools/New_Project.bat
+tools/New_Project.ps1
+tools/Preview_Local.bat
+tools/Preview_Local.ps1
+website/404.html
+website/README.md
+website/_layout.html
+website/css/mobile.css
+website/css/site.css
+website/floor-plans.html
+website/index.html
+website/js/dynamics.js
+website/js/mobile.js
+website/js/site.js
+website/listing.html
+website/project.html
+website/tour-placeholder.html

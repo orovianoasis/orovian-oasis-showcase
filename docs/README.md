@@ -28,3 +28,5 @@ The repository root stays intentionally clean. Guides, references, deployment no
 - `internal/VALIDATION_REPORT.txt`
 - `internal/STRUCTURE_MANIFEST.txt`
 - `internal/SHA256SUMS.txt`
+
+- [Mobile design editing guide](editing/MOBILE_DESIGN_GUIDE.md)
