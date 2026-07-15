@@ -18,6 +18,9 @@ show_floor_plans = true
 show_purchase_options = true
 show_contact_cta = true
 
+# Homepage automatically shows up to this many projects. Explicit featured projects appear first.
+homepage_featured_limit = 3
+
 [contact]
 # Add the real public contact details below. The quick-contact popup and contact form use these values.
 phone_display = ""
