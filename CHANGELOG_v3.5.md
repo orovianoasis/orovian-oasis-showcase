@@ -1,0 +1,64 @@
+# ============================================================
+# OROVIAN OASIS SHOWCASE — GLOBAL CONTROL PANEL
+# Changes here affect the entire showcase.
+# ============================================================
+
+site_name = "Orovian Oasis Showcase"
+company_name = "Orovian Oasis"
+custom_domain = "showcase.orovianoasis.com"
+main_site_url = "https://orovianoasis.com"
+default_currency = "USD"
+timezone = "America/Chicago"
+locale = "en-US"
+
+# Site-wide launch switches
+show_prices = true
+show_materials = true
+show_floor_plans = true
+show_purchase_options = true
+show_contact_cta = true
+
+# Homepage automatically shows up to this many projects. Explicit featured projects appear first.
+homepage_featured_limit = 3
+
+# Project cover galleries. Set autoplay to false for a fully manual/static carousel.
+project_carousel_autoplay = true
+project_carousel_interval_ms = 5000
+
+[contact]
+# Add the real public contact details below. The quick-contact popup and contact form use these values.
+phone_display = ""
+phone_href = ""          # Example: "tel:+13125551234"
+text_href = ""           # Example: "sms:+13125551234"
+email = ""               # Example: "hello@orovianoasis.com"
+form_endpoint = ""       # Optional HTTPS form endpoint. Leave blank to open the visitor's email app.
+inquiry_url = "https://orovianoasis.com"
+
+[social]
+# Add the complete profile URL for each account. Empty values remain visible as muted placeholders.
+instagram = ""
+facebook = ""
+youtube = ""
+tiktok = ""
+linkedin = ""
+
+[legal]
+# Site-local pages are generated automatically. Replace with full HTTPS URLs if counsel hosts policies elsewhere.
+privacy_url = "/privacy/"
+terms_url = "/terms/"
+
+[commerce]
+default_checkout_label = "Purchase Package"
+default_inquiry_label = "Request Details"
+default_currency = "USD"
+terms_url = ""
+refund_policy_url = ""
+
+[seo]
+title = "Orovian Oasis Showcase"
+description = "Concept homes, transformations, interactive property walkthroughs, floor plans, and available properties from Orovian Oasis."
+image = "/assets/brand/share-card.svg"
+
+[analytics]
+provider = ""
+measurement_id = ""
