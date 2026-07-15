@@ -14,6 +14,7 @@ This folder contains the editable visual website in one place.
 | `css/site.css` | Shared styling and desktop presentation |
 | `css/mobile.css` | Phone/tablet-only styling; does not affect desktop |
 | `js/site.js` | Tiny shared essential behavior |
+| `js/contact.js` | Contact popup, form enhancement, and optional direct form endpoint |
 | `js/dynamics.js` | Optional shared motion and polish |
 | `js/mobile.js` | Optional phone/tablet-only behavior |
 
@@ -37,4 +38,6 @@ Run `tools/Preview_Local.bat` to build and preview the finished site.
 
 ## Motion layer
 
-`js/dynamics.js` adds shared scroll reveals, header auto-hide, card tilt, pointer glow, and button ripples. `js/mobile.js` is reserved for mobile-only behavior. Removing either optional script does not break navigation or content.
+`js/contact.js` enhances the CSS-based contact popups and form. The popups still open without JavaScript, and the form falls back to the configured email application when no direct endpoint is supplied.
+
+`js/dynamics.js` adds shared scroll reveals, header auto-hide, card tilt, pointer glow, blueprint motion, and button ripples. `js/mobile.js` is reserved for mobile-only behavior. Removing either optional motion script does not break navigation or content.

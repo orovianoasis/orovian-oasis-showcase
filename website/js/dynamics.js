@@ -106,7 +106,7 @@ pricing, floor plans, project pages, and the native <details> menu continue to w
     });
 
     // Button ripple is visual only; link behavior remains native.
-    document.querySelectorAll('.button, .intake-cta, .menu-intake').forEach((button) => {
+    document.querySelectorAll('.button, .contact-cta, .menu-intake, .footer-contact, .contact-choice').forEach((button) => {
       button.addEventListener('pointerdown', (event) => {
         const rect = button.getBoundingClientRect();
         const size = Math.max(rect.width, rect.height);

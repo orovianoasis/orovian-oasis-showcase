@@ -1,5 +1,5 @@
 /*
-OROVIAN OASIS SHOWCASE — MOBILE / TABLET VISUAL LAYER 2.2
+OROVIAN OASIS SHOWCASE — MOBILE / TABLET VISUAL LAYER 2.3
 
 EDIT THIS FILE for phone- and tablet-only visual changes.
 It is loaded with media="(max-width: 880px)", so these rules do not affect desktop.
@@ -8,15 +8,6 @@ The shared HTML, content, prices, routes, and project data remain synchronized.
 BREAKPOINT MAP
 - Up to 880px: tablet and mobile layout
 - Up to 560px: compact phone layout
-
-SAFE MOBILE-ONLY EDITS
-- spacing and stacking
-- font sizes and line heights
-- card dimensions
-- menu placement
-- button sizing
-- mobile visibility
-- mobile animation intensity
 */
 
 :root{
@@ -25,41 +16,115 @@ SAFE MOBILE-ONLY EDITS
   --mobile-control-size:44px;
 }
 
-/* Optional mobile.js enhancements. The site remains functional without them. */
 html.mobile-view{--mobile-vh:100svh}
 html.mobile-view body.mobile-menu-open{overflow:hidden}
 html.mobile-view .menu-popover{max-height:min(72svh,620px);overflow:auto;overscroll-behavior:contain}
 
 /* ===== TABLET + MOBILE: 880px AND BELOW ===== */
-
-@media(max-width:880px){.header-row{grid-template-columns:1fr auto 1fr}.menu-word{display:none}.intake-cta span{display:none}.intake-cta{width:48px;padding:0}.intake-cta svg{margin:auto}.hero h1{font-size:clamp(3.4rem,15vw,6.6rem)}.float-token{display:none}.two-col{grid-template-columns:1fr}.purchase-panel{position:relative;top:auto}.footer-grid{grid-template-columns:1fr}.footer-actions{text-align:left}.social-links{justify-content:flex-start}.ribbon-panel{align-items:flex-start;flex-direction:column}.footer-bottom{flex-direction:column}}
-
 @media(max-width:880px){
+  .header-row{grid-template-columns:1fr auto 1fr}
+  .menu-word{display:none}
+  .contact-cta span{display:none}
+  .contact-cta{width:48px;padding:0}
+  .contact-cta svg{margin:auto}
+
+  .hero h1{font-size:clamp(3.4rem,15vw,6.6rem)}
+  .float-token{display:none}
+  .two-col{grid-template-columns:1fr}
+  .purchase-panel{position:relative;top:auto}
+
+  /* Homepage and generated project cards are intentionally centered on mobile. */
+  .showcase-hero,.showcase-hero .hero-shell,
+  .section-heading,.project-card,.project-card .card-body,.project-card h3,.project-card p,
+  .project-card .price,.lane-card,.ribbon-panel{text-align:center}
+  .project-card .facts,.project-card .actions,.lane-card .actions{justify-content:center}
+
+  .ribbon-panel{align-items:center;flex-direction:column}
+  .ribbon-panel>div{width:100%}
+  .ribbon-panel h2{margin-inline:auto}
+  .ribbon-panel .button{align-self:center;margin-inline:auto}
+
+  .footer-grid{grid-template-columns:1fr;text-align:center}
+  .footer-brand{flex-direction:column;align-items:center;text-align:center}
+  .footer-brand p{margin-inline:auto}
+  .footer-actions{text-align:center}
+  .social-links{justify-content:center}
+  .footer-contact{justify-content:center}
+  .footer-bottom{flex-direction:column;align-items:center;text-align:center}
+
   .showcase-hero{min-height:72svh;padding-bottom:34px}
-  .build-shape{opacity:.12}.shape-house{left:-8%}.shape-crane{right:-6%}.shape-plan{left:-9%;bottom:4%}.shape-tower{right:-5%}
+  .build-shape{opacity:.18}
+  .shape-house{left:-8%}
+  .shape-crane{right:-6%}
+  .shape-plan{left:-9%;bottom:4%}
+  .shape-tower{right:-5%}
+  .trace-light{opacity:.95}
+
+  .contact-modal{padding:16px}
+  .contact-modal-card{width:min(600px,100%);padding:30px 22px;text-align:center}
+  .contact-choice{text-align:left}
+  .contact-form{grid-template-columns:1fr;text-align:center}
+  .contact-form-wide{grid-column:1}
+  .contact-form label>span{text-align:center}
+  .contact-form input,.contact-form select,.contact-form textarea{text-align:left}
+  .contact-form-actions{justify-content:center;flex-direction:column}
+  .contact-form-status{text-align:center}
+}
+
+/* More obvious mobile bounce while keeping every structure near its original position. */
+@media(max-width:880px) and (prefers-reduced-motion:no-preference){
+  .shape-house{animation-name:mobile-blueprint-bounce-a;animation-duration:4.6s}
+  .shape-crane{animation-name:mobile-blueprint-bounce-b;animation-duration:5.1s}
+  .shape-plan{animation-name:mobile-blueprint-bounce-c;animation-duration:4.8s}
+  .shape-tower{animation-name:mobile-blueprint-bounce-d;animation-duration:5.4s}
+  @keyframes mobile-blueprint-bounce-a{0%,100%{translate:0 0}28%{translate:10px -24px}56%{translate:-7px -12px}80%{translate:6px 5px}}
+  @keyframes mobile-blueprint-bounce-b{0%,100%{translate:0 0}22%{translate:-10px -20px}52%{translate:7px -29px}78%{translate:-5px 6px}}
+  @keyframes mobile-blueprint-bounce-c{0%,100%{translate:0 0}30%{translate:13px -22px}59%{translate:-9px -27px}83%{translate:5px 5px}}
+  @keyframes mobile-blueprint-bounce-d{0%,100%{translate:0 0}25%{translate:-9px -26px}54%{translate:8px -15px}81%{translate:-5px 6px}}
 }
 
 /* ===== COMPACT PHONES: 560px AND BELOW ===== */
-
-@media(max-width:560px){.site-header{padding-top:10px}.header-row{min-height:64px;padding:6px 8px}.brand-orbit{width:60px;height:60px}.brand-disc{width:50px;height:50px}.brand-disc img{width:45px;height:45px}.menu-trigger,.intake-cta{min-height:44px}.menu-trigger{padding:0 12px}.intake-cta{width:44px}.hero{padding-top:145px}.showcase-hero{min-height:94svh}.hero h1 span{font-size:.29em}.section{padding:58px 0}.card-body{padding:20px}.ribbon-panel{padding:28px}.footer-brand{align-items:flex-start}.footer-brand img{width:58px;height:58px}.footer-brand strong{font-size:1.55rem}.footer-bottom{font-size:.76rem}}
-
 @media(max-width:560px){
+  .site-header{padding-top:10px}
+  .header-row{min-height:64px;padding:6px 8px}
+  .brand-orbit{width:60px;height:60px}
+  .brand-disc{width:50px;height:50px}
+  .brand-disc img{width:45px;height:45px}
+  .menu-trigger,.contact-cta{min-height:44px}
+  .menu-trigger{padding:0 12px}
+  .contact-cta{width:44px}
+
+  .hero{padding-top:145px}
   .showcase-hero{min-height:70svh;padding-top:132px;padding-bottom:28px}
   .showcase-hero h1{font-size:clamp(3rem,15vw,4.8rem)}
   .showcase-hero h1 span{font-size:.24em;line-height:1.25}
   .showcase-hero p{font-size:.96rem}
+
   .featured-section{padding-top:20px}
   .section{padding:44px 0}
+  .card-body{padding:20px}
   .lane-card{min-height:330px}
   .ribbon-panel{padding:25px}
+
+  .footer-brand img{width:58px;height:58px}
+  .footer-brand strong{font-size:1.55rem}
+  .footer-bottom{font-size:.76rem}
+
   .shape-plan,.shape-tower{display:none}
+  .trace-light{width:8px;height:8px}
+  .trace-light-c{display:none}
+
+  .contact-modal{padding:10px}
+  .contact-modal-card{max-height:92svh;padding:26px 17px 22px;border-radius:27px}
+  .contact-modal-logo{width:76px;height:76px;margin-bottom:15px}
+  .contact-modal-logo img{width:69px;height:69px}
+  .contact-modal-card h2{font-size:clamp(2.1rem,11vw,3.1rem)}
+  .contact-modal-copy{font-size:.92rem}
+  .contact-modal-close{right:12px;top:12px;width:38px;height:38px}
+  .contact-choice{padding:13px 14px}
+  .contact-choice-icon{width:43px;height:43px;border-radius:14px}
+  .call-text-actions{grid-template-columns:1fr 1fr}
+  .contact-form{gap:12px}
 }
 
-
-/*
-ADD FUTURE MOBILE OVERRIDES BELOW THIS LINE.
-Example:
-@media(max-width:560px){
-  .project-card h3{font-size:1.85rem}
-}
-*/
+/* Add future mobile-only overrides below this line. */

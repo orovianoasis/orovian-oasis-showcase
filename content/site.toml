@@ -19,10 +19,12 @@ show_purchase_options = true
 show_contact_cta = true
 
 [contact]
+# Add the real public contact details below. The quick-contact popup and contact form use these values.
 phone_display = ""
-phone_href = ""
-text_href = ""
-email = ""
+phone_href = ""          # Example: "tel:+13125551234"
+text_href = ""           # Example: "sms:+13125551234"
+email = ""               # Example: "hello@orovianoasis.com"
+form_endpoint = ""       # Optional HTTPS form endpoint. Leave blank to open the visitor's email app.
 inquiry_url = "https://orovianoasis.com"
 
 [social]

@@ -1,4 +1,4 @@
-OROVIAN OASIS SHOWCASE — SOURCE STRUCTURE 2.2
+OROVIAN OASIS SHOWCASE — SOURCE STRUCTURE 2.3
 
 .github/workflows/deploy-pages.yml
 .github/workflows/validate.yml
@@ -53,6 +53,7 @@ content/projects/structure-demo/tour/README.md
 content/site.toml
 docs/README.md
 docs/deployment/CUSTOM_DOMAIN_SETUP.md
+docs/editing/CONTACT_SETUP.md
 docs/editing/CONTENT_WORKFLOW.md
 docs/editing/EDITING_GUIDE.md
 docs/editing/FOLDER_NAMING_GUIDE.md
@@ -82,6 +83,7 @@ website/css/mobile.css
 website/css/site.css
 website/floor-plans.html
 website/index.html
+website/js/contact.js
 website/js/dynamics.js
 website/js/mobile.js
 website/js/site.js

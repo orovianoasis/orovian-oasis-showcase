@@ -12,6 +12,8 @@ The repository root stays intentionally clean. Guides, references, deployment no
 - [Editing Guide](editing/EDITING_GUIDE.md)
 - [Content Workflow](editing/CONTENT_WORKFLOW.md)
 - [Folder Naming Guide](editing/FOLDER_NAMING_GUIDE.md)
+- [Mobile Design Guide](editing/MOBILE_DESIGN_GUIDE.md)
+- [Contact Setup](editing/CONTACT_SETUP.md)
 
 ## Deployment
 
@@ -29,4 +31,3 @@ The repository root stays intentionally clean. Guides, references, deployment no
 - `internal/STRUCTURE_MANIFEST.txt`
 - `internal/SHA256SUMS.txt`
 
-- [Mobile design editing guide](editing/MOBILE_DESIGN_GUIDE.md)

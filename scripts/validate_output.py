@@ -4,7 +4,7 @@ from pathlib import Path
 
 root=Path(sys.argv[1] if len(sys.argv)>1 else "dist")
 errors=[]
-for required in ["index.html","404.html","api/catalog.json","sitemap.xml","robots.txt","css/site.css","js/site.js","assets/brand/logo.webp"]:
+for required in ["index.html","404.html","api/catalog.json","sitemap.xml","robots.txt","css/site.css","js/site.js","js/contact.js","assets/brand/logo.webp"]:
     p=root/required
     if not p.exists() or p.stat().st_size==0: errors.append(f"missing or empty: {required}")
 try:

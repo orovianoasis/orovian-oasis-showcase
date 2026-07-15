@@ -1,5 +1,5 @@
 <!--
-OROVIAN OASIS SHOWCASE — SHARED PAGE SHELL
+OROVIAN OASIS SHOWCASE — SHARED PAGE SHELL 2.3
 Edit this file for the site-wide header, menu, footer, metadata, and script loading.
 site.css contains shared/desktop styling; mobile.css is isolated to screens up to 880px.
 The left menu works natively without JavaScript. dynamics.js and mobile.js add optional polish.
@@ -48,9 +48,9 @@ The left menu works natively without JavaScript. dynamics.js and mobile.js add o
         <span class="brand-disc"><img src="{{ROOT}}assets/brand/logo.webp" alt="Orovian Oasis"></span>
       </a>
 
-      <a class="intake-cta" href="{{MAIN_SITE_URL}}" target="_blank" rel="noopener">
-        <span>Property Intake</span>
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg>
+      <a class="contact-cta" href="#quick-contact" aria-label="Open contact options" aria-controls="quick-contact">
+        <span>Contact</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4Z"/><path d="M8 9h8M8 13h5"/></svg>
       </a>
     </div>
   </header>
@@ -66,14 +66,50 @@ The left menu works natively without JavaScript. dynamics.js and mobile.js add o
       <div class="footer-actions">
         <div class="footer-label">Follow the build</div>
         <div class="social-links" aria-label="Orovian Oasis social media">{{SOCIAL_LINKS}}</div>
-        <a class="footer-intake" href="{{MAIN_SITE_URL}}" target="_blank" rel="noopener">Property Intake Page <span aria-hidden="true">↗</span></a>
+        <a class="footer-contact" href="#contact-us" aria-controls="contact-us">Contact Us <span aria-hidden="true">✉</span></a>
       </div>
     </div>
     <div class="shell footer-bottom"><span>© <span data-year></span> Orovian Oasis</span><span>Designed to evolve without losing the blueprint.</span></div>
   </footer>
 
+  <section class="contact-modal quick-contact-modal" id="quick-contact" role="dialog" aria-modal="true" aria-labelledby="quick-contact-title">
+    <a class="contact-modal-backdrop" href="#" aria-label="Close contact options"></a>
+    <div class="contact-modal-card" tabindex="-1">
+      <a class="contact-modal-close" href="#" aria-label="Close contact options">×</a>
+      <div class="contact-modal-logo"><img src="{{ROOT}}assets/brand/logo.webp" alt="Orovian Oasis"></div>
+      <div class="eyebrow">📬 Contact Orovian Oasis</div>
+      <h2 id="quick-contact-title">How would you like to connect?</h2>
+      <p class="contact-modal-copy">Choose email, call, or text. Property intake remains available in the menu and on the homepage.</p>
+      <div class="quick-contact-options">{{QUICK_CONTACT_ACTIONS}}</div>
+      <a class="contact-form-switch" href="#contact-us">📝 Open the Contact Us form</a>
+    </div>
+  </section>
+
+  <section class="contact-modal contact-form-modal" id="contact-us" role="dialog" aria-modal="true" aria-labelledby="contact-form-title">
+    <a class="contact-modal-backdrop" href="#" aria-label="Close contact form"></a>
+    <div class="contact-modal-card contact-form-card" tabindex="-1">
+      <a class="contact-modal-close" href="#" aria-label="Close contact form">×</a>
+      <div class="contact-modal-logo"><img src="{{ROOT}}assets/brand/logo.webp" alt="Orovian Oasis"></div>
+      <div class="eyebrow">✉️ Contact Us</div>
+      <h2 id="contact-form-title">Tell us what you’re building.</h2>
+      <p class="contact-modal-copy">Share the property, plan, or opportunity and the best way to reach you.</p>
+      <form class="contact-form" data-contact-form data-contact-email="{{CONTACT_EMAIL}}" data-form-endpoint="{{CONTACT_FORM_ENDPOINT}}" action="{{CONTACT_FORM_ACTION}}" method="post" enctype="text/plain">
+        <label><span>Name</span><input type="text" name="name" autocomplete="name" required></label>
+        <label><span>Email</span><input type="email" name="email" autocomplete="email" required></label>
+        <label><span>Phone</span><input type="tel" name="phone" autocomplete="tel"></label>
+        <label><span>Preferred contact</span><select name="preferred_contact"><option>Email</option><option>Call</option><option>Text</option></select></label>
+        <label class="contact-form-wide"><span>What can we help with?</span><textarea name="message" rows="5" required placeholder="Property address, project type, goals, timeline, or anything else that matters."></textarea></label>
+        <div class="contact-form-wide contact-form-actions">
+          <button class="button primary" type="submit">📨 Send Message</button>
+          <p class="contact-form-status" data-contact-status aria-live="polite"></p>
+        </div>
+      </form>
+    </div>
+  </section>
+
   <div class="pointer-glow" data-pointer-glow aria-hidden="true"></div>
   <script src="{{ROOT}}js/site.js"></script>
+  <script src="{{ROOT}}js/contact.js" defer></script>
   <script src="{{ROOT}}js/dynamics.js" defer></script>
   <script src="{{ROOT}}js/mobile.js" defer></script>
 </body>

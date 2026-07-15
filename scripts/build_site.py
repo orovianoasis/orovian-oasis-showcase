@@ -90,13 +90,72 @@ def social_html(site):
     return "".join(parts)
 
 
+def contact_values(site):
+    contact = site.get("contact", {})
+    email = str(contact.get("email", "") or "").strip()
+    phone_display = str(contact.get("phone_display", "") or "").strip()
+    phone_href = str(contact.get("phone_href", "") or "").strip()
+    text_href = str(contact.get("text_href", "") or "").strip()
+    endpoint = str(contact.get("form_endpoint", "") or "").strip()
+    if phone_display and not phone_href:
+        number = re.sub(r"[^0-9+]", "", phone_display)
+        phone_href = f"tel:{number}" if number else ""
+    if phone_display and not text_href:
+        number = re.sub(r"[^0-9+]", "", phone_display)
+        text_href = f"sms:{number}" if number else ""
+    return {
+        "email": email,
+        "phone_display": phone_display,
+        "phone_href": phone_href,
+        "text_href": text_href,
+        "endpoint": endpoint,
+    }
+
+
+def quick_contact_html(site):
+    contact = contact_values(site)
+    parts = []
+    if contact["email"]:
+        parts.append(
+            f'<a class="contact-choice" href="mailto:{esc(contact["email"])}"><span class="contact-choice-icon" aria-hidden="true">✉️</span><span><strong>Email</strong><small>{esc(contact["email"])}</small></span></a>'
+        )
+    else:
+        parts.append(
+            '<span class="contact-choice is-disabled" title="Add contact.email in content/site.toml"><span class="contact-choice-icon" aria-hidden="true">✉️</span><span><strong>Email</strong><small>Add address in site.toml</small></span></span>'
+        )
+
+    phone_links = []
+    phone_label = contact["phone_display"] or "Choose call or text"
+    if contact["phone_href"]:
+        phone_links.append(f'<a href="{esc(contact["phone_href"])}">📞 Call</a>')
+    if contact["text_href"]:
+        phone_links.append(f'<a href="{esc(contact["text_href"])}">💬 Text</a>')
+    if phone_links:
+        parts.append(
+            '<details class="contact-choice-group"><summary class="contact-choice"><span class="contact-choice-icon" aria-hidden="true">☎️</span><span><strong>Call / Text</strong><small>'
+            + esc(phone_label)
+            + '</small></span></summary><div class="call-text-actions">'
+            + ''.join(phone_links)
+            + '</div></details>'
+        )
+    else:
+        parts.append(
+            '<span class="contact-choice is-disabled" title="Add phone links in content/site.toml"><span class="contact-choice-icon" aria-hidden="true">☎️</span><span><strong>Call / Text</strong><small>Add number in site.toml</small></span></span>'
+        )
+    return ''.join(parts)
+
+
 def apply_base(content, *, site, nav, root_prefix, title, description, og_image, canonical, head_extra=""):
     base=(WEBSITE/"_layout.html").read_text(encoding="utf-8")
+    contact = contact_values(site)
+    form_action = contact["endpoint"] or (f'mailto:{contact["email"]}' if contact["email"] else "#contact-us")
     replacements={
         "{{PAGE_TITLE}}":esc(title), "{{PAGE_DESCRIPTION}}":esc(description), "{{OG_IMAGE}}":esc(og_image),
         "{{CANONICAL_URL}}":esc(canonical), "{{ROOT}}":root_prefix, "{{HEAD_EXTRA}}":head_extra,
         "{{NAV}}":nav_html(nav, root_prefix), "{{CONTENT}}":content, "{{MAIN_SITE_URL}}":esc(site.get("main_site_url", "#")),
-        "{{SOCIAL_LINKS}}":social_html(site)
+        "{{SOCIAL_LINKS}}":social_html(site), "{{QUICK_CONTACT_ACTIONS}}":quick_contact_html(site),
+        "{{CONTACT_EMAIL}}":esc(contact["email"]), "{{CONTACT_FORM_ENDPOINT}}":esc(contact["endpoint"]),
+        "{{CONTACT_FORM_ACTION}}":esc(form_action)
     }
     for k,v in replacements.items(): base=base.replace(k,v)
     return base

@@ -6,6 +6,7 @@ The showcase now uses one synchronized content system with isolated presentation
 website/css/site.css      shared + desktop visual rules
 website/css/mobile.css    phone/tablet-only visual rules
 website/js/site.js        shared essential behavior
+website/js/contact.js     shared contact popup/form behavior
 website/js/dynamics.js    shared optional motion
 website/js/mobile.js      phone/tablet-only optional behavior
 ```
@@ -46,3 +47,10 @@ Run `tools/Preview_Local.bat`, open the local address in Chrome or Edge, press `
 - Desktop wider than 1100 pixels
 
 Never edit `dist/`; it is generated output.
+
+
+## Version 2.3 mobile controls
+
+The top-right Contact control remains a pill on desktop and becomes the same circular control on mobile. Mobile centering for the featured project, property-intake ribbon, footer brand, social icons, Contact Us link, and copyright line lives only in `website/css/mobile.css`.
+
+The stronger mobile blueprint bounce is also defined in `mobile.css`. Shared tracer lights and desktop motion remain in `site.css`, while pointer parallax remains optional in `js/dynamics.js`.

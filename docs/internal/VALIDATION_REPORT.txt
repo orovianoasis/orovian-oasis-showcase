@@ -1,18 +1,31 @@
-OROVIAN OASIS SHOWCASE — VALIDATION REPORT 2.2
+OROVIAN OASIS SHOWCASE — VALIDATION REPORT 2.3
 
 PASS: source structure validation
+PASS: Python syntax compilation — build and validation scripts
 PASS: strict site generation
 PASS: generated output validation
 PASS: JavaScript syntax — site.js
+PASS: JavaScript syntax — contact.js
 PASS: JavaScript syntax — dynamics.js
 PASS: JavaScript syntax — mobile.js
 PASS: desktop stylesheet contains no max-width mobile blocks
 PASS: mobile stylesheet contains isolated 880px and 560px responsive blocks
 PASS: generated pages load site.css and mobile.css separately
-PASS: generated pages load mobile.js as an optional layer
+PASS: generated pages load contact.js, dynamics.js, and mobile.js separately
+PASS: generated pages contain no unresolved template tokens
+PASS: generated HTML contains no duplicate IDs
+PASS: generated local stylesheet and script references resolve
+PASS: configured email, call, and text link generation test
 PASS: shared content and project routes remain unchanged
 
-Desktop/mobile architecture:
-- site.css = shared + desktop
-- mobile.css = applied only up to 880px
+Version 2.3 architecture:
+- site.css = shared + desktop presentation, contact components, shared blueprint motion
+- mobile.css = mobile/tablet centering, sizing, and stronger mobile blueprint bounce
+- contact.js = shared contact form enhancement; CSS popups remain available without JavaScript
+- dynamics.js = optional reveal, tilt, parallax, tracer, pointer, and ripple polish
 - mobile.js = guarded mobile-only optional behavior
+
+Contact configuration note:
+- content/site.toml intentionally keeps public email and phone fields blank until the owner adds verified details.
+- With an email configured, the contact form opens a prepared email draft.
+- With form_endpoint configured, the form posts directly to that HTTPS endpoint.

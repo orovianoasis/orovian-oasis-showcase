@@ -93,3 +93,91 @@ main{position:relative}.hero{position:relative;min-height:70vh;display:grid;plac
 }
 
 
+
+/* ==========================================================
+   VISUAL SYSTEM 2.3 — CONTACT POPUPS + BLUEPRINT MOTION
+   Desktop alignment remains unchanged except for the featured project card.
+   Mobile-only centering continues in mobile.css.
+   ========================================================== */
+
+.contact-cta{justify-self:end;display:inline-flex;align-items:center;gap:10px;min-height:48px;padding:0 17px;border-radius:999px;background:var(--paper);color:var(--ink);text-decoration:none;font-weight:900;box-shadow:0 10px 30px rgba(0,0,0,.22);transition:transform .2s ease,box-shadow .2s ease}
+.contact-cta:hover,.contact-cta:focus-visible{transform:translateY(-2px);box-shadow:0 15px 36px rgba(0,0,0,.3);outline:none}
+.contact-cta svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.footer-contact{display:inline-flex;align-items:center;gap:8px;color:var(--mint);font-weight:900;text-decoration:none}
+.footer-contact:hover,.footer-contact:focus-visible{color:var(--paper);outline:none}
+
+/* Keep the featured Structure Demo and all future featured cards centered on desktop. */
+.featured-section .project-card,.featured-section .project-card .card-body,.featured-section .project-card h3,.featured-section .project-card p{text-align:center}
+.featured-section .project-card .facts,.featured-section .project-card .actions{justify-content:center}
+
+/* Contact popups use :target, so they still open when JavaScript is unavailable. */
+.contact-modal{position:fixed;z-index:1000;inset:0;display:grid;place-items:center;padding:24px;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .25s ease,visibility .25s ease}
+.contact-modal:target{opacity:1;visibility:visible;pointer-events:auto}
+.contact-modal-backdrop{position:absolute;inset:0;background:rgba(8,4,13,.78);backdrop-filter:blur(15px)}
+.contact-modal-card{position:relative;z-index:1;width:min(560px,100%);max-height:min(88svh,820px);overflow:auto;overscroll-behavior:contain;padding:34px;border:1px solid rgba(255,248,238,.18);border-radius:34px;background:linear-gradient(150deg,rgba(53,29,63,.98),rgba(23,14,31,.99));box-shadow:0 38px 120px rgba(0,0,0,.58);text-align:center;transform:translateY(18px) scale(.98);transition:transform .28s cubic-bezier(.2,.8,.2,1);outline:none}
+.contact-modal:target .contact-modal-card{transform:none}
+.contact-form-card{width:min(760px,100%)}
+.contact-modal-close{position:absolute;right:17px;top:17px;width:42px;height:42px;display:grid;place-items:center;border:1px solid rgba(255,248,238,.16);border-radius:50%;background:rgba(255,255,255,.05);font-size:1.7rem;line-height:1;text-decoration:none;color:var(--paper)}
+.contact-modal-close:hover,.contact-modal-close:focus-visible{background:var(--coral);color:var(--ink);outline:none}
+.contact-modal-logo{width:86px;height:86px;display:grid;place-items:center;margin:0 auto 18px;border-radius:50%;background:var(--paper);box-shadow:0 16px 44px rgba(0,0,0,.32),0 0 38px rgba(112,240,202,.12)}
+.contact-modal-logo img{width:78px;height:78px;object-fit:contain;border-radius:50%}
+.contact-modal-card h2{font-family:var(--serif);font-style:italic;font-weight:500;font-size:clamp(2.3rem,5vw,4rem);line-height:1;margin:12px 0;padding:.03em .04em .11em}
+.contact-modal-copy{max-width:580px;margin:0 auto 24px;color:var(--muted);line-height:1.62}
+.quick-contact-options{display:grid;gap:12px;margin-top:22px}
+.contact-choice{width:100%;display:flex;align-items:center;gap:15px;padding:16px 18px;border:1px solid rgba(255,248,238,.16);border-radius:20px;background:rgba(255,255,255,.05);color:var(--paper);text-decoration:none;text-align:left;cursor:pointer;transition:transform .2s ease,border-color .2s ease,background .2s ease}
+.contact-choice:hover,.contact-choice:focus-visible{transform:translateY(-2px);border-color:rgba(112,240,202,.55);background:rgba(112,240,202,.08);outline:none}
+.contact-choice-icon{flex:0 0 auto;width:48px;height:48px;display:grid;place-items:center;border-radius:16px;background:rgba(112,240,202,.11);font-size:1.45rem}
+.contact-choice strong,.contact-choice small{display:block}
+.contact-choice strong{font-size:1.05rem}
+.contact-choice small{margin-top:3px;color:var(--muted);font-size:.82rem}
+.contact-choice.is-disabled{opacity:.48;cursor:not-allowed}
+.contact-choice.is-disabled:hover{transform:none;border-color:rgba(255,248,238,.16);background:rgba(255,255,255,.05)}
+.contact-choice-group{border:0}
+.contact-choice-group summary{list-style:none}
+.contact-choice-group summary::-webkit-details-marker{display:none}
+.contact-choice-group[open] summary{border-color:rgba(112,240,202,.55);border-radius:20px 20px 8px 8px}
+.call-text-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;padding:10px;border:1px solid rgba(112,240,202,.24);border-top:0;border-radius:0 0 20px 20px;background:rgba(13,9,18,.34)}
+.call-text-actions a{display:flex;align-items:center;justify-content:center;min-height:46px;border-radius:14px;background:var(--paper);color:var(--ink);font-weight:900;text-decoration:none}
+.call-text-actions a:hover,.call-text-actions a:focus-visible{background:var(--mint);outline:none}
+.contact-form-switch{display:inline-flex;justify-content:center;margin-top:20px;color:var(--mint);font-weight:900;text-decoration:none}
+.contact-form-switch:hover,.contact-form-switch:focus-visible{color:var(--paper);outline:none}
+
+.contact-form{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-top:25px;text-align:left}
+.contact-form label{display:grid;gap:7px;color:var(--paper);font-weight:850;font-size:.86rem}
+.contact-form input,.contact-form select,.contact-form textarea{width:100%;border:1px solid rgba(255,248,238,.18);border-radius:15px;background:rgba(255,255,255,.055);color:var(--paper);font:inherit;padding:13px 14px;outline:none;transition:border-color .2s ease,box-shadow .2s ease,background .2s ease}
+.contact-form textarea{resize:vertical;min-height:138px;line-height:1.5}
+.contact-form input:focus,.contact-form select:focus,.contact-form textarea:focus{border-color:var(--mint);box-shadow:0 0 0 4px rgba(112,240,202,.1);background:rgba(255,255,255,.075)}
+.contact-form select option{color:var(--ink);background:var(--paper)}
+.contact-form-wide{grid-column:1/-1}
+.contact-form-actions{display:flex;align-items:center;gap:16px;margin-top:4px}
+.contact-form-actions .button{border:0;cursor:pointer}
+.contact-form-status{margin:0;color:var(--muted);font-size:.85rem;line-height:1.45}
+body.contact-modal-open{overflow:hidden}
+
+/* More visible local bounce plus animated blueprint tracing. */
+.trace-light{position:absolute;z-index:2;width:9px;height:9px;border-radius:50%;opacity:.8;filter:drop-shadow(0 0 8px currentColor);pointer-events:none}
+.trace-light:after{content:"";position:absolute;left:50%;top:50%;width:54px;height:2px;transform:translate(-7px,-50%);transform-origin:left center;background:linear-gradient(90deg,currentColor,transparent);opacity:.5}
+.trace-light-a{color:var(--mint);background:currentColor}
+.trace-light-b{color:var(--coral);background:currentColor}
+.trace-light-c{color:var(--sun);background:currentColor}
+
+@media(prefers-reduced-motion:no-preference){
+  .shape-house{animation:blueprint-bounce-a 5.2s ease-in-out infinite}
+  .shape-crane{animation:blueprint-bounce-b 6.1s ease-in-out infinite -1.4s}
+  .shape-plan{animation:blueprint-bounce-c 5.8s ease-in-out infinite -3.2s}
+  .shape-tower{animation:blueprint-bounce-d 6.5s ease-in-out infinite -4.4s}
+  .build-shape .accent{animation:blueprint-dash 4.6s linear infinite}
+  .trace-light-a{animation:trace-route-a 9.5s cubic-bezier(.45,.05,.55,.95) infinite}
+  .trace-light-b{animation:trace-route-b 11s cubic-bezier(.45,.05,.55,.95) infinite alternate}
+  .trace-light-c{animation:trace-route-c 8.7s ease-in-out infinite -2.8s}
+  @keyframes blueprint-bounce-a{0%,100%{translate:0 0}25%{translate:8px -18px}55%{translate:-5px -9px}78%{translate:5px 4px}}
+  @keyframes blueprint-bounce-b{0%,100%{translate:0 0}24%{translate:-9px -14px}48%{translate:5px -22px}76%{translate:-3px 5px}}
+  @keyframes blueprint-bounce-c{0%,100%{translate:0 0}31%{translate:11px -16px}57%{translate:-7px -21px}82%{translate:4px 3px}}
+  @keyframes blueprint-bounce-d{0%,100%{translate:0 0}22%{translate:-7px -20px}50%{translate:7px -11px}79%{translate:-4px 4px}}
+  @keyframes blueprint-dash{to{stroke-dashoffset:-78}}
+  @keyframes trace-route-a{0%{left:13%;top:50%;rotate:-18deg}18%{left:29%;top:21%;rotate:-4deg}39%{left:63%;top:17%;rotate:12deg}63%{left:84%;top:47%;rotate:115deg}81%{left:58%;top:77%;rotate:190deg}100%{left:13%;top:50%;rotate:342deg}}
+  @keyframes trace-route-b{0%{left:78%;top:28%;rotate:150deg}26%{left:53%;top:70%;rotate:205deg}51%{left:22%;top:64%;rotate:260deg}73%{left:35%;top:27%;rotate:318deg}100%{left:78%;top:28%;rotate:510deg}}
+  @keyframes trace-route-c{0%{left:18%;top:76%;rotate:-26deg}23%{left:46%;top:61%;rotate:28deg}47%{left:76%;top:73%;rotate:165deg}68%{left:66%;top:34%;rotate:224deg}84%{left:36%;top:39%;rotate:296deg}100%{left:18%;top:76%;rotate:334deg}}
+}
+
+@media(prefers-reduced-motion:reduce){.trace-light{display:none}.build-shape .accent{stroke-dashoffset:0}}
