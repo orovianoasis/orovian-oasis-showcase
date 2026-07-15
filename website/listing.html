@@ -3,4 +3,8 @@
   <div class="eyebrow">{{EYEBROW}}</div><h1>{{HEADING}}</h1><p>{{INTRO}}</p>
   <div class="listing-pulse" aria-hidden="true"><span></span><span></span><span></span></div>
 </div></section>
-<section class="section"><div class="shell">{{PROJECT_GRID}}</div></section>
+<section class="section listing-catalog"><div class="shell">
+  {{FILTER_BAR}}
+  <div class="listing-results" data-project-results>{{PROJECT_GRID}}</div>
+  <div class="empty filter-empty" data-filter-empty hidden>🔎 No projects match those filters yet. Try widening the search.</div>
+</div></section>

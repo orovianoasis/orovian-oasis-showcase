@@ -425,3 +425,26 @@ html.mobile-view .menu-popover{max-height:min(72svh,620px);overflow:auto;overscr
 @media(max-width:380px){
   .listing-transformations h1{font-size:clamp(2rem,8.9vw,2.35rem)}
 }
+
+/* ==========================================================
+   MOBILE 3.3 — COMPACT PROJECT FILTERS
+   ========================================================== */
+@media(max-width:880px){
+  .listing-catalog{padding-top:24px}
+  .project-filter-panel{padding:18px;border-radius:24px;margin-bottom:20px}
+  .filter-heading{align-items:center;margin-bottom:14px}
+  .filter-heading h2{font-size:clamp(1.8rem,8vw,2.5rem);text-align:left}
+  .filter-heading .eyebrow{text-align:left}
+  .filter-count{font-size:.72rem;padding:8px 10px}
+  .filter-pills{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+  .filter-pill{padding:10px 11px;border-radius:17px}
+  .filter-pill>span{font-size:.61rem;letter-spacing:.06em}
+  .filter-pill input,.filter-pill select{min-height:34px;font-size:.88rem}
+  .filter-reset{display:block;margin:13px auto 0}
+  .project-price.contact-price{font-size:clamp(1.9rem,8vw,2.8rem)!important}
+}
+@media(max-width:430px){
+  .filter-heading{align-items:flex-start}
+  .filter-pills{grid-template-columns:minmax(0,1fr)}
+  .filter-pill{padding:10px 13px}
+}
