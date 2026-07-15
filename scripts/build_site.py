@@ -554,16 +554,17 @@ def build(args):
         floor_plans=p.get("floor_plans",[])
         tour=p.get("tour",{})
         explore=[]
-        if floor_plans and site.get("show_floor_plans",True): explore.append('<a class="button primary" href="floor-plans/">📐 View Floor Plans</a>')
-        if tour.get("enabled"): explore.append(f'<a class="button" href="{esc(tour.get("path","tour/"))}"{" target=\"_blank\" rel=\"noopener\"" if tour.get("open_new_tab") else ""}>🎮 {esc(tour.get("label","Launch 3D Walkthrough"))}</a>')
-        explore_content=''.join(explore) or '<span class="muted">Additional project media is being prepared.</span>'
-        explore_section=f'<div class="panel project-explore-panel" data-reveal><div class="panel-kicker">🧭 Explore the build</div><h2>📐 Plans &amp; 3D Tour</h2><div class="actions centered-actions">{explore_content}</div></div>'
+        if floor_plans and site.get("show_floor_plans",True):
+            explore.append('<a class="button primary project-hero-action" href="floor-plans/">📐 View Floor Plans</a>')
+        if tour.get("enabled"):
+            explore.append(f'<a class="button project-hero-action" href="{esc(tour.get("path","tour/"))}"{" target=\"_blank\" rel=\"noopener\"" if tour.get("open_new_tab") else ""}>🎮 {esc(tour.get("label","Launch 3D Walkthrough"))}</a>')
+        action_class = "dual-action" if len(explore) > 1 else "single-action"
+        hero_explore_actions = f'<div class="project-hero-actions {action_class}" data-reveal>{"".join(explore)}</div>' if explore else ""
         body=project_template
         replacements={
             "{{CATEGORY_LABEL}}":CATEGORY_LABELS[p["category"]],"{{PROJECT_TITLE}}":esc(ident.get("title")),"{{PROJECT_SUBTITLE}}":esc(ident.get("subtitle")),
-            "{{PROJECT_CAROUSEL}}":project_carousel_html(p,site,project_base="",mode="hero"),"{{SUMMARY}}":esc(ident.get("summary")),"{{FACTS}}":facts_html(p),
+            "{{PROJECT_CAROUSEL}}":project_carousel_html(p,site,project_base="",mode="hero"),"{{HERO_EXPLORE_ACTIONS}}":hero_explore_actions,"{{SUMMARY}}":esc(ident.get("summary")),"{{FACTS}}":facts_html(p),
             "{{STATUS_LABEL}}":esc(p.get("status_label",p.get("status",""))),"{{PRICE_BLOCK}}":price_block_html(p,site,project_url,project_page=True),"{{CTA_BUTTONS}}":cta_buttons(p,site,project_url),
-            "{{EXPLORE_SECTION}}":explore_section,
             "{{SPECIAL_SECTION}}":special_section(p),"{{MATERIALS_SECTION}}":materials_section(p,site),"{{DELIVERABLES_SECTION}}":deliverables_section(p,site)}
         for k,v in replacements.items(): body=body.replace(k,v)
         title=p.get("seo",{}).get("title") or f"{ident.get('title')} | {site['site_name']}"
@@ -579,7 +580,15 @@ def build(args):
             links=[]
             if item.get("pdf"): links.append(f'<a class="button" href="../{esc(item["pdf"])}">Open PDF</a>')
             if item.get("dxf"): links.append(f'<a class="button" href="../{esc(item["dxf"])}">Download DXF</a>')
-            cards.append(f'<article class="panel" data-reveal><h2>{esc(item.get("level"))}</h2><img src="{esc(image_url)}" alt="{esc(item.get("level"))} floor plan"><p class="muted">{esc(item.get("caption"))}</p><div class="actions">{"".join(links)}</div></article>')
+            level = str(item.get("level") or "Floor Plan")
+            compact_class = " floor-card-index" if "drawing index" in level.lower() else ""
+            preview = (
+                f'<a class="floor-plan-preview" href="{esc(image_url)}" target="_blank" rel="noopener" data-plan-open '
+                f'data-plan-title="{esc(level)}" aria-label="Open and zoom {esc(level)}">'
+                f'<img src="{esc(image_url)}" alt="{esc(level)} floor plan" loading="lazy">'
+                f'<span class="floor-plan-preview-label">🔍 Open &amp; zoom</span></a>'
+            )
+            cards.append(f'<article class="panel floor-card{compact_class}" data-reveal><h2>{esc(level)}</h2>{preview}<p class="muted">{esc(item.get("caption"))}</p><div class="actions">{"".join(links)}</div></article>')
         floor_body=floor_template.replace("{{PROJECT_TITLE}}",esc(ident.get("title"))).replace("{{INTRO}}","Customer-facing floor plans and available downloads.").replace("{{FLOOR_PLAN_CARDS}}",''.join(cards) or '<div class="empty">Floor plans have not been published yet.</div>')
         floor_page=apply_base(floor_body,site=site,nav=nav,root_prefix="../../../",title=f"Floor Plans — {ident.get('title')}",description=f"Floor plans for {ident.get('title')}",og_image=og,canonical=project_url+"floor-plans/",page_kind="project-support",project_context={"title":ident.get("title",""),"url":project_url,"category":CATEGORY_LABELS[p["category"]]})
         (fp_folder/"index.html").write_text(floor_page,encoding="utf-8")

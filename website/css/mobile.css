@@ -471,3 +471,30 @@ html.mobile-view .menu-popover{max-height:min(72svh,620px);overflow:auto;overscr
   .carousel-viewport{aspect-ratio:4/3}
   .card-carousel .carousel-viewport,.hero-carousel .carousel-viewport{aspect-ratio:4/3}
 }
+
+/* ==========================================================
+   MOBILE 3.5 — SIDE-BY-SIDE HERO ACTIONS + PLAN VIEWER
+   ========================================================== */
+@media(max-width:880px){
+  .project-hero-actions{width:min(100%,620px);padding-inline:0;gap:9px}
+  .project-hero-actions.dual-action{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .project-hero-actions .button{min-height:46px;padding:8px 12px;font-size:.82rem;line-height:1.2}
+  .floor-grid{grid-template-columns:1fr;align-items:start}
+  .floor-card{width:100%;padding:20px}
+  .floor-card-index{padding-bottom:18px}
+  .floor-card-index .floor-plan-preview img{max-height:300px}
+  .plan-lightbox{padding:8px}
+  .plan-lightbox-card{height:calc(100dvh - 16px);padding:10px;border-radius:22px}
+  .plan-lightbox-toolbar{align-items:flex-start;gap:9px;padding-bottom:8px}
+  .plan-lightbox-toolbar .eyebrow{font-size:.58rem;letter-spacing:.12em}
+  .plan-lightbox-toolbar h2{font-size:1.45rem}
+  .plan-lightbox-controls{gap:5px}
+  .plan-lightbox-controls button,.plan-lightbox-controls output{min-width:35px;min-height:35px;padding:5px 8px;font-size:.72rem}
+  .plan-lightbox-help{font-size:.68rem;margin-top:7px}
+}
+@media(max-width:420px){
+  .project-hero-actions{gap:7px}
+  .project-hero-actions .button{padding-inline:7px;font-size:.72rem}
+  .plan-lightbox-toolbar{display:grid;grid-template-columns:minmax(0,1fr) auto}
+  .plan-lightbox-controls output,.plan-lightbox-controls [data-plan-reset]{display:none}
+}
