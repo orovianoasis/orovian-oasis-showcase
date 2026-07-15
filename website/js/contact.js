@@ -1,84 +1,96 @@
 /*
-OROVIAN OASIS SHOWCASE — CONTACT LAYER 2.4
-The popups use CSS :target and remain visible without JavaScript.
-This file adds focus management, Escape/close controls, scroll-position preservation,
-body scroll locking, and enhanced form submission.
+OROVIAN OASIS SHOWCASE — MODAL + CONTACT LAYER 2.5
+Hash targets remain a no-JavaScript fallback. With JavaScript, dialogs use .is-open so one tap
+always opens or closes them without moving the page or requiring a second click.
 */
 (() => {
   'use strict';
 
-  const modalIds = new Set(['quick-contact', 'contact-us']);
-  const modalLinks = 'a[href="#quick-contact"], a[href="#contact-us"]';
+  const modals = [...document.querySelectorAll('.contact-modal[id]')];
+  const modalById = new Map(modals.map((modal) => [modal.id, modal]));
   const form = document.querySelector('[data-contact-form]');
   const status = document.querySelector('[data-contact-status]');
   let previousFocus = null;
   let returnScrollX = window.scrollX;
   let returnScrollY = window.scrollY;
+  let currentModal = null;
 
-  const activeModal = () => {
-    const id = window.location.hash.slice(1);
-    return modalIds.has(id) ? document.getElementById(id) : null;
-  };
+  const cleanUrl = () => `${location.pathname}${location.search}`;
 
-  const restorePagePosition = () => {
-    window.requestAnimationFrame(() => {
-      window.scrollTo(returnScrollX, returnScrollY);
-    });
-  };
+  function savePagePosition() {
+    returnScrollX = window.scrollX;
+    returnScrollY = window.scrollY;
+  }
 
-  const syncModalState = () => {
-    const modal = activeModal();
-    const wasOpen = document.body.classList.contains('contact-modal-open');
-    document.body.classList.toggle('contact-modal-open', Boolean(modal));
+  function restorePagePosition() {
+    window.requestAnimationFrame(() => window.scrollTo(returnScrollX, returnScrollY));
+  }
 
-    if (modal) {
-      if (!wasOpen) previousFocus = document.activeElement;
-      window.requestAnimationFrame(() => modal.querySelector('.contact-modal-card')?.focus({ preventScroll: true }));
-      return;
+  function setModalState(modal, open) {
+    modal.classList.toggle('is-open', open);
+    modal.setAttribute('aria-hidden', open ? 'false' : 'true');
+  }
+
+  function openModal(id, opener = null) {
+    const modal = modalById.get(id);
+    if (!modal) return;
+
+    if (!currentModal) {
+      savePagePosition();
+      previousFocus = opener instanceof HTMLElement ? opener : document.activeElement;
     }
 
-    if (previousFocus instanceof HTMLElement) {
-      previousFocus.focus({ preventScroll: true });
-      previousFocus = null;
-    }
-  };
+    modals.forEach((item) => setModalState(item, item === modal));
+    currentModal = modal;
+    document.body.classList.add('contact-modal-open');
+    history.replaceState(null, '', cleanUrl());
+    window.requestAnimationFrame(() => modal.querySelector('.contact-modal-card')?.focus({ preventScroll: true }));
+  }
 
-  const closeModal = () => {
-    history.replaceState(null, '', `${location.pathname}${location.search}`);
-    syncModalState();
+  function closeModal({ restoreFocus = true } = {}) {
+    if (!currentModal && !modals.some((modal) => modal.matches(':target'))) return;
+
+    modals.forEach((modal) => setModalState(modal, false));
+    currentModal = null;
+    document.body.classList.remove('contact-modal-open');
+    history.replaceState(null, '', cleanUrl());
     restorePagePosition();
-  };
+
+    if (restoreFocus && previousFocus instanceof HTMLElement) {
+      window.requestAnimationFrame(() => previousFocus?.focus({ preventScroll: true }));
+    }
+    previousFocus = null;
+  }
 
   document.addEventListener('click', (event) => {
-    const opener = event.target.closest(modalLinks);
-    if (opener && !activeModal()) {
-      returnScrollX = window.scrollX;
-      returnScrollY = window.scrollY;
-    }
-
-    const closer = event.target.closest('[data-contact-close]');
-    if (closer && activeModal()) {
+    const closer = event.target.closest('[data-modal-close], [data-contact-close]');
+    if (closer) {
       event.preventDefault();
-      closeModal();
-    }
-  });
-
-  window.addEventListener('hashchange', () => {
-    if (window.location.hash === '#contact-closed') {
+      event.stopPropagation();
       closeModal();
       return;
     }
-    syncModalState();
+
+    const opener = event.target.closest('a[href^="#"]');
+    if (!opener) return;
+    const id = opener.getAttribute('href')?.slice(1);
+    if (!id || !modalById.has(id)) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    openModal(id, opener);
   });
 
   document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape' && activeModal()) {
+    if (event.key === 'Escape' && currentModal) {
       event.preventDefault();
       closeModal();
     }
   });
 
-  syncModalState();
+  // Support direct hash links and the CSS-only fallback when the script arrives after navigation.
+  const initialId = location.hash.slice(1);
+  if (modalById.has(initialId)) openModal(initialId);
 
   if (!form) return;
 

@@ -1,8 +1,9 @@
 <!--
-OROVIAN OASIS SHOWCASE — SHARED PAGE SHELL 2.4
-Edit this file for the site-wide header, menu, footer, metadata, and script loading.
+OROVIAN OASIS SHOWCASE — SHARED PAGE SHELL 2.5
+Edit this file for the site-wide header, menu, footer, metadata, dialogs, and script loading.
 site.css contains shared/desktop styling; mobile.css is isolated to screens up to 880px.
-The left menu works natively without JavaScript. dynamics.js and mobile.js add optional polish.
+The left menu and hash-target dialogs remain usable without JavaScript. JavaScript adds one-click
+modal controls, focus management, scroll preservation, and optional motion.
 -->
 <!doctype html>
 <html lang="en">
@@ -43,12 +44,12 @@ The left menu works natively without JavaScript. dynamics.js and mobile.js add o
         </div>
       </details>
 
-      <a class="brand-orbit" href="{{ROOT}}" aria-label="Orovian Oasis Showcase home">
-        <span class="brand-ring" aria-hidden="true"></span>
-        <span class="brand-disc"><img src="{{ROOT}}assets/brand/logo.webp" alt="Orovian Oasis"></span>
+      <a class="brand-orbit logo-orbit orbit-forward" href="{{ROOT}}" aria-label="Orovian Oasis Showcase home">
+        <span class="logo-orbit-ring" aria-hidden="true"></span>
+        <span class="logo-orbit-disc"><img src="{{ROOT}}assets/brand/logo-tight.webp" alt="Orovian Oasis"></span>
       </a>
 
-      <a class="contact-cta" href="#quick-contact" aria-label="Open contact options" aria-controls="quick-contact">
+      <a class="contact-cta" href="#quick-contact" data-modal-open aria-label="Open contact options" aria-controls="quick-contact">
         <span>Contact</span>
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4Z"/><path d="M8 9h8M8 13h5"/></svg>
       </a>
@@ -60,36 +61,50 @@ The left menu works natively without JavaScript. dynamics.js and mobile.js add o
   <footer class="site-footer">
     <div class="shell footer-grid">
       <div class="footer-brand">
-        <img src="{{ROOT}}assets/brand/logo.webp" alt="" aria-hidden="true">
+        <a class="footer-logo-orbit logo-orbit orbit-reverse" href="#about-oasis" data-modal-open aria-label="About Orovian Oasis" aria-controls="about-oasis">
+          <span class="logo-orbit-ring" aria-hidden="true"></span>
+          <span class="logo-orbit-disc"><img src="{{ROOT}}assets/brand/logo-tight.webp" alt="Orovian Oasis"></span>
+        </a>
         <div><strong>Orovian Oasis Showcase</strong><p>Concepts, transformations, property stories, floor plans, and walkable ideas.</p></div>
       </div>
       <div class="footer-actions">
         <div class="footer-label">Follow the build</div>
         <div class="social-links" aria-label="Orovian Oasis social media">{{SOCIAL_LINKS}}</div>
-        <a class="footer-contact" href="#contact-us" aria-controls="contact-us">Contact Us <span aria-hidden="true">✉</span></a>
+        <a class="footer-contact" href="#contact-us" data-modal-open aria-controls="contact-us">Contact Us <span aria-hidden="true">✉</span></a>
       </div>
     </div>
-    <div class="shell footer-bottom"><span>© <span data-year></span> Orovian Oasis</span><span>Designed to evolve without losing the blueprint.</span></div>
+    <div class="shell footer-note">Designed to evolve without losing the blueprint.</div>
+    <div class="shell footer-bottom" aria-label="Legal and copyright">
+      <a href="{{PRIVACY_URL}}">Privacy Policy</a>
+      <span>© <span data-year></span> Orovian Oasis</span>
+      <a href="{{TERMS_URL}}">Terms &amp; Conditions</a>
+    </div>
   </footer>
 
-  <section class="contact-modal quick-contact-modal" id="quick-contact" role="dialog" aria-modal="true" aria-labelledby="quick-contact-title">
-    <a class="contact-modal-backdrop" href="#contact-closed" data-contact-close aria-label="Close contact options"></a>
+  <section class="contact-modal quick-contact-modal" id="quick-contact" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="quick-contact-title">
+    <a class="contact-modal-backdrop" href="#contact-closed" data-modal-close aria-label="Close contact options"></a>
     <div class="contact-modal-card" tabindex="-1">
-      <a class="contact-modal-close" href="#contact-closed" data-contact-close aria-label="Close contact options">×</a>
-      <div class="contact-modal-logo"><img src="{{ROOT}}assets/brand/logo.webp" alt="Orovian Oasis"></div>
+      <a class="contact-modal-close" href="#contact-closed" data-modal-close aria-label="Close contact options">×</a>
+      <div class="contact-modal-logo logo-orbit orbit-forward" aria-hidden="true">
+        <span class="logo-orbit-ring"></span>
+        <span class="logo-orbit-disc"><img src="{{ROOT}}assets/brand/logo-tight.webp" alt=""></span>
+      </div>
       <div class="eyebrow">📬 Contact Orovian Oasis</div>
       <h2 id="quick-contact-title">How would you like to connect?</h2>
       <p class="contact-modal-copy">Choose email, call, or text. Property intake remains available in the menu and on the homepage.</p>
       <div class="quick-contact-options">{{QUICK_CONTACT_ACTIONS}}</div>
-      <a class="contact-form-switch" href="#contact-us">📝 Open the Contact Us form</a>
+      <a class="contact-form-switch" href="#contact-us" data-modal-open>📝 Open the Contact Us form</a>
     </div>
   </section>
 
-  <section class="contact-modal contact-form-modal" id="contact-us" role="dialog" aria-modal="true" aria-labelledby="contact-form-title">
-    <a class="contact-modal-backdrop" href="#contact-closed" data-contact-close aria-label="Close contact form"></a>
+  <section class="contact-modal contact-form-modal" id="contact-us" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="contact-form-title">
+    <a class="contact-modal-backdrop" href="#contact-closed" data-modal-close aria-label="Close contact form"></a>
     <div class="contact-modal-card contact-form-card" tabindex="-1">
-      <a class="contact-modal-close" href="#contact-closed" data-contact-close aria-label="Close contact form">×</a>
-      <div class="contact-modal-logo"><img src="{{ROOT}}assets/brand/logo.webp" alt="Orovian Oasis"></div>
+      <a class="contact-modal-close" href="#contact-closed" data-modal-close aria-label="Close contact form">×</a>
+      <div class="contact-modal-logo logo-orbit orbit-reverse" aria-hidden="true">
+        <span class="logo-orbit-ring"></span>
+        <span class="logo-orbit-disc"><img src="{{ROOT}}assets/brand/logo-tight.webp" alt=""></span>
+      </div>
       <div class="eyebrow">✉️ Contact Us</div>
       <h2 id="contact-form-title">Tell us what you’re building.</h2>
       <p class="contact-modal-copy">Share the property, plan, or opportunity and the best way to reach you.</p>
@@ -104,6 +119,24 @@ The left menu works natively without JavaScript. dynamics.js and mobile.js add o
           <p class="contact-form-status" data-contact-status aria-live="polite"></p>
         </div>
       </form>
+    </div>
+  </section>
+
+  <section class="contact-modal about-modal" id="about-oasis" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="about-oasis-title">
+    <a class="contact-modal-backdrop" href="#contact-closed" data-modal-close aria-label="Close About Orovian Oasis"></a>
+    <div class="contact-modal-card about-modal-card" tabindex="-1">
+      <a class="contact-modal-close" href="#contact-closed" data-modal-close aria-label="Close About Orovian Oasis">×</a>
+      <div class="contact-modal-logo logo-orbit orbit-reverse" aria-hidden="true">
+        <span class="logo-orbit-ring"></span>
+        <span class="logo-orbit-disc"><img src="{{ROOT}}assets/brand/logo-tight.webp" alt=""></span>
+      </div>
+      <div class="eyebrow">🏗️ About Orovian Oasis</div>
+      <h2 id="about-oasis-title">Building the idea before the address.</h2>
+      <p class="contact-modal-copy">Orovian Oasis develops property concepts, floor plans, transformations, and immersive project presentations that help people see what a site can become.</p>
+      <div class="about-pillars" aria-label="Orovian Oasis capabilities">
+        <span>📐 Plans &amp; concepts</span><span>🛠️ Rehabs &amp; transformations</span><span>🏡 Property showcases</span>
+      </div>
+      <a class="button primary about-intake" href="{{MAIN_SITE_URL}}" target="_blank" rel="noopener">Open Property Intake ↗</a>
     </div>
   </section>
 

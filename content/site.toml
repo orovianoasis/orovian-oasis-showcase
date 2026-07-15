@@ -35,6 +35,11 @@ youtube = ""
 tiktok = ""
 linkedin = ""
 
+[legal]
+# Site-local pages are generated automatically. Replace with full HTTPS URLs if counsel hosts policies elsewhere.
+privacy_url = "/privacy/"
+terms_url = "/terms/"
+
 [commerce]
 default_checkout_label = "Purchase Package"
 default_inquiry_label = "Request Details"

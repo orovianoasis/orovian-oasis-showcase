@@ -1,5 +1,5 @@
 /*
-OROVIAN OASIS SHOWCASE — MOBILE / TABLET VISUAL LAYER 2.4
+OROVIAN OASIS SHOWCASE — MOBILE / TABLET VISUAL LAYER 2.5
 
 EDIT THIS FILE for phone- and tablet-only visual changes.
 It is loaded with media="(max-width: 880px)", so these rules do not affect desktop.
@@ -147,3 +147,42 @@ html.mobile-view .menu-popover{max-height:min(72svh,620px);overflow:auto;overscr
 }
 
 /* Add future mobile-only overrides below this line. */
+
+/* ==========================================================
+   MOBILE 2.5 — FOOTER ORBIT, LEGAL ROW + COMPACT ABOUT DIALOG
+   ========================================================== */
+@media(max-width:880px){
+  .footer-logo-orbit{width:84px;height:84px}
+  .footer-logo-orbit .logo-orbit-disc{width:68px;height:68px}
+  .footer-note{text-align:center;margin-top:26px}
+  .footer-bottom{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:7px;text-align:center}
+  .footer-bottom a:first-child{justify-self:start}
+  .footer-bottom a:last-child{justify-self:end}
+  .footer-bottom>span{justify-self:center}
+  .about-modal-card{width:min(620px,100%);padding:26px 22px}
+}
+
+@media(max-width:560px){
+  .brand-orbit{width:60px;height:60px}
+  .brand-orbit .logo-orbit-disc{width:50px;height:50px}
+  .footer-logo-orbit{width:76px;height:76px}
+  .footer-logo-orbit .logo-orbit-disc{width:61px;height:61px}
+  .contact-modal-logo.logo-orbit{width:72px;height:72px;margin-bottom:8px}
+  .contact-modal-logo .logo-orbit-disc{width:58px;height:58px}
+  .contact-form-card .contact-modal-logo.logo-orbit{width:52px;height:52px;margin-bottom:3px}
+  .contact-form-card .contact-modal-logo .logo-orbit-disc{width:42px;height:42px}
+  .footer-bottom{font-size:clamp(.58rem,2.35vw,.72rem);gap:5px}
+  .footer-bottom a{letter-spacing:-.02em}
+  .footer-note{font-size:.72rem}
+  .about-modal-card{padding:20px 16px 18px}
+  .about-modal-card h2{font-size:clamp(1.75rem,8.8vw,2.45rem);margin:6px 0 8px}
+  .about-modal-card .contact-modal-copy{font-size:.82rem;line-height:1.4;margin-bottom:10px}
+  .about-pillars{grid-template-columns:1fr;gap:6px;margin:10px 0}
+  .about-pillars span{min-height:0;padding:8px 10px;font-size:.75rem}
+  .about-intake{min-height:40px;font-size:.82rem}
+}
+
+@media(max-width:380px){
+  .footer-bottom{font-size:.56rem;gap:3px}
+  .footer-bottom a{font-weight:700}
+}

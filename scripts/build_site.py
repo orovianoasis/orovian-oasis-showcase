@@ -70,6 +70,13 @@ def nav_html(nav, root_prefix):
     return "".join(out)
 
 
+def resolved_site_url(value, root_prefix, fallback):
+    url = str(value or fallback).strip()
+    if url.startswith("/"):
+        return root_prefix + url.lstrip("/")
+    return url
+
+
 def social_html(site):
     social = site.get("social", {})
     icons = {
@@ -149,13 +156,16 @@ def apply_base(content, *, site, nav, root_prefix, title, description, og_image,
     base=(WEBSITE/"_layout.html").read_text(encoding="utf-8")
     contact = contact_values(site)
     form_action = contact["endpoint"] or (f'mailto:{contact["email"]}' if contact["email"] else "#contact-us")
+    legal = site.get("legal", {})
+    privacy_url = resolved_site_url(legal.get("privacy_url"), root_prefix, "/privacy/")
+    terms_url = resolved_site_url(legal.get("terms_url"), root_prefix, "/terms/")
     replacements={
         "{{PAGE_TITLE}}":esc(title), "{{PAGE_DESCRIPTION}}":esc(description), "{{OG_IMAGE}}":esc(og_image),
         "{{CANONICAL_URL}}":esc(canonical), "{{ROOT}}":root_prefix, "{{HEAD_EXTRA}}":head_extra,
         "{{NAV}}":nav_html(nav, root_prefix), "{{CONTENT}}":content, "{{MAIN_SITE_URL}}":esc(site.get("main_site_url", "#")),
         "{{SOCIAL_LINKS}}":social_html(site), "{{QUICK_CONTACT_ACTIONS}}":quick_contact_html(site),
         "{{CONTACT_EMAIL}}":esc(contact["email"]), "{{CONTACT_FORM_ENDPOINT}}":esc(contact["endpoint"]),
-        "{{CONTACT_FORM_ACTION}}":esc(form_action)
+        "{{CONTACT_FORM_ACTION}}":esc(form_action), "{{PRIVACY_URL}}":esc(privacy_url), "{{TERMS_URL}}":esc(terms_url)
     }
     for k,v in replacements.items(): base=base.replace(k,v)
     return base
@@ -295,6 +305,21 @@ def build(args):
     page=apply_base(content,site=site,nav=nav,root_prefix="",title=site.get("seo",{}).get("title",site["site_name"]),description=site.get("seo",{}).get("description",""),og_image=base_url+site.get("seo",{}).get("image",""),canonical=base_url+"/")
     (out/"index.html").write_text(page,encoding="utf-8")
 
+    legal_pages = [
+        ("privacy", "Privacy Policy", "How Orovian Oasis handles information submitted through this showcase."),
+        ("terms", "Terms & Conditions", "Terms governing use of the Orovian Oasis Showcase."),
+    ]
+    for slug, heading, description in legal_pages:
+        folder = out / slug
+        folder.mkdir(parents=True, exist_ok=True)
+        body = (WEBSITE / f"{slug}.html").read_text(encoding="utf-8")
+        legal_page = apply_base(
+            body, site=site, nav=nav, root_prefix="../",
+            title=f"{heading} | {site['site_name']}", description=description,
+            og_image=base_url+site.get("seo",{}).get("image",""), canonical=f"{base_url}/{slug}/"
+        )
+        (folder / "index.html").write_text(legal_page, encoding="utf-8")
+
     listing_meta={
         "concept-home":("Concept Homes","Original designs, interactive walkthroughs, floor plans, materials, licensing, and customization."),
         "transformation":("Transformations","Fix-and-flip projects, rehabs, before-and-after stories, redesigned plans, and project outcomes."),
@@ -368,7 +393,7 @@ def build(args):
     for p in api:
         (api_dir/f'{p["slug"]}.json').write_text(json.dumps(p,indent=2),encoding="utf-8")
 
-    urls=[base_url+"/"]
+    urls=[base_url+"/", f"{base_url}/privacy/", f"{base_url}/terms/"]
     urls += [f"{base_url}/{x}/" for x in CATEGORY_PATHS.values()]
     for p in published:
         path=CATEGORY_PATHS[p["category"]]

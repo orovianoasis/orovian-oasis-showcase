@@ -16,6 +16,8 @@ required_files = [
     "website/project.html",
     "website/floor-plans.html",
     "website/tour-placeholder.html",
+    "website/privacy.html",
+    "website/terms.html",
     "website/404.html",
     "website/css/site.css",
     "website/css/mobile.css",
@@ -24,6 +26,7 @@ required_files = [
     "website/js/mobile.js",
     "content/site.toml",
     "content/navigation.toml",
+    "assets/brand/logo-tight.webp",
     "scripts/build_site.py",
 ]
 for relative in required_files:

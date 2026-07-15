@@ -61,3 +61,11 @@ The redesigned interface uses a floating auto-hiding header, a native left-side 
 - `website/js/dynamics.js` contains optional scroll reveals, header auto-hide, tilt, pointer glow, and button ripple effects.
 - Removing `dynamics.js` does not break navigation, project data, pricing, floor plans, or the native menu.
 - Add social profile URLs under `[social]` in `content/site.toml`.
+
+## Interface update 2.5
+
+- The header, footer, quick-contact, Contact Us, and About logos use the tighter `assets/brand/logo-tight.webp` derivative.
+- Footer and dialog logos use reusable orbit classes; the footer orbit runs opposite the header orbit.
+- Clicking the footer logo opens the compact About Orovian Oasis dialog.
+- JavaScript-enhanced dialogs open and close with one click while preserving the visitor's exact scroll position. CSS `:target` remains the no-JavaScript fallback.
+- Privacy Policy and Terms & Conditions pages are generated from `website/privacy.html` and `website/terms.html`. Their destinations can be changed in `[legal]` inside `content/site.toml`.

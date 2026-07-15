@@ -1,5 +1,5 @@
 /*
-OROVIAN OASIS SHOWCASE — SHARED + DESKTOP VISUAL SYSTEM 2.4
+OROVIAN OASIS SHOWCASE — SHARED + DESKTOP VISUAL SYSTEM 2.5
 This file contains shared rules and the desktop presentation.
 Mobile and tablet overrides live only in website/css/mobile.css.
 Motion-only enhancements are activated by website/js/dynamics.js.
@@ -195,3 +195,85 @@ body.contact-modal-open{overflow:hidden}
 }
 
 @media(prefers-reduced-motion:reduce){.trace-light{display:none}.build-shape .accent{stroke-dashoffset:0}}
+
+/* ==========================================================
+   OROVIAN OASIS 2.5 — ORBITING BRAND, MODALS, ABOUT + LEGAL
+   ========================================================== */
+
+/* Shared orbit system. The tighter logo asset fills the pale disc without altering the source logo. */
+.logo-orbit{position:relative;display:grid;place-items:center;text-decoration:none;isolation:isolate}
+.logo-orbit-ring{position:absolute;inset:0;border:1px solid rgba(112,240,202,.52);border-radius:50%;box-shadow:0 0 32px rgba(112,240,202,.13)}
+.logo-orbit-ring:before,.logo-orbit-ring:after{content:"";position:absolute;border-radius:50%;box-shadow:0 0 13px currentColor}
+.logo-orbit-ring:before{width:8px;height:8px;left:4px;top:13px;color:var(--coral);background:var(--coral)}
+.logo-orbit-ring:after{width:6px;height:6px;right:6px;bottom:9px;color:var(--mint);background:var(--mint)}
+.logo-orbit-disc{position:relative;z-index:2;display:grid;place-items:center;border-radius:50%;overflow:hidden;background:var(--paper);box-shadow:0 9px 30px rgba(0,0,0,.35)}
+.logo-orbit-disc img{display:block;width:96%;height:96%;object-fit:contain;border-radius:50%}
+.brand-orbit{width:72px;height:72px}
+.brand-orbit .logo-orbit-disc{width:58px;height:58px}
+.footer-logo-orbit{flex:0 0 auto;width:92px;height:92px}
+.footer-logo-orbit .logo-orbit-disc{width:74px;height:74px}
+.footer-logo-orbit:focus-visible,.footer-logo-orbit:hover{outline:none}
+.footer-logo-orbit:focus-visible .logo-orbit-disc,.footer-logo-orbit:hover .logo-orbit-disc{box-shadow:0 12px 38px rgba(0,0,0,.42),0 0 0 4px rgba(112,240,202,.12)}
+.contact-modal-logo.logo-orbit{width:94px;height:94px;margin:0 auto 16px;background:transparent;box-shadow:none;overflow:visible}
+.contact-modal-logo .logo-orbit-disc{width:76px;height:76px}
+.contact-form-card .contact-modal-logo.logo-orbit{width:70px;height:70px;margin-bottom:7px}
+.contact-form-card .contact-modal-logo .logo-orbit-disc{width:56px;height:56px}
+
+@media(prefers-reduced-motion:no-preference){
+  .logo-orbit.orbit-forward .logo-orbit-ring{animation:brand-orbit-forward 11s linear infinite}
+  .logo-orbit.orbit-reverse .logo-orbit-ring{animation:brand-orbit-reverse 11s linear infinite}
+  .footer-logo-orbit .logo-orbit-ring{animation-duration:13s}
+  .contact-modal-logo .logo-orbit-ring{animation-duration:9.5s}
+  @keyframes brand-orbit-forward{to{transform:rotate(360deg)}}
+  @keyframes brand-orbit-reverse{to{transform:rotate(-360deg)}}
+}
+
+/* The JavaScript modal state sits beside :target so dialogs still work when scripts are disabled. */
+.contact-modal:target,.contact-modal.is-open{opacity:1;visibility:visible;pointer-events:auto}
+.contact-modal:target .contact-modal-card,.contact-modal.is-open .contact-modal-card{transform:none}
+.contact-modal[aria-hidden="true"]:not(:target):not(.is-open){opacity:0;visibility:hidden;pointer-events:none}
+.contact-modal-close{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.contact-modal-close:focus-visible{background:var(--coral);color:var(--ink);outline:none}
+@media(hover:hover){.contact-modal-close:hover{background:var(--coral);color:var(--ink)}}
+
+/* Keep disabled, unconfigured contact actions readable without pretending they are active. */
+.contact-choice.is-disabled{opacity:1;cursor:not-allowed;color:rgba(255,250,244,.82);border-color:rgba(255,248,238,.12);background:rgba(255,255,255,.035)}
+.contact-choice.is-disabled .contact-choice-icon{opacity:1;background:rgba(112,240,202,.16);filter:saturate(1.15)}
+.contact-choice.is-disabled small{color:rgba(203,191,210,.72)}
+.contact-choice.is-disabled:hover{transform:none;border-color:rgba(255,248,238,.12);background:rgba(255,255,255,.035)}
+
+/* Footer legal row: privacy left, copyright center, terms right. */
+.footer-brand>img{display:none}
+.footer-note{margin-top:34px;color:#968a9f;font-size:.82rem;text-align:right}
+.footer-bottom{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:18px;margin-top:14px;padding-top:20px}
+.footer-bottom a{color:#b9adbf;text-decoration:none;font-weight:750;white-space:nowrap}
+.footer-bottom a:first-child{justify-self:start}
+.footer-bottom a:last-child{justify-self:end}
+.footer-bottom>span{justify-self:center;white-space:nowrap}
+.footer-bottom a:hover,.footer-bottom a:focus-visible{color:var(--mint);outline:none}
+
+/* About dialog stays compact and never needs an internal scrollbar. */
+.about-modal-card{width:min(650px,100%);max-height:calc(100dvh - 24px);overflow:hidden;padding:30px 34px}
+.about-modal-card h2{font-size:clamp(2.1rem,4.6vw,3.6rem)}
+.about-pillars{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:18px 0}
+.about-pillars span{display:grid;place-items:center;min-height:72px;padding:10px;border:1px solid rgba(255,248,238,.13);border-radius:18px;background:rgba(255,255,255,.045);font-weight:800;font-size:.82rem;line-height:1.35}
+.about-intake{margin-top:3px}
+
+/* Site-local legal pages generated by the build script. */
+.legal-hero{min-height:auto;padding-bottom:42px}
+.legal-page{max-width:900px}
+.legal-page h2{margin-top:28px;margin-bottom:8px;font-family:var(--serif);font-style:italic;font-weight:500;font-size:clamp(1.55rem,3vw,2.3rem)}
+.legal-page h2:first-child{margin-top:0}
+.legal-page p{color:var(--muted);line-height:1.75}
+.legal-page .button{margin-top:18px}
+
+@media(max-height:690px){
+  .about-modal-card{padding:18px 24px}
+  .about-modal-card .contact-modal-logo.logo-orbit{width:62px;height:62px;margin-bottom:5px}
+  .about-modal-card .contact-modal-logo .logo-orbit-disc{width:50px;height:50px}
+  .about-modal-card h2{font-size:2rem;margin:5px 0 7px}
+  .about-modal-card .contact-modal-copy{font-size:.82rem;line-height:1.38;margin-bottom:9px}
+  .about-pillars{margin:9px 0;gap:6px}
+  .about-pillars span{min-height:52px;padding:6px;font-size:.72rem}
+  .about-intake{min-height:40px}
+}
