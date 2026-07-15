@@ -1,0 +1,11 @@
+{
+  "title": "Luxury Custom Home",
+  "slug": "luxury-custom-home",
+  "viewer": "viewer.html",
+  "model": "house.glb",
+  "collision": "collision.json",
+  "viewer_mode": "self-contained-webgl",
+  "model_units": "meters",
+  "drawing_units": "inches",
+  "notes": "viewer.html contains its own render geometry and uses embedded collision data; the GLB is included as a separate deliverable and for future viewer upgrades."
+}

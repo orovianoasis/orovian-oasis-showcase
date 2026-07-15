@@ -1,9 +1,13 @@
-OROVIAN OASIS SHOWCASE — SOURCE STRUCTURE 2.3
+OROVIAN OASIS SHOWCASE — SOURCE STRUCTURE 3.1
 
 .github/workflows/deploy-pages.yml
 .github/workflows/validate.yml
 NOTICE.txt
 README.md
+assets/brand/FAVICON_README.txt
+assets/brand/favicon.png
+assets/brand/logo-badge.webp
+assets/brand/logo-tight.webp
 assets/brand/logo.png
 assets/brand/logo.webp
 assets/brand/share-card.svg
@@ -44,6 +48,23 @@ content/project-templates/transformation-template/floor-plans/ground-floor.svg
 content/project-templates/transformation-template/project.toml
 content/project-templates/transformation-template/tour/README.md
 content/projects/README.md
+content/projects/luxury-custom-home/README.md
+content/projects/luxury-custom-home/assets/card.svg
+content/projects/luxury-custom-home/assets/cover.svg
+content/projects/luxury-custom-home/assets/share.svg
+content/projects/luxury-custom-home/floor-plans/drawing-index.svg
+content/projects/luxury-custom-home/floor-plans/ground-floor.svg
+content/projects/luxury-custom-home/floor-plans/luxury-custom-home-drawing-index.dxf
+content/projects/luxury-custom-home/floor-plans/luxury-custom-home-ground-floor.dxf
+content/projects/luxury-custom-home/floor-plans/luxury-custom-home-upper-floor.dxf
+content/projects/luxury-custom-home/floor-plans/upper-floor.svg
+content/projects/luxury-custom-home/project.toml
+content/projects/luxury-custom-home/source-files/luxury-custom-home-geometry.obj
+content/projects/luxury-custom-home/source-files/original-package-readme.txt
+content/projects/luxury-custom-home/tour/collision.json
+content/projects/luxury-custom-home/tour/house.glb
+content/projects/luxury-custom-home/tour/manifest.json
+content/projects/luxury-custom-home/tour/viewer.html
 content/projects/structure-demo/assets/card.svg
 content/projects/structure-demo/assets/cover.svg
 content/projects/structure-demo/assets/share.svg
@@ -51,11 +72,16 @@ content/projects/structure-demo/floor-plans/ground-floor.svg
 content/projects/structure-demo/project.toml
 content/projects/structure-demo/tour/README.md
 content/site.toml
+docs/CHANGELOG_v2.8.md
+docs/CHANGELOG_v2.9.md
+docs/CHANGELOG_v3.1.md
 docs/README.md
 docs/deployment/CUSTOM_DOMAIN_SETUP.md
+docs/editing/ADD-A-3D-PROPERTY.md
 docs/editing/CONTACT_SETUP.md
 docs/editing/CONTENT_WORKFLOW.md
 docs/editing/EDITING_GUIDE.md
+docs/editing/FAVICON_SETUP.md
 docs/editing/FOLDER_NAMING_GUIDE.md
 docs/editing/MOBILE_DESIGN_GUIDE.md
 docs/getting-started/QUICK_START.md
@@ -66,6 +92,10 @@ docs/internal/VALIDATION_REPORT.txt
 docs/reference/PROJECT_FIELD_REFERENCE.md
 docs/reference/RELEASE_CHECKLIST.md
 docs/reference/REPOSITORY_MAP.md
+scripts/__pycache__/build_site.cpython-313.pyc
+scripts/__pycache__/new_project.cpython-313.pyc
+scripts/__pycache__/validate_output.cpython-313.pyc
+scripts/__pycache__/validate_source.cpython-313.pyc
 scripts/build_site.py
 scripts/new_project.py
 scripts/validate_output.py
@@ -88,5 +118,7 @@ website/js/dynamics.js
 website/js/mobile.js
 website/js/site.js
 website/listing.html
+website/privacy.html
 website/project.html
+website/terms.html
 website/tour-placeholder.html
