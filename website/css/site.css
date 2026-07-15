@@ -1,5 +1,5 @@
 /*
-OROVIAN OASIS SHOWCASE — VISUAL SYSTEM 2.0
+OROVIAN OASIS SHOWCASE — VISUAL SYSTEM 2.1
 Plum, mint, coral, and ivory. Layout and interaction remain functional without JavaScript.
 Motion-only enhancements are activated by website/js/dynamics.js.
 */
@@ -29,3 +29,80 @@ main{position:relative}.hero{position:relative;min-height:70vh;display:grid;plac
 @media(max-width:880px){.header-row{grid-template-columns:1fr auto 1fr}.menu-word{display:none}.intake-cta span{display:none}.intake-cta{width:48px;padding:0}.intake-cta svg{margin:auto}.hero h1{font-size:clamp(3.4rem,15vw,6.6rem)}.float-token{display:none}.two-col{grid-template-columns:1fr}.purchase-panel{position:relative;top:auto}.footer-grid{grid-template-columns:1fr}.footer-actions{text-align:left}.social-links{justify-content:flex-start}.ribbon-panel{align-items:flex-start;flex-direction:column}.footer-bottom{flex-direction:column}}
 @media(max-width:560px){.site-header{padding-top:10px}.header-row{min-height:64px;padding:6px 8px}.brand-orbit{width:60px;height:60px}.brand-disc{width:50px;height:50px}.brand-disc img{width:45px;height:45px}.menu-trigger,.intake-cta{min-height:44px}.menu-trigger{padding:0 12px}.intake-cta{width:44px}.hero{padding-top:145px}.showcase-hero{min-height:94svh}.hero h1 span{font-size:.29em}.section{padding:58px 0}.card-body{padding:20px}.ribbon-panel{padding:28px}.footer-brand{align-items:flex-start}.footer-brand img{width:58px;height:58px}.footer-brand strong{font-size:1.55rem}.footer-bottom{font-size:.76rem}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{animation:none!important;transition-duration:.01ms!important}.motion-ready [data-reveal]{opacity:1;transform:none}}
+
+/* ==========================================================
+   VISUAL SYSTEM 2.1 — TIGHTER DEVELOPMENT-FOCUSED HOMEPAGE
+   These overrides preserve all existing routes and functions.
+   ========================================================== */
+.showcase-hero{min-height:76svh;padding:142px 0 42px;overflow:hidden}
+.showcase-hero .hero-shell{max-width:1040px}
+.showcase-hero .hero h1,.showcase-hero h1{font-size:clamp(3.55rem,8.6vw,7.7rem);line-height:.91;margin:15px auto 20px;padding:.05em .04em .12em}
+.showcase-hero h1 span{font-size:.27em;margin-bottom:.48em}
+.showcase-hero h1 em{padding:.03em .06em .13em}
+.showcase-hero p{max-width:790px;line-height:1.62}
+.showcase-hero .hero-actions{margin-top:20px}
+
+.buildscape{overflow:hidden;opacity:.92}
+.build-shape{position:absolute;width:clamp(145px,19vw,285px);height:auto;overflow:visible;fill:none;stroke:currentColor;stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round;opacity:.19;filter:drop-shadow(0 16px 30px rgba(0,0,0,.24));will-change:transform}
+.build-shape .accent{stroke-width:1.25;stroke-dasharray:7 8;opacity:.64}
+.shape-house{left:2.5%;top:26%;color:var(--mint);transform:rotate(-7deg)}
+.shape-crane{right:3.5%;top:20%;color:var(--coral);width:clamp(125px,16vw,235px);transform:rotate(5deg)}
+.shape-plan{left:9%;bottom:0;color:var(--violet);width:clamp(150px,20vw,300px);transform:rotate(7deg)}
+.shape-tower{right:10%;bottom:-1%;color:var(--sun);width:clamp(120px,15vw,215px);transform:rotate(-4deg)}
+.build-datum{position:absolute;height:1px;background:linear-gradient(90deg,transparent,currentColor,transparent);opacity:.22;transform-origin:center}
+.datum-a{left:-4%;top:43%;width:35%;color:var(--mint);transform:rotate(-15deg)}
+.datum-b{right:-3%;bottom:25%;width:34%;color:var(--coral);transform:rotate(12deg)}
+
+.featured-section{padding:26px 0 48px}
+.featured-section:before{top:4px}
+.section{padding:54px 0}
+.section-heading{margin-bottom:24px}
+.section-heading h2,.section h2{margin:9px 0;font-size:clamp(2.55rem,5.4vw,4.8rem);line-height:1.03;padding:.03em .04em .12em}
+.section-heading p{line-height:1.55}
+
+.project-card .card-media{border-radius:calc(var(--radius) - 1px) calc(var(--radius) - 1px) 0 0}
+.project-card img{aspect-ratio:16/9;object-fit:cover;object-position:center}
+.project-card .card-body{padding:21px 23px 23px}
+.project-card h3{font-size:clamp(2rem,4vw,2.5rem);line-height:1.16;margin:13px 0 8px;padding:.06em .08em .14em;overflow-wrap:anywhere}
+.project-card p{margin-block:9px;line-height:1.54}
+.project-card .facts{margin:13px 0}
+.project-card .price{margin-top:12px}
+.project-card .actions{margin-top:17px}
+
+.lanes-section{padding-top:44px}
+.lane-grid{gap:18px}
+.lane-card{min-height:354px;padding:23px;justify-content:flex-start}
+.lane-icon{width:60px;height:60px;border-radius:19px;font-size:1.75rem;margin:18px 0 12px}
+.lane-card h3{font-size:2.35rem;line-height:1.08;margin:9px 0;padding:.03em .04em .1em}
+.lane-card p{line-height:1.56;margin:6px 0 18px}
+.lane-card .button{margin-top:auto}
+
+.intake-ribbon{padding-top:42px;padding-bottom:78px}
+.ribbon-panel{gap:24px;padding:30px 34px;border-radius:30px}
+.ribbon-panel h2{font-size:clamp(2.25rem,4.8vw,4.35rem);line-height:1.02;max-width:760px}
+
+.site-footer{margin-top:42px;padding-top:44px}
+.footer-grid{gap:30px}
+.footer-bottom{margin-top:28px}
+
+@media(prefers-reduced-motion:no-preference){
+  .build-shape{animation:build-float 7s ease-in-out infinite}
+  .shape-crane{animation-delay:-2.1s}.shape-plan{animation-delay:-4.2s}.shape-tower{animation-delay:-5.3s}
+  @keyframes build-float{50%{translate:0 -10px}}
+}
+@media(max-width:880px){
+  .showcase-hero{min-height:72svh;padding-bottom:34px}
+  .build-shape{opacity:.12}.shape-house{left:-8%}.shape-crane{right:-6%}.shape-plan{left:-9%;bottom:4%}.shape-tower{right:-5%}
+}
+@media(max-width:560px){
+  .showcase-hero{min-height:70svh;padding-top:132px;padding-bottom:28px}
+  .showcase-hero h1{font-size:clamp(3rem,15vw,4.8rem)}
+  .showcase-hero h1 span{font-size:.24em;line-height:1.25}
+  .showcase-hero p{font-size:.96rem}
+  .featured-section{padding-top:20px}
+  .section{padding:44px 0}
+  .lane-card{min-height:330px}
+  .ribbon-panel{padding:25px}
+  .shape-plan,.shape-tower{display:none}
+}
+

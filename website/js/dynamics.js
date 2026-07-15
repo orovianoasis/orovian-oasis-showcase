@@ -76,6 +76,22 @@ pricing, floor plans, project pages, and the native <details> menu continue to w
       document.documentElement.addEventListener('mouseleave', () => glow.classList.remove('is-visible'));
     }
 
+    // Architectural background parallax. Decorative only; static SVGs remain without JavaScript.
+    const buildscape = document.querySelector('[data-buildscape]');
+    if (buildscape && window.matchMedia('(pointer:fine)').matches) {
+      const pieces = [...buildscape.querySelectorAll('[data-build-depth]')];
+      buildscape.addEventListener('pointermove', (event) => {
+        const rect = buildscape.getBoundingClientRect();
+        const x = (event.clientX - rect.left) / rect.width - 0.5;
+        const y = (event.clientY - rect.top) / rect.height - 0.5;
+        pieces.forEach((piece) => {
+          const depth = Number(piece.dataset.buildDepth || 0.25);
+          piece.style.translate = `${x * depth * 34}px ${y * depth * 24}px`;
+        });
+      });
+      buildscape.addEventListener('pointerleave', () => pieces.forEach((piece) => { piece.style.translate = ''; }));
+    }
+
     // Gentle card tilt. Inline transforms are removed when the pointer leaves.
     document.querySelectorAll('[data-tilt], [data-tilt-soft]').forEach((element) => {
       const max = element.hasAttribute('data-tilt-soft') ? 2.5 : 5;

@@ -1,31 +1,23 @@
-OROVIAN OASIS SHOWCASE — VISUAL SYSTEM 2.0
+OROVIAN OASIS SHOWCASE — VISUAL SYSTEM 2.1
 VALIDATION REPORT
 Generated: 2026-07-15
 
-DESIGN TRANSFORMATION
-- Replaced the original navy/gold interface with a plum, mint, coral, violet, and ivory system.
-- Replaced the horizontal navigation banner with a floating left-side native dropdown menu.
-- Added a centered floating logo and top-right Property Intake action.
-- Added an auto-hiding header on downward scroll with automatic return on upward scroll.
-- Centered project cards, project actions, featured headings, and major page hierarchy.
-- Added floating hero tokens, orbital decoration, reveal motion, pointer glow, card tilt, and button ripple effects.
-- Added Instagram, YouTube, TikTok, and Facebook icon positions in the footer.
-- Added a separate website/js/dynamics.js progressive-enhancement layer.
+TARGETED HOMEPAGE REFINEMENT
+- Preserved the visual system 2.0 color palette and all project/data functions.
+- Replaced floating DESIGN / REHAB / REAL ESTATE text tokens with architectural line-art: a house, crane, floor plan, and building elevation.
+- Added optional pointer parallax to architectural artwork while preserving a fully visible static fallback.
+- Replaced the hero statement and tightened the hero height and spacing.
+- Removed the Scroll into the work prompt.
+- Pulled Featured Projects closer to the hero.
+- Corrected project-card media from 16:10 to 16:9 so placeholder lettering is no longer horizontally cropped.
+- Increased project-card title line height and internal padding to prevent glyph clipping.
+- Reworked category copy, added restrained emoji accents, and tightened category-card dimensions.
+- Replaced the property-intake headline and moved the callout upward.
+- Tightened footer and section spacing.
 
 FUNCTIONAL PRESERVATION
+- GitHub Actions workflows are unchanged.
 - Project TOML data remains the source for prices, status, facts, media, materials, and purchase links.
-- Category routes, project routes, floor-plan routes, API output, sitemap, and 3D-tour routing remain intact.
-- The left navigation uses native HTML details/summary and works without JavaScript.
-- If dynamics.js is removed or blocked, content remains visible and all normal links remain functional.
-- GitHub Actions deployment workflow remains unchanged.
-
-VALIDATION COMPLETED
-PASS  Python syntax compilation
-PASS  JavaScript syntax validation for site.js and dynamics.js
-PASS  Source structure validation
-PASS  TOML parsing and project-data validation
-PASS  Strict site generation
-PASS  Generated-output validation
-PASS  Homepage, category, project, floor-plan, tour-placeholder, API, sitemap, and 404 generation
-PASS  No unreplaced template placeholders in generated output
-PASS  Generated dist/ removed before packaging; GitHub Actions recreates it during deployment
+- Category, project, floor-plan, API, sitemap, and 3D-tour routes remain unchanged.
+- The native menu continues to work without JavaScript.
+- dynamics.js remains optional; removing it leaves all content and navigation functional.

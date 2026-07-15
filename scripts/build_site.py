@@ -153,7 +153,7 @@ def card_html(project, site, root_prefix=""):
     return f'''<article class="card project-card" data-reveal data-tilt><a class="card-media" href="{esc(url)}"><img src="{esc(image)}" alt="{esc(ident.get("title"))}"><span class="media-sheen" aria-hidden="true"></span></a><div class="card-body">
 <span class="badge">{esc(project.get("status_label", project.get("status", "")))}</span><h3>{esc(ident.get("title"))}</h3>
 <p class="muted">{esc(ident.get("location"))}</p><p>{esc(ident.get("summary"))}</p><div class="facts">{facts_html(project)}</div>
-<div class="price">{money(project,site)}</div><div class="actions"><a class="button primary" href="{esc(url)}">View Project</a></div></div></article>'''
+<div class="price">{money(project,site)}</div><div class="actions"><a class="button primary" href="{esc(url)}">👁️ View Project</a></div></div></article>'''
 
 
 def project_grid(projects, site, root_prefix=""):

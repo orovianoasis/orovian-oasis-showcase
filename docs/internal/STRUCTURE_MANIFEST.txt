@@ -1,4 +1,4 @@
-OROVIAN OASIS SHOWCASE — VISUAL SYSTEM 2.0
+OROVIAN OASIS SHOWCASE — VISUAL SYSTEM 2.1
 CURRENT FILE MANIFEST
 
 .github/workflows/deploy-pages.yml	1171 bytes
@@ -59,13 +59,11 @@ docs/editing/EDITING_GUIDE.md	1853 bytes
 docs/editing/FOLDER_NAMING_GUIDE.md	681 bytes
 docs/getting-started/QUICK_START.md	1669 bytes
 docs/getting-started/UPLOAD_THIS_FOLDER.txt	351 bytes
+docs/internal/VALIDATION_REPORT.txt	1419 bytes
 docs/reference/PROJECT_FIELD_REFERENCE.md	1756 bytes
 docs/reference/RELEASE_CHECKLIST.md	653 bytes
 docs/reference/REPOSITORY_MAP.md	2211 bytes
-scripts/__pycache__/build_site.cpython-313.pyc	35536 bytes
-scripts/__pycache__/validate_output.cpython-313.pyc	4047 bytes
-scripts/__pycache__/validate_source.cpython-313.pyc	4347 bytes
-scripts/build_site.py	20530 bytes
+scripts/build_site.py	20538 bytes
 scripts/new_project.py	1245 bytes
 scripts/validate_output.py	2115 bytes
 scripts/validate_source.py	2578 bytes
@@ -78,10 +76,10 @@ tools/Preview_Local.ps1	857 bytes
 website/404.html	407 bytes
 website/README.md	1342 bytes
 website/_layout.html	3430 bytes
-website/css/site.css	19982 bytes
+website/css/site.css	24195 bytes
 website/floor-plans.html	436 bytes
-website/index.html	3745 bytes
-website/js/dynamics.js	4569 bytes
+website/index.html	4937 bytes
+website/js/dynamics.js	5457 bytes
 website/js/site.js	325 bytes
 website/listing.html	408 bytes
 website/project.html	1413 bytes
