@@ -1,0 +1,20 @@
+[[items]]
+label = "Showcase"
+url = "/"
+
+[[items]]
+label = "Concept Homes"
+url = "/concept-homes/"
+
+[[items]]
+label = "Transformations"
+url = "/transformations/"
+
+[[items]]
+label = "Properties"
+url = "/properties/"
+
+[[items]]
+label = "Orovian Oasis"
+url = "https://orovianoasis.com"
+external = true

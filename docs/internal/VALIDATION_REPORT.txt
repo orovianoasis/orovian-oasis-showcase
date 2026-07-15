@@ -1,0 +1,34 @@
+OROVIAN OASIS SHOWCASE REPOSITORY STARTER v1.3
+VALIDATION REPORT
+Generated: 2026-07-15
+
+ORGANIZATION CHANGES
+- Repository root reduced to folders plus .gitignore, .python-version, NOTICE.txt, and README.md.
+- Setup files moved to docs/getting-started/.
+- Editing and content guides moved to docs/editing/.
+- Domain instructions moved to docs/deployment/.
+- Field references and release documents moved to docs/reference/.
+- Checksums, structure manifest, and validation records moved to docs/internal/.
+- Root README and documentation links updated to the new paths.
+
+VALIDATION COMPLETED
+PASS  Source structure validation
+PASS  TOML parsing and project-data validation
+PASS  Strict site generation
+PASS  Generated-output validation
+PASS  Homepage and category route generation
+PASS  Catalog JSON generation
+PASS  JavaScript syntax validation
+PASS  Documentation-link validation
+PASS  Local HTTP checks for /, /concept-homes/, /transformations/, /properties/, and /api/catalog.json
+PASS  Generated dist/ removed before packaging; GitHub Actions recreates it during deployment
+
+EDITING MAP
+website/  = editable HTML, CSS, and JavaScript
+assets/   = global images, logos, icons, thumbnails, and media
+content/  = site settings and frequently changing project records
+docs/     = organized documentation
+scripts/  = build and validation automation
+tools/    = Windows creation, build, and preview launchers
+
+The package is intended to be uploaded as the root contents of a new public GitHub repository named orovian-showcase.

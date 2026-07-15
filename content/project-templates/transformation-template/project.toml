@@ -1,0 +1,90 @@
+# ============================================================
+# QUICK-UPDATE ZONE — edit these most often
+# ============================================================
+slug = "transformation-template"
+category = "transformation"
+published = false
+featured = false
+status = "draft"
+status_label = "Draft"
+sort_order = 100
+updated = "2026-07-15"
+
+[identity]
+title = "Transformation Template"
+subtitle = "Duplicate this folder for a rehab or fix-and-flip."
+location = "Template location"
+year = 2026
+summary = "Reusable transformation control panel."
+
+[pricing]
+show = false
+currency = "USD"
+amount = 0
+prefix = ""
+suffix = ""
+display_text = "Project details coming soon"
+checkout_url = ""
+inquiry_url = "https://orovianoasis.com"
+checkout_label = "Purchase Package"
+inquiry_label = "Request Details"
+
+[facts]
+square_feet = 0
+bedrooms = 0
+full_bathrooms = 0
+half_bathrooms = 0
+garage = 0
+stories = 0
+lot_size = ""
+
+[media]
+cover = "assets/cover.svg"
+card = "assets/card.svg"
+share = "assets/share.svg"
+
+[tour]
+enabled = false
+label = "Launch 3D Walkthrough"
+path = "tour/"
+open_new_tab = false
+
+[seo]
+title = ""
+description = ""
+canonical_url = ""
+noindex = false
+
+[transformation]
+project_stage = "Completed"
+property_type = "Single-family residence"
+public_financials = false
+acquisition_price = 0
+rehab_budget = 0
+after_repair_value = 0
+duration = ""
+
+[[before_after]]
+label = "Exterior"
+before_image = "assets/before-exterior.svg"
+after_image = "assets/after-exterior.svg"
+caption = "Replace with matched-angle before and after images."
+
+[[floor_plans]]
+level = "Before"
+image = "floor-plans/before.svg"
+pdf = ""
+dxf = ""
+caption = "Original layout."
+
+[[floor_plans]]
+level = "After"
+image = "floor-plans/after.svg"
+pdf = ""
+dxf = ""
+caption = "Reconfigured layout."
+
+[[materials]]
+category = "Rehabilitation"
+name = "Scope highlight"
+description = "Replace with the key improvement or finish."

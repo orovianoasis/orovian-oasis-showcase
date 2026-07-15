@@ -1,0 +1,90 @@
+# ============================================================
+# QUICK-UPDATE ZONE — edit these most often
+# ============================================================
+slug = "concept-home-template"
+category = "concept-home"
+published = false
+featured = false
+status = "draft"
+status_label = "Draft"
+sort_order = 100
+updated = "2026-07-15"
+
+[identity]
+title = "Concept Home Template"
+subtitle = "Duplicate this folder for an original design."
+location = "Template location"
+year = 2026
+summary = "Reusable concept-home control panel."
+
+[pricing]
+show = false
+currency = "USD"
+amount = 0
+prefix = ""
+suffix = ""
+display_text = "Contact for pricing"
+checkout_url = ""
+inquiry_url = "https://orovianoasis.com"
+checkout_label = "Purchase Package"
+inquiry_label = "Request Details"
+
+[facts]
+square_feet = 0
+bedrooms = 0
+full_bathrooms = 0
+half_bathrooms = 0
+garage = 0
+stories = 0
+lot_size = ""
+
+[media]
+cover = "assets/cover.svg"
+card = "assets/card.svg"
+share = "assets/share.svg"
+
+[tour]
+enabled = true
+label = "Launch 3D Walkthrough"
+path = "tour/"
+open_new_tab = false
+
+[seo]
+title = ""
+description = ""
+canonical_url = ""
+noindex = false
+
+[concept]
+product_type = "Digital architectural concept"
+license_type = "Non-exclusive design license"
+customizable = true
+construction_ready = false
+
+[[floor_plans]]
+level = "Ground Floor"
+image = "floor-plans/ground-floor.svg"
+pdf = ""
+dxf = ""
+caption = "Customer-facing placeholder. Replace with the coordinated floor plan."
+
+[[materials]]
+category = "Exterior"
+name = "Primary material"
+description = "Replace with the public-facing finish description."
+
+[[deliverables]]
+name = "Interactive walkthrough"
+included = true
+
+[[deliverables]]
+name = "Customer-facing floor plans"
+included = true
+
+[[purchase_options]]
+name = "Concept Package"
+description = "Define exactly what the buyer receives."
+currency = "USD"
+amount = 0
+checkout_url = ""
+available = false

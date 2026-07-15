@@ -1,0 +1,49 @@
+# ============================================================
+# OROVIAN OASIS SHOWCASE — GLOBAL CONTROL PANEL
+# Changes here affect the entire showcase.
+# ============================================================
+
+site_name = "Orovian Oasis Showcase"
+company_name = "Orovian Oasis"
+custom_domain = "showcase.orovianoasis.com"
+main_site_url = "https://orovianoasis.com"
+default_currency = "USD"
+timezone = "America/Chicago"
+locale = "en-US"
+
+# Site-wide launch switches
+show_prices = true
+show_materials = true
+show_floor_plans = true
+show_purchase_options = true
+show_contact_cta = true
+
+[contact]
+phone_display = ""
+phone_href = ""
+text_href = ""
+email = ""
+inquiry_url = "https://orovianoasis.com"
+
+[social]
+instagram = ""
+facebook = ""
+youtube = ""
+tiktok = ""
+linkedin = ""
+
+[commerce]
+default_checkout_label = "Purchase Package"
+default_inquiry_label = "Request Details"
+default_currency = "USD"
+terms_url = ""
+refund_policy_url = ""
+
+[seo]
+title = "Orovian Oasis Showcase"
+description = "Concept homes, transformations, interactive property walkthroughs, floor plans, and available properties from Orovian Oasis."
+image = "/assets/brand/share-card.svg"
+
+[analytics]
+provider = ""
+measurement_id = ""
