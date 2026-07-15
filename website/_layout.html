@@ -1,5 +1,5 @@
 <!--
-OROVIAN OASIS SHOWCASE — SHARED PAGE SHELL 2.5
+OROVIAN OASIS SHOWCASE — SHARED PAGE SHELL 2.6
 Edit this file for the site-wide header, menu, footer, metadata, dialogs, and script loading.
 site.css contains shared/desktop styling; mobile.css is isolated to screens up to 880px.
 The left menu and hash-target dialogs remain usable without JavaScript. JavaScript adds one-click
@@ -11,6 +11,9 @@ modal controls, focus management, scroll preservation, and optional motion.
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#17101f">
+  <!-- Replace assets/brand/favicon.png with your own square PNG to update the browser icon. -->
+  <link rel="icon" type="image/png" sizes="512x512" href="{{ROOT}}assets/brand/favicon.png">
+  <link rel="apple-touch-icon" href="{{ROOT}}assets/brand/favicon.png">
   <title>{{PAGE_TITLE}}</title>
   <meta name="description" content="{{PAGE_DESCRIPTION}}">
   <meta property="og:title" content="{{PAGE_TITLE}}">
@@ -46,7 +49,7 @@ modal controls, focus management, scroll preservation, and optional motion.
 
       <a class="brand-orbit logo-orbit orbit-forward" href="{{ROOT}}" aria-label="Orovian Oasis Showcase home">
         <span class="logo-orbit-ring" aria-hidden="true"></span>
-        <span class="logo-orbit-disc"><img src="{{ROOT}}assets/brand/logo-tight.webp" alt="Orovian Oasis"></span>
+        <span class="logo-orbit-disc"><img src="{{ROOT}}assets/brand/logo-badge.webp" alt="Orovian Oasis"></span>
       </a>
 
       <a class="contact-cta" href="#quick-contact" data-modal-open aria-label="Open contact options" aria-controls="quick-contact">
@@ -63,7 +66,7 @@ modal controls, focus management, scroll preservation, and optional motion.
       <div class="footer-brand">
         <a class="footer-logo-orbit logo-orbit orbit-reverse" href="#about-oasis" data-modal-open aria-label="About Orovian Oasis" aria-controls="about-oasis">
           <span class="logo-orbit-ring" aria-hidden="true"></span>
-          <span class="logo-orbit-disc"><img src="{{ROOT}}assets/brand/logo-tight.webp" alt="Orovian Oasis"></span>
+          <span class="logo-orbit-disc"><img src="{{ROOT}}assets/brand/logo-badge.webp" alt="Orovian Oasis"></span>
         </a>
         <div><strong>Orovian Oasis Showcase</strong><p>Concepts, transformations, property stories, floor plans, and walkable ideas.</p></div>
       </div>
@@ -87,7 +90,7 @@ modal controls, focus management, scroll preservation, and optional motion.
       <a class="contact-modal-close" href="#contact-closed" data-modal-close aria-label="Close contact options">×</a>
       <div class="contact-modal-logo logo-orbit orbit-forward" aria-hidden="true">
         <span class="logo-orbit-ring"></span>
-        <span class="logo-orbit-disc"><img src="{{ROOT}}assets/brand/logo-tight.webp" alt=""></span>
+        <span class="logo-orbit-disc"><img src="{{ROOT}}assets/brand/logo-badge.webp" alt=""></span>
       </div>
       <div class="eyebrow">📬 Contact Orovian Oasis</div>
       <h2 id="quick-contact-title">How would you like to connect?</h2>
@@ -103,7 +106,7 @@ modal controls, focus management, scroll preservation, and optional motion.
       <a class="contact-modal-close" href="#contact-closed" data-modal-close aria-label="Close contact form">×</a>
       <div class="contact-modal-logo logo-orbit orbit-reverse" aria-hidden="true">
         <span class="logo-orbit-ring"></span>
-        <span class="logo-orbit-disc"><img src="{{ROOT}}assets/brand/logo-tight.webp" alt=""></span>
+        <span class="logo-orbit-disc"><img src="{{ROOT}}assets/brand/logo-badge.webp" alt=""></span>
       </div>
       <div class="eyebrow">✉️ Contact Us</div>
       <h2 id="contact-form-title">Tell us what you’re building.</h2>
@@ -128,7 +131,7 @@ modal controls, focus management, scroll preservation, and optional motion.
       <a class="contact-modal-close" href="#contact-closed" data-modal-close aria-label="Close About Orovian Oasis">×</a>
       <div class="contact-modal-logo logo-orbit orbit-reverse" aria-hidden="true">
         <span class="logo-orbit-ring"></span>
-        <span class="logo-orbit-disc"><img src="{{ROOT}}assets/brand/logo-tight.webp" alt=""></span>
+        <span class="logo-orbit-disc"><img src="{{ROOT}}assets/brand/logo-badge.webp" alt=""></span>
       </div>
       <div class="eyebrow">🏗️ About Orovian Oasis</div>
       <h2 id="about-oasis-title">Building the idea before the address.</h2>

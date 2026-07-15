@@ -69,3 +69,8 @@ The redesigned interface uses a floating auto-hiding header, a native left-side 
 - Clicking the footer logo opens the compact About Orovian Oasis dialog.
 - JavaScript-enhanced dialogs open and close with one click while preserving the visitor's exact scroll position. CSS `:target` remains the no-JavaScript fallback.
 - Privacy Policy and Terms & Conditions pages are generated from `website/privacy.html` and `website/terms.html`. Their destinations can be changed in `[legal]` inside `content/site.toml`.
+
+## Favicon
+
+Replace `assets/brand/favicon.png` with any square PNG favicon, preferably **512 × 512 pixels**. Keep the filename unchanged; every generated page already references it.
+

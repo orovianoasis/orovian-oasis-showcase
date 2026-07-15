@@ -27,6 +27,8 @@ required_files = [
     "content/site.toml",
     "content/navigation.toml",
     "assets/brand/logo-tight.webp",
+    "assets/brand/logo-badge.webp",
+    "assets/brand/favicon.png",
     "scripts/build_site.py",
 ]
 for relative in required_files:

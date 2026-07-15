@@ -1,5 +1,5 @@
 /*
-OROVIAN OASIS SHOWCASE — MOBILE / TABLET VISUAL LAYER 2.5
+OROVIAN OASIS SHOWCASE — MOBILE / TABLET VISUAL LAYER 2.6
 
 EDIT THIS FILE for phone- and tablet-only visual changes.
 It is loaded with media="(max-width: 880px)", so these rules do not affect desktop.
@@ -185,4 +185,114 @@ html.mobile-view .menu-popover{max-height:min(72svh,620px);overflow:auto;overscr
 @media(max-width:380px){
   .footer-bottom{font-size:.56rem;gap:3px}
   .footer-bottom a{font-weight:700}
+}
+
+
+/* ==========================================================
+   MOBILE 2.6 — HEADER LOGO, VISIBLE ORBS + CARD CENTERING
+   ========================================================== */
+@media(max-width:880px){
+  .site-header .header-row{
+    grid-template-columns:48px minmax(0,1fr) 48px;
+    overflow:visible;
+  }
+  .site-header .menu-trigger,
+  .site-header .contact-cta{
+    width:48px;
+    min-width:48px;
+    max-width:48px;
+    padding:0;
+    justify-content:center;
+  }
+  .site-header .brand-orbit{
+    position:relative;
+    width:68px;
+    height:68px;
+    min-width:68px;
+    max-width:68px;
+    justify-self:center;
+    align-self:center;
+    overflow:visible;
+    transform:none !important;
+  }
+  .site-header .brand-orbit .logo-orbit-disc{
+    width:54px;
+    height:54px;
+    min-width:54px;
+    max-width:54px;
+    margin:0;
+  }
+  .site-header .brand-orbit .logo-orbit-ring{
+    display:block;
+    inset:0;
+    opacity:1;
+    overflow:visible;
+  }
+  .site-header .brand-orbit .logo-orbit-ring:before,
+  .site-header .brand-orbit .logo-orbit-ring:after{
+    display:block;
+    opacity:1;
+  }
+
+  .featured-section .project-card,
+  .featured-section .project-card .card-body,
+  .featured-section .project-card .badge,
+  .featured-section .project-card h3,
+  .featured-section .project-card p,
+  .featured-section .project-card .price{
+    text-align:center;
+  }
+  .featured-section .project-card .badge{
+    margin-left:auto;
+    margin-right:auto;
+  }
+  .featured-section .project-card .facts,
+  .featured-section .project-card .actions{
+    justify-content:center;
+  }
+  .featured-section .project-card .card-media img{
+    object-position:center center;
+  }
+
+  .about-modal-card .contact-modal-logo.logo-orbit{
+    margin-inline:auto;
+    left:auto;
+    right:auto;
+  }
+}
+
+@media(max-width:560px){
+  .site-header .header-row{
+    grid-template-columns:44px minmax(0,1fr) 44px;
+  }
+  .site-header .menu-trigger,
+  .site-header .contact-cta{
+    width:44px;
+    min-width:44px;
+    max-width:44px;
+  }
+  .site-header .brand-orbit{
+    width:62px;
+    height:62px;
+    min-width:62px;
+    max-width:62px;
+  }
+  .site-header .brand-orbit .logo-orbit-disc{
+    width:49px;
+    height:49px;
+    min-width:49px;
+    max-width:49px;
+  }
+  .site-header .brand-orbit .logo-orbit-ring:before{
+    width:8px;
+    height:8px;
+    left:2px;
+    top:11px;
+  }
+  .site-header .brand-orbit .logo-orbit-ring:after{
+    width:7px;
+    height:7px;
+    right:3px;
+    bottom:8px;
+  }
 }

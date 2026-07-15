@@ -277,3 +277,71 @@ body.contact-modal-open{overflow:hidden}
   .about-pillars span{min-height:52px;padding:6px;font-size:.72rem}
   .about-intake{min-height:40px}
 }
+
+
+/* ==========================================================
+   OROVIAN OASIS 2.6 — CENTERED PLACEHOLDER + ABOUT LOGO FIX
+   ========================================================== */
+
+/* Keep every visible line in featured project cards centered, including badges and metadata. */
+.featured-section .project-card .card-body{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+.featured-section .project-card .badge{
+  align-self:center;
+}
+.featured-section .project-card .muted,
+.featured-section .project-card .price{
+  width:100%;
+  text-align:center;
+}
+
+/* The About logo uses slightly more breathing room so the full mark sits inside the circle. */
+.about-modal-card .contact-modal-logo{
+  justify-self:center;
+  margin-inline:auto;
+}
+.about-modal-card .contact-modal-logo .logo-orbit-disc{
+  display:grid;
+  place-items:center;
+}
+.about-modal-card .contact-modal-logo .logo-orbit-disc img{
+  width:84%;
+  height:84%;
+  object-fit:contain;
+  object-position:center;
+  transform:translateY(-1px);
+}
+
+
+/* ==========================================================
+   OROVIAN OASIS 2.6 — CENTERED ORBIT BADGES + ABOUT ALIGNMENT
+   ========================================================== */
+.logo-orbit-disc img{
+  width:100%;
+  height:100%;
+  max-width:100%;
+  max-height:100%;
+  object-fit:contain;
+  object-position:50% 50%;
+  transform:none;
+}
+.about-modal-card{
+  text-align:center;
+}
+.about-modal-card .contact-modal-logo.logo-orbit{
+  display:grid;
+  place-items:center;
+  margin-left:auto;
+  margin-right:auto;
+  justify-self:center;
+  align-self:center;
+  transform:none;
+}
+.about-modal-card .contact-modal-logo .logo-orbit-disc,
+.about-modal-card .contact-modal-logo .logo-orbit-ring{
+  margin:0;
+  transform-origin:50% 50%;
+}

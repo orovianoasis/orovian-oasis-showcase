@@ -14,9 +14,9 @@
 <path d="M690 430L890 490V620L690 560Z" fill="#c8b99a"/>
 <path d="M1040 690L1275 633L1400 682L1165 745Z" fill="#287d99" opacity=".9"/>
 <path d="M1048 678L1275 623L1405 671" fill="none" stroke="#f1dfb1" stroke-width="17"/>
-<rect x="86" y="83" width="250" height="42" rx="21" fill="none" stroke="#d9bd55" opacity=".75"/>
-<text x="211" y="111" text-anchor="middle" fill="#d9bd55" font-family="Arial, sans-serif" font-size="18" font-weight="700" letter-spacing="4">CONCEPT HOME</text>
-<text x="86" y="214" fill="url(#gold)" font-family="Georgia, serif" font-size="77" font-style="italic" font-weight="700">Showcase Structure Demo</text>
-<text x="90" y="268" fill="#d0d9df" font-family="Arial, sans-serif" font-size="25">Replace this media when the final page design begins.</text>
-<text x="90" y="826" fill="#9aaab8" font-family="Arial, sans-serif" font-size="18" letter-spacing="3">OROVIAN OASIS SHOWCASE • PLACEHOLDER MEDIA</text>
+<rect x="675" y="83" width="250" height="42" rx="21" fill="none" stroke="#d9bd55" opacity=".75"/>
+<text x="800" y="111" text-anchor="middle" fill="#d9bd55" font-family="Arial, sans-serif" font-size="18" font-weight="700" letter-spacing="4">CONCEPT HOME</text>
+<text x="800" y="214" text-anchor="middle" fill="url(#gold)" font-family="Georgia, serif" font-size="77" font-style="italic" font-weight="700">Showcase Structure Demo</text>
+<text x="800" y="268" text-anchor="middle" fill="#d0d9df" font-family="Arial, sans-serif" font-size="25">Replace this media when the final page design begins.</text>
+<text x="800" y="826" text-anchor="middle" fill="#9aaab8" font-family="Arial, sans-serif" font-size="18" letter-spacing="3">OROVIAN OASIS SHOWCASE • PLACEHOLDER MEDIA</text>
 </svg>
