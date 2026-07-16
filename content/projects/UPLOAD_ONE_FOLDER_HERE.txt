@@ -1,8 +1,10 @@
 UPLOAD ONE EXTRACTED PROPERTY FOLDER INTO content/projects/
 
-The folder should contain:
-- cover.webp
-- README.txt
+Recommended folder contents:
+- property-details.json     ← one-file control panel for title, facts, price, status, and buttons
+- cover-front.webp
+- cover-back.webp
+- README.txt                ← fallback information when JSON values are omitted
 - walkthrough HTML
 - GLB model
 - DXF floor plans
@@ -11,23 +13,26 @@ The original long filenames and underscores are allowed.
 project.toml is optional.
 Do not upload the ZIP itself.
 
+PROPERTY DETAILS — RECOMMENDED
+Copy this template:
+content/project-templates/property-details-template.json
 
-PROJECT COVER SLIDESHOWS (v3.4)
-Add any of these directly inside the one uploaded property folder:
+Place the copy directly in the property folder and rename it:
+property-details.json
+
+Edit that one JSON file whenever public project information changes.
+
+PRICING
+- price = null: Contact for pricing + Request Details contact popup
+- price = a number: public numeric price
+- price + checkout_url: Buy Now replaces Request Details
+- price without checkout_url: numeric price + Request Details
+
+PROJECT COVER SLIDESHOWS
+Every image whose filename begins with cover becomes part of the carousel:
 - cover-front.webp
 - cover-back.webp
-- cover-01.webp, cover-02.webp, and so on
+- cover-01.webp
+- cover-pool.webp
 
-Every filename beginning with "cover" becomes part of that project's carousel.
 With no cover image, the generated placeholder remains.
-Global autoplay is controlled in content/site.toml.
-
-PROJECT NAME AND DETAILS — ONE SOURCE
-For a raw one-folder project without project.toml:
-- The first non-empty line of README.txt is the project name.
-- Change that one line and the name updates on the homepage, category page,
-  project page, floor-plan page, tour metadata, contact context, and SEO title.
-- The MODEL CONCEPT paragraph is the project description and the source used
-  to detect square footage, bedrooms, bathrooms, garage capacity, and stories.
-- Changing the display name does not change the public URL. Rename the outer
-  property folder only when you also want a new URL slug.

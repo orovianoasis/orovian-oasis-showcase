@@ -430,11 +430,15 @@ def public_data(value):
 
 def cta_buttons(project, site, project_url):
     pricing=project.get("pricing",{}); buttons=[]
-    checkout=pricing.get("checkout_url")
-    if checkout:
-        buttons.append(f'<a class="button primary" href="{esc(checkout)}" target="_blank" rel="noopener">🛒 {esc(pricing.get("checkout_label") or site.get("commerce",{}).get("default_checkout_label","Purchase"))}</a>')
+    has_public_price = html.unescape(money(project, site)).strip().lower() != "contact for pricing"
+    checkout=str(pricing.get("checkout_url") or "").strip() if has_public_price else ""
     inquiry_label = pricing.get("inquiry_label") or site.get("commerce",{}).get("default_inquiry_label","Request Details")
-    buttons.append(f'<a class="button" href="#contact-us" data-modal-open{project_context_attrs(project, project_url)}>💬 {esc(inquiry_label)}</a>')
+    if checkout:
+        buttons.append(f'<a class="button primary" href="{esc(checkout)}" target="_blank" rel="noopener">🛒 {esc(pricing.get("checkout_label") or site.get("commerce",{}).get("default_checkout_label","Buy Now"))}</a>')
+        if pricing.get("show_inquiry_with_checkout"):
+            buttons.append(f'<a class="button" href="#contact-us" data-modal-open{project_context_attrs(project, project_url)}>💬 {esc(inquiry_label)}</a>')
+    else:
+        buttons.append(f'<a class="button" href="#contact-us" data-modal-open{project_context_attrs(project, project_url)}>💬 {esc(inquiry_label)}</a>')
     return ''.join(buttons)
 
 

@@ -1,0 +1,42 @@
+{
+  "title": "Luxury Custom Home",
+  "subtitle": "Interactive property design package",
+  "summary": "Original two-story organic-modern luxury estate with a double-height great room, glass courtyard, library bridge, private gym, media lounge, resort pool, spa, covered outdoor kitchen, firepit lounge, and furnished interiors.",
+  "category": "concept-home",
+  "location": "Orovian Oasis",
+  "year": 2026,
+
+  "published": true,
+  "featured": true,
+  "sort_order": 10,
+  "status": "available",
+  "status_label": "Available",
+
+  "square_feet": 5850,
+  "bedrooms": 4,
+  "full_bathrooms": 4,
+  "half_bathrooms": 1,
+  "garage": 3,
+  "stories": 2,
+  "lot_size": "",
+
+  "price": null,
+  "currency": "USD",
+  "price_prefix": "",
+  "price_suffix": "",
+  "price_display_text": "",
+  "checkout_url": "",
+  "buy_button_label": "Buy Now",
+  "contact_button_label": "Request Details",
+  "show_contact_with_buy_button": false,
+
+  "carousel_autoplay": true,
+  "carousel_interval_ms": 5000,
+  "tour_button_label": "Launch 3D Walkthrough",
+  "tour_open_new_tab": false,
+
+  "product_type": "Digital architectural concept",
+  "license_type": "Contact Orovian Oasis for availability",
+  "customizable": true,
+  "construction_ready": false
+}
