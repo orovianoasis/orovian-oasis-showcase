@@ -16,9 +16,9 @@ For the normal workflow, extract a completed property package, add `cover-front.
 content/projects/
 ```
 
-`project.toml` is optional. The build automatically reads `README.txt`, detects every image whose filename begins with `cover`, builds the project carousel, detects the walkthrough HTML, GLB, and DXFs, generates the website connection files, creates browser previews, and publishes the property. Original long filenames and underscores are accepted; public URLs are converted to hyphens automatically.
+Add `property-details.json` to the same folder for one-file control of the public title, description, category, status, square footage, bedrooms, bathrooms, garage, stories, price, checkout link, and button behavior. The build still detects every `cover*` image, the walkthrough HTML, GLB, and DXFs automatically. Original long filenames and underscores are accepted; public URLs are converted to hyphens automatically.
 
-Use `project.toml` only for advanced overrides such as exact pricing, checkout links, status, category, SEO, or licensing details.
+When `property-details.json` is missing, the build falls back to `README.txt`. `project.toml` remains supported only for advanced manually organized projects.
 
 Start with the [One-folder upload guide](docs/editing/ONE_FOLDER_PROJECT_UPLOAD.md).
 

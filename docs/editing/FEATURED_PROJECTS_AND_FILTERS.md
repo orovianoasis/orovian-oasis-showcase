@@ -27,6 +27,6 @@ No separate filter configuration is required. The build reads these project fact
 - `garage`
 - `stories`
 
-For one-folder imports, those values are inferred from `README.txt`. A correctly configured `project.toml` can override them.
+For one-folder imports, those values come from `property-details.json` when present and fall back to `README.txt`. A correctly configured `project.toml` remains supported for advanced manual projects.
 
 The optional browser behavior lives in `website/js/filters.js`. Removing that file does not hide any projects; it only disables interactive filtering.

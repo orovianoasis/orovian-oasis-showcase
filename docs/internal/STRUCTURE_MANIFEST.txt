@@ -1,4 +1,4 @@
-OROVIAN OASIS SHOWCASE — SOURCE STRUCTURE 3.2
+OROVIAN OASIS SHOWCASE — SOURCE STRUCTURE 3.7
 
 .github/workflows/deploy-pages.yml
 .github/workflows/validate.yml
@@ -13,6 +13,7 @@ assets/brand/logo.webp
 assets/brand/share-card.svg
 assets/placeholders/project-card.svg
 content/navigation.toml
+content/project-templates/PROPERTY_DETAILS_GUIDE.txt
 content/project-templates/README.md
 content/project-templates/concept-home-template/README.md
 content/project-templates/concept-home-template/assets/after-exterior.svg
@@ -25,6 +26,7 @@ content/project-templates/concept-home-template/floor-plans/before.svg
 content/project-templates/concept-home-template/floor-plans/ground-floor.svg
 content/project-templates/concept-home-template/project.toml
 content/project-templates/concept-home-template/tour/README.md
+content/project-templates/property-details-template.json
 content/project-templates/property-template/README.md
 content/project-templates/property-template/assets/after-exterior.svg
 content/project-templates/property-template/assets/before-exterior.svg
@@ -49,6 +51,16 @@ content/project-templates/transformation-template/project.toml
 content/project-templates/transformation-template/tour/README.md
 content/projects/README.md
 content/projects/UPLOAD_ONE_FOLDER_HERE.txt
+content/projects/luxury-custom-home/Luxury_Custom_Home_Drawing_Index.dxf
+content/projects/luxury-custom-home/Luxury_Custom_Home_Geometry.obj
+content/projects/luxury-custom-home/Luxury_Custom_Home_Ground_Floor.dxf
+content/projects/luxury-custom-home/Luxury_Custom_Home_Interactive_Walkthrough_Keyboard_Turn.html
+content/projects/luxury-custom-home/Luxury_Custom_Home_Upper_Floor.dxf
+content/projects/luxury-custom-home/Luxury_Custom_Home_Walkable_Model.glb
+content/projects/luxury-custom-home/README.txt
+content/projects/luxury-custom-home/cover-back.webp
+content/projects/luxury-custom-home/cover-front.webp
+content/projects/luxury-custom-home/property-details.json
 content/projects/structure-demo/assets/card.svg
 content/projects/structure-demo/assets/cover.svg
 content/projects/structure-demo/assets/share.svg
@@ -58,20 +70,26 @@ content/projects/structure-demo/tour/README.md
 content/site.toml
 docs/CHANGELOG_v2.8.md
 docs/CHANGELOG_v2.9.md
+docs/CHANGELOG_v3.1.md
 docs/CHANGELOG_v3.2.md
+docs/CHANGELOG_v3.3.md
+docs/CHANGELOG_v3.4.md
+docs/CHANGELOG_v3.5.md
+docs/CHANGELOG_v3.6.md
+docs/CHANGELOG_v3.7.md
 docs/README.md
 docs/deployment/CUSTOM_DOMAIN_SETUP.md
+docs/editing/ADD-A-3D-PROPERTY.md
 docs/editing/CONTACT_SETUP.md
 docs/editing/CONTENT_WORKFLOW.md
 docs/editing/EDITING_GUIDE.md
 docs/editing/FAVICON_SETUP.md
+docs/editing/FEATURED_PROJECTS_AND_FILTERS.md
 docs/editing/FOLDER_NAMING_GUIDE.md
 docs/editing/MOBILE_DESIGN_GUIDE.md
 docs/editing/ONE_FOLDER_PROJECT_UPLOAD.md
 docs/getting-started/QUICK_START.md
 docs/getting-started/UPLOAD_THIS_FOLDER.txt
-docs/internal/SHA256SUMS.txt
-docs/internal/STRUCTURE_MANIFEST.txt
 docs/internal/VALIDATION_REPORT.txt
 docs/reference/PROJECT_FIELD_REFERENCE.md
 docs/reference/RELEASE_CHECKLIST.md
@@ -94,8 +112,11 @@ website/css/mobile.css
 website/css/site.css
 website/floor-plans.html
 website/index.html
+website/js/carousel.js
 website/js/contact.js
 website/js/dynamics.js
+website/js/filters.js
+website/js/floor-plan-viewer.js
 website/js/mobile.js
 website/js/site.js
 website/listing.html

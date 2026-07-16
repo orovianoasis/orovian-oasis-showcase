@@ -1,32 +1,25 @@
-OROVIAN OASIS SHOWCASE — VALIDATION REPORT 3.2
+OROVIAN OASIS SHOWCASE — VALIDATION REPORT 3.7
 
-PASS: rebuilt from v2.9 source package
-PASS: source structure validation with no raw property present
-PASS: strict baseline site generation
-PASS: baseline generated output validation
-PASS: Python syntax compilation — build and validation scripts
-PASS: JavaScript syntax — site.js
-PASS: JavaScript syntax — contact.js
-PASS: JavaScript syntax — dynamics.js
-PASS: JavaScript syntax — mobile.js
-PASS: one-folder import using the supplied Luxury Custom Home package
-PASS: underscored source folder converted to hyphenated public slug
-PASS: nested wrapper-folder import
-PASS: README title and project-summary extraction
-PASS: README facts extraction — 5,850 sq. ft., 4 beds, 4.5 baths, 3-car garage, 2 stories
-PASS: original walkthrough HTML preserved and connected
-PASS: original GLB preserved and canonical house.glb generated
-PASS: collision.json and manifest.json generated
-PASS: DXF source downloads preserved
-PASS: browser-viewable SVG previews generated from all supplied DXFs
-PASS: real project automatically replaces Structure Demo in published output
-PASS: first real project automatically becomes featured
-PASS: final raw-project generated output validation
+PASS: v3.7 rebuilt from the verified v3.6 repository
+PASS: source structure validation
+PASS: strict production site generation
+PASS: generated output validation
+PASS: Python syntax — build_site.py and raw_project.py
+PASS: JavaScript syntax — core, contact, carousel, filters, and floor-plan viewer
+PASS: property-details.json parsed and applied
+PASS: title change propagated to homepage, category page, project page, floor-plan page, API data, SEO title, and contact context
+PASS: square footage, bedrooms, and bathroom values propagated from property-details.json
+PASS: price = null produced Contact for pricing and Request Details
+PASS: numeric price without checkout_url displayed the price and retained Request Details
+PASS: numeric price with checkout_url displayed Buy Now and removed Request Details by default
+PASS: property-details.json remained private source metadata and was not copied into the public tour
+PASS: one-folder walkthrough, GLB, DXF, cover carousel, and generated route behavior preserved
 PASS: ZIP integrity test
 
-Version 3.2 one-folder contract:
+Version 3.7 one-folder contract:
 - Upload one extracted property folder into content/projects/.
-- Add cover.webp to that folder for the public card image.
-- Keep the original README, walkthrough HTML, GLB, DXF, OBJ, and filenames.
-- project.toml is optional and reserved for advanced overrides.
-- ZIP files are not unpacked by the site and should not be uploaded as the project itself.
+- Add property-details.json for one-file control of public project data.
+- Keep original walkthrough HTML, GLB, DXF, OBJ, README, and cover filenames.
+- property-details.json overrides README inference.
+- README remains the fallback when JSON is absent.
+- project.toml remains supported for advanced manually organized projects.

@@ -1,13 +1,10 @@
 # One-folder property upload
 
-The default workflow does **not** require `project.toml`.
-
-## What to upload
-
-Extract the property package and add one or more WebP cover images to the same folder as the exported files. Use `cover-front.webp` and `cover-back.webp` for the normal front/rear slideshow. Additional files such as `cover-03.webp` are also detected.
+Upload one extracted property folder into `content/projects/`.
 
 ```text
 luxury_custom_home/
+├── property-details.json
 ├── cover-front.webp
 ├── cover-back.webp
 ├── Luxury_Custom_Home_Ground_Floor.dxf
@@ -19,51 +16,64 @@ luxury_custom_home/
 └── README.txt
 ```
 
-Upload that entire extracted folder into:
-
-```text
-content/projects/
-```
-
 Do not upload the ZIP file. GitHub stores ZIP files without extracting them.
 
-## What the website does automatically
+## The one editable control file
 
-During the GitHub Actions build, the importer:
+Copy:
 
-- Converts spaces and underscores in the folder name into a hyphenated public URL.
-- Reads the project title, summary, square footage, bedrooms, bathrooms, garage, and stories from `README.txt` when available.
-- Detects the walkthrough HTML and GLB model without renaming the source files.
-- Copies all required walkthrough support files while excluding source-only OBJ, PLAN, DWG, and ZIP files from the public tour.
-- Generates `viewer.html`, `house.glb`, `collision.json`, and `manifest.json` in the published output.
-- Detects every DXF file, creates a browser-viewable SVG preview, and keeps the original DXF as a download.
-- Detects every image whose filename begins with `cover` and creates the homepage-card and project-page carousel. With only one cover, it behaves as a static image.
-- Uses `project_carousel_autoplay` and `project_carousel_interval_ms` from `content/site.toml` for global slideshow behavior.
-- Publishes the property automatically.
-- Hides the Structure Demo after the first real property is detected.
-- Features the first real property automatically when no project has been explicitly featured.
-
-## Automatic category choice
-
-The importer reads the folder and README text:
-
-- `rehab`, `fix-and-flip`, `renovation`, or `transformation` → **Transformations**
-- `MLS`, `listing`, or `for sale` → **Properties**
-- Everything else → **Concept Homes**
-
-## Optional advanced control
-
-A manually organized project containing `project.toml` still works exactly as before. Use it only when you need precise control over price, status, category, checkout links, licensing text, SEO, or featured placement.
-
-The simple one-folder workflow and advanced `project.toml` workflow can exist together in the same repository.
-
-## Autoplay or manual/static mode
-
-The default rotates every five seconds and still supports arrows, dots, mouse clicks, and touch swipes. In `content/site.toml`:
-
-```toml
-project_carousel_autoplay = true
-project_carousel_interval_ms = 5000
+```text
+content/project-templates/property-details-template.json
 ```
 
-Change autoplay to `false` to keep every carousel manual/static while preserving its arrows and swipe controls. Advanced `project.toml` projects can override this with a `[carousel]` section.
+into the property folder and rename the copy:
+
+```text
+property-details.json
+```
+
+Edit that one file to change the project title, summary, category, location, year, publication status, featured status, sorting, availability, square footage, bedrooms, bathrooms, garage, stories, lot size, price, checkout link, button labels, carousel behavior, and tour-button behavior.
+
+The outer property-folder name controls the permanent URL. Changing `title` changes the displayed name everywhere without breaking the existing URL.
+
+## Pricing behavior
+
+```json
+"price": null,
+"checkout_url": ""
+```
+
+Displays **Contact for pricing** and opens the property-aware Contact Us popup.
+
+```json
+"price": 125000,
+"checkout_url": ""
+```
+
+Displays **$125,000** and keeps **Request Details**, because no payment destination exists.
+
+```json
+"price": 125000,
+"checkout_url": "https://your-checkout-link.example"
+```
+
+Displays **$125,000** and replaces Request Details with **Buy Now**.
+
+Set `show_contact_with_buy_button` to `true` to display both buttons.
+
+## Automatic importing
+
+The build still detects the walkthrough HTML, GLB model, DXF floor plans, and every `cover*` image automatically. `property-details.json` controls metadata; it does not require you to rename or reorganize the exported architectural files.
+
+When the JSON file is absent, `README.txt` remains the fallback source.
+
+## JSON rules
+
+- Text uses double quotes.
+- Entries are separated by commas.
+- Numbers do not use quotes.
+- Boolean values are `true` or `false` without quotes.
+- No public price is written as `null` without quotes.
+- JSON does not permit comments.
+
+An invalid JSON file stops the build and reports the exact line and column that needs correction.
