@@ -498,3 +498,41 @@ html.mobile-view .menu-popover{max-height:min(72svh,620px);overflow:auto;overscr
   .plan-lightbox-toolbar{display:grid;grid-template-columns:minmax(0,1fr) auto}
   .plan-lightbox-controls output,.plan-lightbox-controls [data-plan-reset]{display:none}
 }
+
+/* ==========================================================
+   MOBILE 3.6 — COMPACT FEATURE RAIL + TIGHTER OVERVIEW HANDOFF
+   ========================================================== */
+@media(max-width:880px){
+  body[data-page-kind="project"] .project-hero{padding-bottom:6px}
+  body[data-page-kind="project"] .project-hero + .section{padding-top:18px}
+  .project-hero-actions{
+    width:min(100%,660px);
+    margin-top:12px;
+    padding:5px;
+    gap:7px;
+    border-radius:28px;
+  }
+  .project-hero-actions .project-hero-action{
+    min-height:54px;
+    padding:9px 11px;
+    gap:7px;
+    font-size:clamp(.7rem,2.2vw,.86rem);
+    line-height:1.12;
+  }
+  .project-action-icon{
+    width:27px;
+    height:27px;
+    font-size:.98rem;
+  }
+}
+@media(max-width:420px){
+  body[data-page-kind="project"] .project-hero + .section{padding-top:14px}
+  .project-hero-actions{gap:5px;padding:4px}
+  .project-hero-actions .project-hero-action{
+    min-height:52px;
+    padding:8px 7px;
+    gap:5px;
+    font-size:clamp(.63rem,2.7vw,.74rem);
+  }
+  .project-action-icon{width:24px;height:24px;font-size:.86rem}
+}
