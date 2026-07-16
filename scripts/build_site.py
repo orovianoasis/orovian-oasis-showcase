@@ -447,17 +447,17 @@ def special_section(project):
         if t.get("public_financials"):
             for label,key in [("Acquisition","acquisition_price"),("Rehab budget","rehab_budget"),("After-repair value","after_repair_value")]:
                 if t.get(key): rows.append(f'<li><b>{label}</b><br>${float(t[key]):,.0f}</li>')
-        return f'<div class="panel" data-reveal><h2>🛠️ Transformation</h2><ul class="list">{"".join(rows) or "<li>Project story coming soon.</li>"}</ul></div>'
+        return f'<div class="panel" data-reveal><h2 class="project-section-title"><span class="heading-emoji" aria-hidden="true">🛠️</span><span class="heading-copy">Transformation</span></h2><ul class="list">{"".join(rows) or "<li>Project story coming soon.</li>"}</ul></div>'
     if category=="property":
         p=project.get("property",{}); rows=[]
         for label,key in [("Listing type","listing_type"),("MLS","mls_number"),("Agent","agent_name")]:
             if p.get(key): rows.append(f'<li><b>{label}</b><br>{esc(p[key])}</li>')
-        return f'<div class="panel" data-reveal><h2>🏡 Property Details</h2><ul class="list">{"".join(rows) or "<li>Listing details coming soon.</li>"}</ul></div>'
+        return f'<div class="panel" data-reveal><h2 class="project-section-title"><span class="heading-emoji" aria-hidden="true">🏡</span><span class="heading-copy">Property Details</span></h2><ul class="list">{"".join(rows) or "<li>Listing details coming soon.</li>"}</ul></div>'
     c=project.get("concept",{}); rows=[]
     for label,key in [("Product type","product_type"),("License","license_type")]:
         if c.get(key): rows.append(f'<li><b>{label}</b><br>{esc(c[key])}</li>')
     rows.append(f'<li><b>Customizable</b><br>{"Yes" if c.get("customizable") else "No"}</li>')
-    return f'<div class="panel" data-reveal><h2>🏗️ Design Package</h2><ul class="list">{"".join(rows)}</ul></div>'
+    return f'<div class="panel" data-reveal><h2 class="project-section-title"><span class="heading-emoji" aria-hidden="true">🏗️</span><span class="heading-copy">Design Package</span></h2><ul class="list">{"".join(rows)}</ul></div>'
 
 
 def materials_section(project, site):
@@ -465,7 +465,7 @@ def materials_section(project, site):
     items=project.get("materials",[])
     if not items: return ""
     rows=''.join(f'<li><b>{esc(x.get("category"))}: {esc(x.get("name"))}</b><br><span class="muted">{esc(x.get("description"))}</span></li>' for x in items)
-    return f'<div class="panel" data-reveal><h2>🎨 Materials & Highlights</h2><ul class="list">{rows}</ul></div>'
+    return f'<div class="panel" data-reveal><h2 class="project-section-title"><span class="heading-emoji" aria-hidden="true">🎨</span><span class="heading-copy">Materials &amp; Highlights</span></h2><ul class="list">{rows}</ul></div>'
 
 
 def deliverables_section(project, site):
@@ -473,7 +473,7 @@ def deliverables_section(project, site):
     items=project.get("deliverables",[])
     if not items: return ""
     rows=''.join(f'<li>{"✓" if x.get("included") else "○"} {esc(x.get("name"))}</li>' for x in items)
-    return f'<div class="panel" data-reveal><h2>📦 Deliverables</h2><ul class="list">{rows}</ul></div>'
+    return f'<div class="panel" data-reveal><h2 class="project-section-title"><span class="heading-emoji" aria-hidden="true">📦</span><span class="heading-copy">Deliverables</span></h2><ul class="list">{rows}</ul></div>'
 
 
 def build(args):
@@ -555,9 +555,9 @@ def build(args):
         tour=p.get("tour",{})
         explore=[]
         if floor_plans and site.get("show_floor_plans",True):
-            explore.append('<a class="button primary project-hero-action" href="floor-plans/">📐 View Floor Plans</a>')
+            explore.append('<a class="button primary project-hero-action project-action-floor" href="floor-plans/"><span class="project-action-icon" aria-hidden="true">📐</span><span class="project-action-label">View Floor Plans</span></a>')
         if tour.get("enabled"):
-            explore.append(f'<a class="button project-hero-action" href="{esc(tour.get("path","tour/"))}"{" target=\"_blank\" rel=\"noopener\"" if tour.get("open_new_tab") else ""}>🎮 {esc(tour.get("label","Launch 3D Walkthrough"))}</a>')
+            explore.append(f'<a class="button project-hero-action project-action-tour" href="{esc(tour.get("path","tour/"))}"{" target=\"_blank\" rel=\"noopener\"" if tour.get("open_new_tab") else ""}><span class="project-action-icon" aria-hidden="true">🎮</span><span class="project-action-label">{esc(tour.get("label","Launch 3D Walkthrough"))}</span></a>')
         action_class = "dual-action" if len(explore) > 1 else "single-action"
         hero_explore_actions = f'<div class="project-hero-actions {action_class}" data-reveal>{"".join(explore)}</div>' if explore else ""
         body=project_template
