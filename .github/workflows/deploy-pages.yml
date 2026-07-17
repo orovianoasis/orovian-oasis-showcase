@@ -1,0 +1,73 @@
+name: Build and deploy Showcase
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+      - name: Detect Chief Architect DAE exports
+        id: dae
+        shell: bash
+        run: |
+          if find content/projects -type f \( -iname '*.dae' \) -print -quit | grep -q .; then
+            echo "has_dae=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_dae=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Restore converted walkthrough cache
+        if: steps.dae.outputs.has_dae == 'true'
+        uses: actions/cache@v4
+        with:
+          path: .walkthrough-cache
+          key: walkthrough-${{ runner.os }}-${{ hashFiles('content/projects/**/*.dae', 'content/projects/**/*.DAE', 'content/projects/**/*.png', 'content/projects/**/*.jpg', 'content/projects/**/*.jpeg', 'content/projects/**/*.webp') }}
+          restore-keys: |
+            walkthrough-${{ runner.os }}-
+      - name: Install compatible Blender converter
+        if: steps.dae.outputs.has_dae == 'true'
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y blender
+      - name: Prepare automatic walkthroughs
+        run: python scripts/build_walkthroughs.py --strict
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+      - name: Validate source structure
+        run: python scripts/validate_source.py
+      - name: Build showcase
+        run: python scripts/build_site.py --clean --strict
+      - name: Validate generated output
+        run: python scripts/validate_output.py dist
+      - name: Upload GitHub Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: dist
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
