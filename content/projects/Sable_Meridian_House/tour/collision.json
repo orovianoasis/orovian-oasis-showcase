@@ -1,0 +1,6 @@
+{
+  "generated": true,
+  "mode": "runtime-bvh",
+  "source": "house.glb",
+  "note": "Floor following and collision are derived from the GLB in the browser."
+}

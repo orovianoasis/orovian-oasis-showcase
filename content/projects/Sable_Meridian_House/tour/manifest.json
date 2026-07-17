@@ -1,0 +1,9 @@
+{
+  "generated": true,
+  "generator": "Orovian Oasis reusable walkthrough template",
+  "title": "Sable Meridian House",
+  "viewer": "viewer.html",
+  "model": "house.glb",
+  "configuration": "walkthrough-config.json",
+  "source_model": "tour/house.glb"
+}

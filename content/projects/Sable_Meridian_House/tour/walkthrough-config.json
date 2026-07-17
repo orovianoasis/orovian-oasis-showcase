@@ -1,0 +1,53 @@
+{
+  "title": "Sable Meridian House",
+  "model": "house.glb",
+  "model_scale": 1,
+  "model_offset": [
+    0,
+    0,
+    0
+  ],
+  "model_rotation_degrees": [
+    0,
+    0,
+    0
+  ],
+  "entry_position": [
+    11.5824,
+    1.853736,
+    3.048
+  ],
+  "entry_target": [
+    11.5824,
+    1.853736,
+    2.048
+  ],
+  "entry_fov": 70,
+  "exterior_position": null,
+  "exterior_target": null,
+  "exterior_fov": 68,
+  "roof_match": [
+    "roof"
+  ],
+  "slab_match": [
+    "upper_slab",
+    "slab"
+  ],
+  "collision_exclude": [
+    "glass",
+    "window",
+    "curtain",
+    "fixture",
+    "furniture",
+    "plant",
+    "landscape"
+  ],
+  "eye_height": 1.68,
+  "player_radius": 0.28,
+  "walk_speed": 3.6,
+  "run_speed": 7.2,
+  "fly_speed": 6.2,
+  "step_height": 0.38,
+  "max_drop": 1.2,
+  "background": "#8da8b6"
+}
