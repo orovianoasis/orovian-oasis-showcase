@@ -193,18 +193,45 @@ function prepareModel(root) {
   const entryTarget = Array.isArray(config.entry_target)
     ? vec3(config.entry_target)
     : new THREE.Vector3(modelCenter.x, modelBox.min.y + eye * 0.7, modelCenter.z);
-  let exteriorPosition;
-  if (Array.isArray(config.exterior_position)) {
-    exteriorPosition = vec3(config.exterior_position);
-  } else {
-    exteriorPosition = new THREE.Vector3(modelCenter.x + modelSize.x * 0.75, modelBox.max.y + Math.max(5, modelSize.y * 0.55), modelBox.max.z + modelSize.z * 0.9);
-  }
-  const exteriorTarget = Array.isArray(config.exterior_target) ? vec3(config.exterior_target) : modelCenter.clone();
   startState = { position: entryPosition, target: entryTarget, fov: Number(config.entry_fov) || 70 };
-  exteriorState = { position: exteriorPosition, target: exteriorTarget, fov: Number(config.exterior_fov) || 76 };
+  exteriorState = buildExteriorState();
   document.getElementById('roofBtn')?.classList.toggle('unmatched', roofMeshes.length === 0);
   document.getElementById('upperBtn')?.classList.toggle('unmatched', slabMeshes.length === 0);
   resetView();
+}
+
+
+function buildExteriorState() {
+  const exteriorFov = Number(config.exterior_fov) || 68;
+  if (Array.isArray(config.exterior_position)) {
+    return {
+      position: vec3(config.exterior_position),
+      target: Array.isArray(config.exterior_target) ? vec3(config.exterior_target) : modelCenter.clone(),
+      fov: exteriorFov,
+    };
+  }
+
+  // Default to a centered, elevated FRONT view. The distance is calculated from
+  // the model bounds and current viewport so the house remains in frame instead
+  // of drifting to one side or disappearing off-screen.
+  const aspect = Math.max(camera.aspect || 1, 0.62);
+  const projectedHeight = Math.max(
+    modelSize.y * 1.35,
+    (modelSize.x / aspect) * 1.25,
+    6,
+  );
+  const frameDistance = (projectedHeight * 0.5) / Math.tan(THREE.MathUtils.degToRad(exteriorFov * 0.5));
+  const distance = Math.max(frameDistance * 1.28, modelSize.z * 0.7, 7);
+  const elevation = Math.max(modelSize.y * 0.30, modelSize.z * 0.16, 2.2);
+  const position = new THREE.Vector3(
+    modelCenter.x,
+    modelCenter.y + elevation,
+    modelBox.max.z + distance,
+  );
+  const target = Array.isArray(config.exterior_target)
+    ? vec3(config.exterior_target)
+    : new THREE.Vector3(modelCenter.x, modelCenter.y - modelSize.y * 0.04, modelCenter.z);
+  return { position, target, fov: exteriorFov };
 }
 
 function raycast(origin, direction, far = Infinity, meshes = collisionMeshes) {
@@ -305,7 +332,10 @@ function applyState(state, flyMode) {
   updateStatus();
 }
 function resetView() { applyState(startState, false); }
-function exteriorView() { applyState(exteriorState, true); }
+function exteriorView() {
+  if (!Array.isArray(config.exterior_position)) exteriorState = buildExteriorState();
+  applyState(exteriorState, true);
+}
 function toggleFly() { fly = !fly; updateStatus(); }
 function toggleRoof() { if (!roofMeshes.length) return; showRoof = !showRoof; roofMeshes.forEach(mesh => { mesh.visible = showRoof; }); updateStatus(); }
 function toggleSlabs() { if (!slabMeshes.length) return; showSlabs = !showSlabs; slabMeshes.forEach(mesh => { mesh.visible = showSlabs; }); updateStatus(); }
@@ -369,10 +399,16 @@ function endPointer(event) {
 canvas.addEventListener('pointerup', endPointer);
 canvas.addEventListener('pointercancel', endPointer);
 
-function bindHold(id, keyName) {
+function bindHold(id, keyName, onStart = null) {
   const button = document.getElementById(id);
   if (!button) return;
-  const down = event => { event.preventDefault(); keys[keyName] = true; button.classList.add('active'); button.setPointerCapture?.(event.pointerId); };
+  const down = event => {
+    event.preventDefault();
+    keys[keyName] = true;
+    if (onStart) onStart();
+    button.classList.add('active');
+    button.setPointerCapture?.(event.pointerId);
+  };
   const up = event => { event.preventDefault(); keys[keyName] = false; button.classList.remove('active'); };
   button.addEventListener('pointerdown', down);
   button.addEventListener('pointerup', up);
@@ -381,8 +417,9 @@ function bindHold(id, keyName) {
 }
 function bindTap(id, action) { document.getElementById(id)?.addEventListener('click', event => { event.preventDefault(); action(); }); }
 bindHold('moveForward','MobileForward'); bindHold('moveBack','MobileBack'); bindHold('moveLeft','MobileLeft'); bindHold('moveRight','MobileRight');
-bindHold('runBtn','MobileRun'); bindHold('riseBtn','MobileRise'); bindHold('lowerBtn','MobileLower');
-bindTap('flyBtn',toggleFly); bindTap('exteriorBtn',exteriorView); bindTap('roofBtn',toggleRoof); bindTap('upperBtn',toggleSlabs); bindTap('resetBtn',resetView);
+const enableMobileVerticalMovement = () => { if (!fly) { fly = true; updateStatus(); } };
+bindHold('riseBtn','MobileRise',enableMobileVerticalMovement); bindHold('lowerBtn','MobileLower',enableMobileVerticalMovement);
+bindTap('exteriorBtn',exteriorView); bindTap('roofBtn',toggleRoof); bindTap('upperBtn',toggleSlabs); bindTap('resetBtn',resetView);
 function toggleUI() {
   const ui = document.getElementById('ui');
   const button = document.getElementById('toggleUI');
