@@ -1,8 +1,0 @@
-UPLOAD THE CONTENTS OF THIS orovian-showcase FOLDER TO THE ROOT OF THE NEW GITHUB REPOSITORY.
-
-Suggested repository: orovian-showcase
-Expected custom domain: showcase.orovianoasis.com
-GitHub Pages source: GitHub Actions
-
-The editable homepage source is website/index.html.
-Do not upload the outer download wrapper if your extraction program adds one.

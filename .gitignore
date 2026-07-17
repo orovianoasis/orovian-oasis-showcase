@@ -1,5 +1,0 @@
-dist/
-.walkthrough-cache/
-content/projects/**/.walkthrough-build/
-__pycache__/
-*.pyc
