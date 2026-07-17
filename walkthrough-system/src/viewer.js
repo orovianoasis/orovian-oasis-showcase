@@ -405,6 +405,8 @@ window.addEventListener('keydown', event => {
   if (event.code === 'KeyF') toggleFly();
   if (event.code === 'KeyE') exteriorView();
   if (event.code === 'KeyB') backExteriorView();
+  if (event.code === 'KeyJ') leftExteriorView();
+  if (event.code === 'KeyL') rightExteriorView();
   if (event.code === 'KeyR') toggleRoof();
   if (event.code === 'KeyU') toggleSlabs();
   if (event.code === 'KeyX') resetView();

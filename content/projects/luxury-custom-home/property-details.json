@@ -5,13 +5,11 @@
   "category": "concept-home",
   "location": "Orovian Oasis",
   "year": 2026,
-
   "published": true,
   "featured": true,
   "sort_order": 10,
   "status": "available",
   "status_label": "Available",
-
   "square_feet": 5850,
   "bedrooms": 4,
   "full_bathrooms": 4,
@@ -19,7 +17,6 @@
   "garage": 3,
   "stories": 2,
   "lot_size": "",
-
   "price": 2399,
   "currency": "USD",
   "price_prefix": "",
@@ -29,14 +26,69 @@
   "buy_button_label": "Buy Now",
   "contact_button_label": "Request Details",
   "show_contact_with_buy_button": false,
-
   "carousel_autoplay": true,
   "carousel_interval_ms": 5000,
   "tour_button_label": "Launch 3D Walkthrough",
   "tour_open_new_tab": false,
-
   "product_type": "Digital architectural concept",
   "license_type": "Contact Orovian Oasis for availability",
   "customizable": true,
-  "construction_ready": false
+  "construction_ready": false,
+  "walkthrough": {
+    "use_template": true,
+    "model_scale": 1,
+    "model_offset": [
+      0,
+      0,
+      0
+    ],
+    "model_rotation_degrees": [
+      -90,
+      0,
+      0
+    ],
+    "entry_position": [
+      10.9728,
+      1.75,
+      3.6576
+    ],
+    "entry_target": [
+      10.9728,
+      1.75,
+      2.6576
+    ],
+    "entry_fov": 70,
+    "exterior_position": null,
+    "exterior_target": null,
+    "exterior_fov": 68,
+    "roof_match": [
+      "roof",
+      "roofing"
+    ],
+    "slab_match": [
+      "upper_slab",
+      "upper slab",
+      "upper_left_slab",
+      "upper_right_slab",
+      "bridge_slab"
+    ],
+    "collision_exclude": [
+      "glass",
+      "window",
+      "curtain",
+      "fixture",
+      "furniture",
+      "plant",
+      "landscape",
+      "pool water"
+    ],
+    "eye_height": 1.68,
+    "player_radius": 0.28,
+    "walk_speed": 3.6,
+    "run_speed": 7.2,
+    "fly_speed": 6.2,
+    "step_height": 0.38,
+    "max_drop": 1.2,
+    "background": "#8da8b6"
+  }
 }
