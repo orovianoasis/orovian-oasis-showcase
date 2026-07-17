@@ -31,11 +31,11 @@ canvas{width:100%;height:100%;display:block;touch-action:none;background:linear-
 <div id="ui"><b>Sable Meridian House — Walkthrough Controls</b>
 <div class="desktopHelp"><b>Move:</b> WASD or arrow keys. Hold <b>Q</b> with the arrows to turn and look, or use the mouse.<br>
 <b>Modes:</b> Walk follows floors and stairs. Press <b>F</b> for Fly; use <b>Space/C</b> for altitude and hold <b>Shift</b> to run.<br>
-<b>Views:</b> <b>E</b> opens the elevated front view, <b>B</b> opens the elevated back view, <b>J</b> opens SIDE L, <b>L</b> opens SIDE R, <b>R</b> toggles the roof, <b>U</b> toggles slabs, <b>X</b> resets, and the mouse wheel zooms.<br>
+<b>Views:</b> <b>E</b> opens FRONT, <b>B</b> opens BACK, <b>J</b> opens SIDE L, and <b>L</b> opens SIDE R. Each view frames the full property and acreage from an elevated angle. <b>R</b> toggles the roof, <b>U</b> toggles slabs, <b>X</b> resets, and the mouse wheel zooms.<br>
 <b>Doors:</b> Double-click a recognized entry, interior, or garage door to open or close it.</div>
 <div class="mobileHelp"><b>Move:</b> Use the center D-pad. Drag the scene to look and pinch to zoom.<br>
-<b>Height:</b> Hold <b>UP</b> or <b>DOWN</b> for vertical movement. The small center <b>RESET</b> button returns to the starting walk view.<br>
-<b>Views:</b> <b>FRONT</b>, <b>BACK</b>, <b>SIDE L</b>, and <b>SIDE R</b> open centered elevated exterior views. Swipe direction stays the same in every view. <b>ROOF</b> and <b>SLABS</b> show or hide matched building layers.<br>
+<b>Height:</b> Hold <b>UP</b> or <b>DOWN</b> for vertical movement. DOWN stops at the land and UP stops at the property viewing limit. The small center <b>RESET</b> button returns to the starting walk view.<br>
+<b>Views:</b> <b>FRONT</b>, <b>BACK</b>, <b>SIDE L</b>, and <b>SIDE R</b> frame the full property and acreage from the selected elevated side. Swipe and D-pad directions remain identical in every view. <b>ROOF</b> and <b>SLABS</b> show or hide matched building layers.<br>
 <b>Doors:</b> Double-tap a recognized entry, interior, or garage door to open or close it.</div>
 <button id="enter" type="button">Enter Walkthrough</button><div id="status">Loading model…</div></div>
 <div id="quickToggles" aria-label="Display toggles"><button class="hudToggle" id="toggleUI" type="button" aria-pressed="false">INFO ON</button><button class="hudToggle" id="toggleTools" type="button" aria-pressed="false">TOOLS ON</button></div>
@@ -46,6 +46,6 @@ canvas{width:100%;height:100%;display:block;touch-action:none;background:linear-
   <div class="mobileActionGroup" id="mobileActionsRight" aria-label="Height and building layers"><button class="actionBtn" id="riseBtn" type="button">UP</button><button class="actionBtn" id="lowerBtn" type="button">DOWN</button><button class="actionBtn" id="roofBtn" type="button">ROOF</button><button class="actionBtn" id="upperBtn" type="button">SLABS</button></div>
 </div>
 <canvas id="gl" aria-label="Interactive 3D walkthrough"></canvas>
-<script src="viewer.bundle.js"></script>
+<script src="viewer.bundle.js?v=3.9.0"></script>
 </body>
 </html>

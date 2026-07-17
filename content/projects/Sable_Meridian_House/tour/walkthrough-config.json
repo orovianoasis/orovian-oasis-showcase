@@ -26,6 +26,73 @@
   "exterior_position": null,
   "exterior_target": null,
   "exterior_fov": 68,
+  "exterior_distance_scale": 1.08,
+  "exterior_screen_fill": 0.78,
+  "exterior_elevation_degrees": 22,
+  "exterior_angle_degrees": 0,
+  "exterior_target_height_ratio": 0.3,
+  "exterior_include_site": true,
+  "exterior_front_direction": [
+    0,
+    0,
+    1
+  ],
+  "land_match": [
+    "site",
+    "terrain",
+    "lawn",
+    "ground",
+    "driveway",
+    "walkway",
+    "sidewalk",
+    "patio",
+    "terrace",
+    "deck",
+    "hardscape"
+  ],
+  "min_fly_height": 0.25,
+  "max_fly_height": null,
+  "max_fly_height_ratio": 0.58,
+  "door_match": [
+    "(^|[_\\s-])door([_\\s-]|$)",
+    "entry[_\\s-]?door",
+    "interior[_\\s-]?door",
+    "pivot[_\\s-]?door",
+    "glass[_\\s-]?door"
+  ],
+  "door_exclude": [
+    "garage[_\\s-]?door",
+    "cabinet",
+    "drawer",
+    "doorway",
+    "frame",
+    "trim",
+    "handle",
+    "knob"
+  ],
+  "door_open_angle_degrees": 88,
+  "door_animation_seconds": 0.55,
+  "door_max_distance": 12,
+  "garage_door_match": [
+    "garage[_\\s-]?door",
+    "overhead[_\\s-]?door",
+    "sectional[_\\s-]?door",
+    "roll[_\\s-]?up[_\\s-]?door"
+  ],
+  "garage_door_exclude": [
+    "frame",
+    "trim",
+    "track",
+    "opener",
+    "motor",
+    "hardware",
+    "handle",
+    "knob"
+  ],
+  "garage_door_animation_seconds": 0.9,
+  "garage_door_lift_ratio": 0.92,
+  "garage_door_inset_ratio": 0.3,
+  "garage_door_max_distance": 60,
   "roof_match": [
     "roof"
   ],
@@ -49,30 +116,5 @@
   "fly_speed": 6.2,
   "step_height": 0.38,
   "max_drop": 1.2,
-  "background": "#8da8b6",
-  "exterior_screen_fill": 0.9,
-  "exterior_elevation_degrees": 19,
-  "exterior_angle_degrees": 0,
-  "exterior_target_height_ratio": 0.42,
-  "exterior_front_direction": null,
-  "garage_door_match": [
-    "garage[_\\s-]?door",
-    "overhead[_\\s-]?door",
-    "sectional[_\\s-]?door",
-    "roll[_\\s-]?up[_\\s-]?door"
-  ],
-  "garage_door_exclude": [
-    "frame",
-    "trim",
-    "track",
-    "opener",
-    "motor",
-    "hardware",
-    "handle",
-    "knob"
-  ],
-  "garage_door_animation_seconds": 0.9,
-  "garage_door_lift_ratio": 0.92,
-  "garage_door_inset_ratio": 0.3,
-  "garage_door_max_distance": 60
+  "background": "#8da8b6"
 }

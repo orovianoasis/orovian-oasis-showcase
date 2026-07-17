@@ -76,7 +76,19 @@
     "fly_speed": 6.2,
     "step_height": 0.38,
     "max_drop": 1.2,
-    "background": "#8da8b6"
+    "background": "#8da8b6",
+    "exterior_front_direction": [
+      0,
+      0,
+      1
+    ],
+    "exterior_include_site": true,
+    "exterior_distance_scale": 1.08,
+    "exterior_screen_fill": 0.78,
+    "exterior_elevation_degrees": 22,
+    "exterior_target_height_ratio": 0.3,
+    "min_fly_height": 0.25,
+    "max_fly_height_ratio": 0.58
   },
   "product_type": "Digital architectural concept",
   "license_type": "Contact Orovian Oasis for availability",

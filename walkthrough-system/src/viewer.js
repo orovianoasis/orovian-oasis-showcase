@@ -39,6 +39,7 @@ const collisionMeshes = [];
 const roofMeshes = [];
 const slabMeshes = [];
 const exteriorFrameMeshes = [];
+const landMeshes = [];
 const doorMeshes = [];
 const garageDoorMeshes = [];
 const doorRecords = new Map();
@@ -62,6 +63,8 @@ let leftExteriorState = null;
 let rightExteriorState = null;
 let exteriorFrameBox = new THREE.Box3();
 let lastGroundY = 0;
+let landLevelY = 0;
+let flyCeilingY = 0;
 let dragging = false;
 let dragPointer = null;
 let dragX = 0;
@@ -91,12 +94,17 @@ const defaults = {
   entry_target: null,
   exterior_position: null,
   exterior_target: null,
-  exterior_distance_scale: 0.92,
-  exterior_screen_fill: 0.90,
-  exterior_elevation_degrees: 19,
+  exterior_distance_scale: 1.08,
+  exterior_screen_fill: 0.78,
+  exterior_elevation_degrees: 22,
   exterior_angle_degrees: 0,
-  exterior_target_height_ratio: 0.42,
+  exterior_target_height_ratio: 0.30,
+  exterior_include_site: true,
   exterior_front_direction: null,
+  land_match: ['site', 'terrain', 'lawn', 'ground', 'driveway', 'walkway', 'sidewalk', 'patio', 'terrace', 'deck', 'hardscape'],
+  min_fly_height: 0.25,
+  max_fly_height: null,
+  max_fly_height_ratio: 0.58,
   door_match: ['(^|[_\\s-])door([_\\s-]|$)', 'entry[_\\s-]?door', 'interior[_\\s-]?door', 'pivot[_\\s-]?door', 'glass[_\\s-]?door'],
   door_exclude: ['garage[_\\s-]?door', 'cabinet', 'drawer', 'doorway', 'frame', 'trim', 'handle', 'knob'],
   door_open_angle_degrees: 88,
@@ -125,14 +133,23 @@ function objectSearchText(object) {
   return [object.name, ...materials.filter(Boolean).map(item => item.name)].join(' ').toLowerCase();
 }
 function matchesAny(text, expressions) { return expressions.some(expression => expression.test(text)); }
+function normalizeYaw(value) {
+  return Math.atan2(Math.sin(value), Math.cos(value));
+}
 function worldDirectionFromAngles(includePitch = false) {
   const cp = includePitch ? Math.cos(pitch) : 1;
   return new THREE.Vector3(Math.sin(yaw) * cp, includePitch ? Math.sin(pitch) : 0, -Math.cos(yaw) * cp).normalize();
 }
 function lookAtAngles(from, target) {
   const direction = target.clone().sub(from).normalize();
-  yaw = Math.atan2(direction.x, -direction.z);
+  yaw = normalizeYaw(Math.atan2(direction.x, -direction.z));
   pitch = Math.asin(THREE.MathUtils.clamp(direction.y, -1, 1));
+}
+function applyLookDelta(deltaX, deltaY, horizontalScale, verticalScale) {
+  // One permanent first-person look convention. Exterior preset buttons only
+  // change camera position and never alter the swipe or mouse direction.
+  yaw = normalizeYaw(yaw - deltaX * horizontalScale);
+  pitch = THREE.MathUtils.clamp(pitch - deltaY * verticalScale, -1.48, 1.48);
 }
 function updateCameraRotation() {
   camera.rotation.order = 'YXZ';
@@ -192,6 +209,7 @@ function prepareModel(root) {
   const slabPatterns = regexList(config.slab_match);
   const excludePatterns = regexList(config.collision_exclude);
   const exteriorFrameExcludePatterns = regexList(config.exterior_frame_exclude || defaults.exterior_frame_exclude);
+  const landPatterns = regexList(config.land_match || defaults.land_match);
   const doorPatterns = regexList(config.door_match || defaults.door_match);
   const doorExcludePatterns = regexList(config.door_exclude || defaults.door_exclude);
   const garageDoorPatterns = regexList(config.garage_door_match || defaults.garage_door_match);
@@ -206,6 +224,7 @@ function prepareModel(root) {
     if (!matchesAny(text, excludePatterns)) collisionMeshes.push(object);
     const objectName = String(object.name || '').toLowerCase();
     if (!matchesAny(objectName, exteriorFrameExcludePatterns)) exteriorFrameMeshes.push(object);
+    if (matchesAny(objectName, landPatterns) && !/(pool|spa|water|basin|roof|upper)/i.test(objectName)) landMeshes.push(object);
     if (matchesAny(text, roofPatterns)) roofMeshes.push(object);
     if (matchesAny(text, slabPatterns)) slabMeshes.push(object);
     if (matchesAny(objectName, garageDoorPatterns) && !matchesAny(objectName, garageDoorExcludePatterns)) garageDoorMeshes.push(object);
@@ -245,15 +264,35 @@ function prepareModel(root) {
     }
   }
 
+  const eye = Number(config.eye_height) || defaults.eye_height;
+  let bestLand = null;
+  landMeshes.forEach(mesh => {
+    const box = new THREE.Box3().setFromObject(mesh);
+    const size = box.getSize(new THREE.Vector3());
+    const horizontalArea = Math.max(0, size.x) * Math.max(0, size.z);
+    const thinEnough = size.y <= Math.max(1.8, Math.max(size.x, size.z) * 0.12);
+    if (horizontalArea > 1 && thinEnough && (!bestLand || horizontalArea > bestLand.area)) {
+      bestLand = { area: horizontalArea, top: box.max.y };
+    }
+  });
+  if (bestLand) landLevelY = bestLand.top;
+  else if (Array.isArray(config.entry_position)) landLevelY = vec3(config.entry_position).y - eye;
+  else landLevelY = modelBox.min.y;
+
+  const horizontalSpan = Math.max(modelSize.x, modelSize.z, 10);
+  const configuredMaximum = Number(config.max_fly_height);
+  flyCeilingY = Number.isFinite(configuredMaximum) && configuredMaximum > 0
+    ? landLevelY + configuredMaximum
+    : Math.max(modelBox.max.y + 6, landLevelY + modelSize.y + horizontalSpan * (Number(config.max_fly_height_ratio) || defaults.max_fly_height_ratio));
+
   prepareDoors();
   prepareGarageDoors();
-  lastGroundY = modelBox.min.y;
+  lastGroundY = landLevelY;
   const maxDimension = Math.max(modelSize.x, modelSize.y, modelSize.z, 10);
   camera.far = Math.max(1000, maxDimension * 18);
   scene.fog.density = Math.min(0.004, 0.018 / maxDimension);
   camera.updateProjectionMatrix();
 
-  const eye = Number(config.eye_height) || defaults.eye_height;
   let entryPosition;
   if (Array.isArray(config.entry_position)) {
     entryPosition = vec3(config.entry_position);
@@ -268,6 +307,13 @@ function prepareModel(root) {
   backExteriorState = buildExteriorState('back');
   leftExteriorState = buildExteriorState('left');
   rightExteriorState = buildExteriorState('right');
+  flyCeilingY = Math.max(
+    flyCeilingY,
+    exteriorState?.position.y || flyCeilingY,
+    backExteriorState?.position.y || flyCeilingY,
+    leftExteriorState?.position.y || flyCeilingY,
+    rightExteriorState?.position.y || flyCeilingY,
+  );
   document.getElementById('roofBtn')?.classList.toggle('unmatched', roofMeshes.length === 0);
   document.getElementById('upperBtn')?.classList.toggle('unmatched', slabMeshes.length === 0);
   resetView();
@@ -289,7 +335,7 @@ function exteriorFrontAxis() {
 }
 
 function buildExteriorState(side = 'front') {
-  const exteriorFov = Number(config.exterior_fov) || 68;
+  const exteriorFov = Number(config.exterior_fov) || 72;
   if (side === 'front' && Array.isArray(config.exterior_position)) {
     return {
       position: vec3(config.exterior_position),
@@ -298,26 +344,25 @@ function buildExteriorState(side = 'front') {
     };
   }
 
-  const frameBox = exteriorFrameBox.isEmpty() ? modelBox : exteriorFrameBox;
+  // Exterior presets are full-property survey views. Use the complete model
+  // bounds so the residence, yard, driveway, pool, and acreage stay visible.
+  const includeSite = config.exterior_include_site !== false;
+  const frameBox = includeSite || exteriorFrameBox.isEmpty() ? modelBox : exteriorFrameBox;
   const frameCenter = frameBox.getCenter(new THREE.Vector3());
   const frameSize = frameBox.getSize(new THREE.Vector3());
   const front = exteriorFrontAxis();
   const back = front.clone().multiplyScalar(-1);
+  // SIDE L and SIDE R are defined from a person standing in front of the house.
   const left = new THREE.Vector3(-front.z, 0, front.x).normalize();
   const right = left.clone().multiplyScalar(-1);
-  const horizontalBase = { front, back, left, right }[side] || front;
+  const horizontal = ({ front, back, left, right }[side] || front).clone().normalize();
 
-  // A small diagonal offset gives each facade depth without redefining the
-  // touch gesture. The camera is still a normal free-look camera after preset use.
-  const angle = THREE.MathUtils.degToRad(THREE.MathUtils.clamp(Number(config.exterior_angle_degrees) || defaults.exterior_angle_degrees, 0, 22));
-  const clockwise = new THREE.Vector3(horizontalBase.z, 0, -horizontalBase.x);
-  const horizontal = horizontalBase.clone().multiplyScalar(Math.cos(angle)).addScaledVector(clockwise, Math.sin(angle)).normalize();
-  const elevation = THREE.MathUtils.degToRad(THREE.MathUtils.clamp(Number(config.exterior_elevation_degrees) || defaults.exterior_elevation_degrees, 6, 38));
+  const elevation = THREE.MathUtils.degToRad(THREE.MathUtils.clamp(Number(config.exterior_elevation_degrees) || defaults.exterior_elevation_degrees, 8, 38));
   const cameraFromTarget = horizontal.multiplyScalar(Math.cos(elevation));
   cameraFromTarget.y = Math.sin(elevation);
   cameraFromTarget.normalize();
 
-  const targetHeightRatio = THREE.MathUtils.clamp(Number(config.exterior_target_height_ratio) || defaults.exterior_target_height_ratio, 0.25, 0.65);
+  const targetHeightRatio = THREE.MathUtils.clamp(Number(config.exterior_target_height_ratio) || defaults.exterior_target_height_ratio, 0.16, 0.52);
   const target = Array.isArray(config.exterior_target)
     ? vec3(config.exterior_target)
     : new THREE.Vector3(frameCenter.x, frameBox.min.y + frameSize.y * targetHeightRatio, frameCenter.z);
@@ -327,7 +372,7 @@ function buildExteriorState(side = 'front') {
   const upAxis = new THREE.Vector3().crossVectors(rightAxis, forward).normalize();
   const verticalHalfFov = THREE.MathUtils.degToRad(exteriorFov * 0.5);
   const horizontalHalfFov = Math.atan(Math.tan(verticalHalfFov) * Math.max(camera.aspect || 1, 0.35));
-  const fill = THREE.MathUtils.clamp(Number(config.exterior_screen_fill) || defaults.exterior_screen_fill, 0.82, 1.22);
+  const fill = THREE.MathUtils.clamp(Number(config.exterior_screen_fill) || defaults.exterior_screen_fill, 0.58, 0.96);
   const tanHorizontal = Math.max(Math.tan(horizontalHalfFov) * fill, 0.05);
   const tanVertical = Math.max(Math.tan(verticalHalfFov) * fill, 0.05);
 
@@ -344,16 +389,16 @@ function buildExteriorState(side = 'front') {
   ];
   corners.forEach(corner => {
     const relative = corner.clone().sub(target);
-    const depth = relative.dot(forward);
+    const targetDepth = relative.dot(forward);
     distance = Math.max(
       distance,
-      Math.abs(relative.dot(rightAxis)) / tanHorizontal - depth,
-      Math.abs(relative.dot(upAxis)) / tanVertical - depth,
+      Math.abs(relative.dot(rightAxis)) / tanHorizontal - targetDepth,
+      Math.abs(relative.dot(upAxis)) / tanVertical - targetDepth,
     );
   });
-  distance += Math.max(frameSize.x, frameSize.z) * 0.012 + 0.08;
-  distance *= THREE.MathUtils.clamp(Number(config.exterior_distance_scale) || defaults.exterior_distance_scale, 0.55, 1.35);
-  const position = target.clone().addScaledVector(cameraFromTarget, Math.max(distance, 3.2));
+  distance += Math.max(frameSize.x, frameSize.z) * 0.04 + 0.6;
+  distance *= THREE.MathUtils.clamp(Number(config.exterior_distance_scale) || defaults.exterior_distance_scale, 0.9, 1.45);
+  const position = target.clone().addScaledVector(cameraFromTarget, Math.max(distance, 5));
   return { position, target, fov: exteriorFov };
 }
 
@@ -541,11 +586,25 @@ function interactDoorAt(clientX, clientY) {
   return toggleDoor(record);
 }
 
+const mobileMovementKeys = ['MobileForward', 'MobileBack', 'MobileLeft', 'MobileRight', 'MobileRise', 'MobileLower'];
+function clearMovementState() {
+  mobileMovementKeys.forEach(key => { keys[key] = false; });
+  document.querySelectorAll('#mobileControls button.active').forEach(button => button.classList.remove('active'));
+}
 function clearGestureState() {
   dragging = false;
   dragPointer = null;
   pinchDistance = 0;
   activePointers.clear();
+  clearMovementState();
+}
+function clampFlyHeight(position) {
+  const eye = Number(config.eye_height) || defaults.eye_height;
+  const configuredMinimum = Number(config.min_fly_height);
+  const minimum = Number.isFinite(configuredMinimum)
+    ? landLevelY + Math.max(0, configuredMinimum)
+    : landLevelY + eye;
+  position.y = THREE.MathUtils.clamp(position.y, minimum, flyCeilingY);
 }
 
 function raycast(origin, direction, far = Infinity, meshes = collisionMeshes) {
@@ -591,8 +650,8 @@ function movePlayer(delta) {
   const amount = speed * delta;
   const turnMode = keys.KeyQ;
   if (turnMode) {
-    if (keys.ArrowLeft) yaw -= 1.85 * delta;
-    if (keys.ArrowRight) yaw += 1.85 * delta;
+    if (keys.ArrowLeft) yaw = normalizeYaw(yaw - 1.85 * delta);
+    if (keys.ArrowRight) yaw = normalizeYaw(yaw + 1.85 * delta);
     if (keys.ArrowUp) pitch = Math.min(1.45, pitch + 1.35 * delta);
     if (keys.ArrowDown) pitch = Math.max(-1.45, pitch - 1.35 * delta);
   }
@@ -616,6 +675,7 @@ function movePlayer(delta) {
   if (fly) {
     if (keys.Space || keys.MobileRise) position.y += amount;
     if (keys.KeyC || keys.ControlLeft || keys.ControlRight || keys.MobileLower) position.y -= amount;
+    clampFlyHeight(position);
   } else {
     const floor = findFloor(position.x, position.z, position.y, false);
     if (floor !== null) {
@@ -632,9 +692,10 @@ function movePlayer(delta) {
 function applyState(state, flyMode) {
   if (!state) return;
   camera.position.copy(state.position);
-  lookAtAngles(state.position, state.target);
   fov = state.fov;
   fly = flyMode;
+  if (flyMode) clampFlyHeight(camera.position);
+  lookAtAngles(camera.position, state.target);
   if (!flyMode) {
     const floor = findFloor(camera.position.x, camera.position.z, camera.position.y, true);
     if (floor !== null) {
@@ -688,7 +749,8 @@ window.addEventListener('keydown', event => {
   if (event.code === 'KeyT') toggleTools();
 }, { passive: false });
 window.addEventListener('keyup', event => { keys[event.code] = false; });
-window.addEventListener('blur', () => { Object.keys(keys).forEach(key => { keys[key] = false; }); });
+window.addEventListener('blur', () => { Object.keys(keys).forEach(key => { keys[key] = false; }); clearGestureState(); });
+document.addEventListener('visibilitychange', () => { if (document.hidden) clearGestureState(); });
 canvas.addEventListener('click', event => {
   if (!window.matchMedia('(pointer:fine)').matches || document.pointerLockElement === canvas) return;
   clearTimeout(pointerLockTimer);
@@ -702,8 +764,7 @@ canvas.addEventListener('dblclick', event => {
 });
 document.addEventListener('mousemove', event => {
   if (document.pointerLockElement !== canvas) return;
-  yaw -= event.movementX * 0.0022;
-  pitch = THREE.MathUtils.clamp(pitch - event.movementY * 0.002, -1.48, 1.48);
+  applyLookDelta(event.movementX, event.movementY, 0.0022, 0.002);
 });
 canvas.addEventListener('wheel', event => { event.preventDefault(); setFov(fov + Math.sign(event.deltaY) * 3); }, { passive: false });
 
@@ -738,8 +799,7 @@ canvas.addEventListener('pointermove', event => {
     // Exterior presets only reposition the camera. They never switch touch
     // controls into an orbit mode, so swipe direction remains identical before
     // and after FRONT, BACK, SIDE L, or SIDE R.
-    yaw -= deltaX * 0.006;
-    pitch = THREE.MathUtils.clamp(pitch - deltaY * 0.005, -1.48, 1.48);
+    applyLookDelta(deltaX, deltaY, 0.006, 0.005);
     dragX = event.clientX; dragY = event.clientY;
   }
 });
@@ -762,6 +822,7 @@ function endPointer(event) {
 }
 canvas.addEventListener('pointerup', endPointer);
 canvas.addEventListener('pointercancel', endPointer);
+window.addEventListener('pointercancel', () => clearMovementState());
 
 function bindHold(id, keyName, onStart = null) {
   const button = document.getElementById(id);
@@ -778,6 +839,7 @@ function bindHold(id, keyName, onStart = null) {
   button.addEventListener('pointerup', up);
   button.addEventListener('pointercancel', up);
   button.addEventListener('pointerleave', up);
+  button.addEventListener('lostpointercapture', up);
 }
 function bindTap(id, action) { document.getElementById(id)?.addEventListener('click', event => { event.preventDefault(); action(); }); }
 bindHold('moveForward','MobileForward'); bindHold('moveBack','MobileBack'); bindHold('moveLeft','MobileLeft'); bindHold('moveRight','MobileRight');
