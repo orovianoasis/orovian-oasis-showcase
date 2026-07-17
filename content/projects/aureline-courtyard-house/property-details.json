@@ -1,0 +1,148 @@
+{
+  "title": "Aureline Courtyard House",
+  "subtitle": "A two-story modern courtyard residence with an automated 3D walkthrough",
+  "summary": "A warm contemporary concept centered on a private pool courtyard, glass-lined living spaces, a library bridge, a three-car garage, and layered indoor-outdoor entertaining zones.",
+  "category": "concept-home",
+  "location": "Birmingham, Alabama",
+  "year": 2026,
+  "published": true,
+  "featured": false,
+  "sort_order": 35,
+  "status": "available",
+  "status_label": "Concept Available",
+  "square_feet": 4650,
+  "bedrooms": 4,
+  "full_bathrooms": 4,
+  "half_bathrooms": 1,
+  "garage": 3,
+  "stories": 2,
+  "lot_size": "0.42 acre concept lot",
+  "price": 1295000,
+  "currency": "USD",
+  "price_prefix": "From ",
+  "price_suffix": " concept package",
+  "price_display_text": "",
+  "checkout_url": "",
+  "buy_button_label": "Buy Now",
+  "contact_button_label": "Request Details",
+  "show_contact_with_buy_button": false,
+  "carousel_autoplay": true,
+  "carousel_interval_ms": 5000,
+  "tour_button_label": "Launch 3D Walkthrough",
+  "tour_open_new_tab": false,
+  "walkthrough": {
+    "prefer_dae": true,
+    "model_scale": 1,
+    "model_offset": [
+      0,
+      0,
+      0
+    ],
+    "model_rotation_degrees": [
+      0,
+      0,
+      0
+    ],
+    "entry_position": null,
+    "entry_target": null,
+    "entry_fov": 70,
+    "exterior_position": null,
+    "exterior_target": null,
+    "exterior_fov": 76,
+    "roof_match": [
+      "roof",
+      "roofing",
+      "pergola"
+    ],
+    "slab_match": [
+      "slab",
+      "floor platform",
+      "upper platform"
+    ],
+    "collision_exclude": [
+      "glass",
+      "window",
+      "curtain",
+      "fixture",
+      "furniture",
+      "plant",
+      "landscape",
+      "pool water"
+    ],
+    "eye_height": 1.68,
+    "player_radius": 0.28,
+    "walk_speed": 3.6,
+    "run_speed": 7.2,
+    "fly_speed": 6.2,
+    "step_height": 0.38,
+    "max_drop": 1.2,
+    "background": "#8da8b6"
+  },
+  "product_type": "Digital architectural concept",
+  "license_type": "Contact Orovian Oasis for availability",
+  "customizable": true,
+  "construction_ready": false,
+  "property": {
+    "listing_type": "",
+    "mls_number": "",
+    "agent_name": ""
+  },
+  "transformation": {
+    "project_stage": "",
+    "property_type": "",
+    "duration": "",
+    "public_financials": false,
+    "acquisition_price": 0,
+    "rehab_budget": 0,
+    "after_repair_value": 0
+  },
+  "materials": [
+    {
+      "category": "Exterior",
+      "name": "Warm limestone cladding",
+      "description": "Textured stone accents anchor the entry and garage composition."
+    },
+    {
+      "category": "Exterior",
+      "name": "Ivory mineral stucco",
+      "description": "Soft neutral wall finish balances the charcoal roof planes."
+    },
+    {
+      "category": "Detail",
+      "name": "Cedar architectural screens",
+      "description": "Vertical slats and pergola members add warmth and filtered shade."
+    },
+    {
+      "category": "Glazing",
+      "name": "Courtyard glass walls",
+      "description": "Large openings connect the main living spaces to the central pool court."
+    },
+    {
+      "category": "Site",
+      "name": "Polished concrete terraces",
+      "description": "Low-maintenance exterior paving links the entry, pool, and outdoor rooms."
+    }
+  ],
+  "deliverables": [
+    {
+      "name": "Interactive 3D walkthrough",
+      "included": true
+    },
+    {
+      "name": "Ground-floor DXF",
+      "included": true
+    },
+    {
+      "name": "Upper-floor DXF",
+      "included": true
+    },
+    {
+      "name": "Front and rear project imagery",
+      "included": true
+    },
+    {
+      "name": "Editable project metadata",
+      "included": true
+    }
+  ]
+}
