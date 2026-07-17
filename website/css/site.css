@@ -868,3 +868,10 @@ body[data-page-kind="home"] .footer-logo-orbit .logo-orbit-disc{background:#0807
 
 /* The footer logo is the About trigger on every page. Keep only this trigger black. */
 .footer-logo-orbit .logo-orbit-disc{background:#08070a}
+
+/* Footer Contact Us mail icon size */
+.footer-contact > span[aria-hidden="true"] {
+  display: inline-block;
+  font-size: 1.45rem;
+  line-height: 1;
+}
