@@ -1,0 +1,21 @@
+[[items]]
+label = "✨ Showcase"
+url = "/"
+
+[[items]]
+label = "🏗️ Concept Homes"
+url = "/concept-homes/"
+
+[[items]]
+label = "🛠️ Transformations"
+url = "/transformations/"
+
+[[items]]
+label = "🏡 Properties"
+url = "/properties/"
+
+[[items]]
+label = "📋 Open Property Intake"
+url = "https://orovianoasis.com"
+external = true
+class = "nav-intake"
