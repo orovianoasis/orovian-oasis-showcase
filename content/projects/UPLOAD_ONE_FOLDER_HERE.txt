@@ -1,0 +1,38 @@
+UPLOAD ONE EXTRACTED PROPERTY FOLDER INTO content/projects/
+
+Recommended folder contents:
+- property-details.json     ← one-file control panel for title, facts, price, status, and buttons
+- cover-front.webp
+- cover-back.webp
+- README.txt                ← fallback information when JSON values are omitted
+- walkthrough HTML
+- GLB model
+- DXF floor plans
+
+The original long filenames and underscores are allowed.
+project.toml is optional.
+Do not upload the ZIP itself.
+
+PROPERTY DETAILS — RECOMMENDED
+Copy this template:
+content/project-templates/property-details-template.json
+
+Place the copy directly in the property folder and rename it:
+property-details.json
+
+Edit that one JSON file whenever public project information changes.
+
+PRICING
+- price = null: Contact for pricing + Request Details contact popup
+- price = a number: public numeric price
+- price + checkout_url: Buy Now replaces Request Details
+- price without checkout_url: numeric price + Request Details
+
+PROJECT COVER SLIDESHOWS
+Every image whose filename begins with cover becomes part of the carousel:
+- cover-front.webp
+- cover-back.webp
+- cover-01.webp
+- cover-pool.webp
+
+With no cover image, the generated placeholder remains.
