@@ -326,6 +326,16 @@ def _floor_level(path: Path, project_slug: str) -> str:
 def inspect_raw_project(project_folder: Path) -> tuple[Path, dict[str, Any], list[str]]:
     raw_root = find_raw_root(project_folder)
     files = discover_raw_files(raw_root)
+    # Prefer an explicitly staged permanent-template tour over legacy standalone
+    # walkthrough files that may still be kept in the project root as source backups.
+    active_tour = project_folder / "tour"
+    if (active_tour / "viewer.html").is_file() and (active_tour / "house.glb").is_file():
+        files["viewer"] = active_tour / "viewer.html"
+        files["glb"] = active_tour / "house.glb"
+        files["collision"] = active_tour / "collision.json" if (active_tour / "collision.json").is_file() else None
+        files["generated_tour"] = active_tour
+
+    # A freshly generated DAE walkthrough takes precedence over the staged tour.
     generated_tour = project_folder / ".walkthrough-build"
     if (generated_tour / "viewer.html").is_file() and (generated_tour / "house.glb").is_file():
         files["viewer"] = generated_tour / "viewer.html"
