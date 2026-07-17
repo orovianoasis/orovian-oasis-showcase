@@ -138,18 +138,11 @@ function normalizeYaw(value) {
 }
 function worldDirectionFromAngles(includePitch = false) {
   const cp = includePitch ? Math.cos(pitch) : 1;
-  // Three.js cameras look down local -Z. Positive camera yaw turns the view
-  // toward world -X, so the X component must use -sin(yaw). Keeping this
-  // convention aligned with updateCameraRotation prevents side presets and
-  // movement controls from facing opposite directions.
-  return new THREE.Vector3(-Math.sin(yaw) * cp, includePitch ? Math.sin(pitch) : 0, -Math.cos(yaw) * cp).normalize();
+  return new THREE.Vector3(Math.sin(yaw) * cp, includePitch ? Math.sin(pitch) : 0, -Math.cos(yaw) * cp).normalize();
 }
 function lookAtAngles(from, target) {
   const direction = target.clone().sub(from).normalize();
-  // Invert the X term to match Three.js camera yaw. Without this, FRONT and
-  // BACK appear correct because their X component is zero, while SIDE L and
-  // SIDE R point directly away from the property.
-  yaw = normalizeYaw(Math.atan2(-direction.x, -direction.z));
+  yaw = normalizeYaw(Math.atan2(direction.x, -direction.z));
   pitch = Math.asin(THREE.MathUtils.clamp(direction.y, -1, 1));
 }
 function applyLookDelta(deltaX, deltaY, horizontalScale, verticalScale) {
@@ -657,8 +650,8 @@ function movePlayer(delta) {
   const amount = speed * delta;
   const turnMode = keys.KeyQ;
   if (turnMode) {
-    if (keys.ArrowLeft) yaw = normalizeYaw(yaw + 1.85 * delta);
-    if (keys.ArrowRight) yaw = normalizeYaw(yaw - 1.85 * delta);
+    if (keys.ArrowLeft) yaw = normalizeYaw(yaw - 1.85 * delta);
+    if (keys.ArrowRight) yaw = normalizeYaw(yaw + 1.85 * delta);
     if (keys.ArrowUp) pitch = Math.min(1.45, pitch + 1.35 * delta);
     if (keys.ArrowDown) pitch = Math.max(-1.45, pitch - 1.35 * delta);
   }
