@@ -38,6 +38,7 @@ const keys = Object.create(null);
 const collisionMeshes = [];
 const roofMeshes = [];
 const slabMeshes = [];
+const exteriorFrameMeshes = [];
 let modelRoot = null;
 let modelBox = new THREE.Box3();
 let modelCenter = new THREE.Vector3();
@@ -53,6 +54,9 @@ let fov = 70;
 let startState = null;
 let exteriorState = null;
 let backExteriorState = null;
+let leftExteriorState = null;
+let rightExteriorState = null;
+let exteriorFrameBox = new THREE.Box3();
 let lastGroundY = 0;
 let dragging = false;
 let dragPointer = null;
@@ -76,6 +80,7 @@ const defaults = {
   roof_match: ['roof', 'roofing'],
   slab_match: ['slab', 'floor platform', 'floor-platform', 'floor system', 'upper platform'],
   collision_exclude: ['glass', 'window', 'curtain', 'fixture', 'furniture', 'plant', 'landscape'],
+  exterior_frame_exclude: ['landscape', 'site pad', 'site_pad', 'driveway', 'entry walk', 'entry_walk', 'walkway', 'sidewalk', 'terrain', 'lawn', 'ground plane', 'ground_plane', 'pool water', 'pool_water', 'pool coping', 'pool_coping'],
   entry_position: null,
   entry_target: null,
   exterior_position: null,
@@ -163,6 +168,7 @@ function prepareModel(root) {
   const roofPatterns = regexList(config.roof_match);
   const slabPatterns = regexList(config.slab_match);
   const excludePatterns = regexList(config.collision_exclude);
+  const exteriorFrameExcludePatterns = regexList(config.exterior_frame_exclude || defaults.exterior_frame_exclude);
   root.traverse(object => {
     if (!object.isMesh || !object.geometry) return;
     const text = objectSearchText(object);
@@ -171,11 +177,16 @@ function prepareModel(root) {
       try { object.geometry.computeBoundsTree(); } catch (error) { console.warn('BVH skipped for', object.name, error); }
     }
     if (!matchesAny(text, excludePatterns)) collisionMeshes.push(object);
+    const objectName = String(object.name || '').toLowerCase();
+    if (!matchesAny(objectName, exteriorFrameExcludePatterns)) exteriorFrameMeshes.push(object);
     if (matchesAny(text, roofPatterns)) roofMeshes.push(object);
     if (matchesAny(text, slabPatterns)) slabMeshes.push(object);
   });
   scene.add(root);
   modelBox.setFromObject(root);
+  exteriorFrameBox.makeEmpty();
+  exteriorFrameMeshes.forEach(mesh => exteriorFrameBox.expandByObject(mesh, true));
+  if (exteriorFrameBox.isEmpty()) exteriorFrameBox.copy(modelBox);
   modelBox.getCenter(modelCenter);
   modelBox.getSize(modelSize);
   lastGroundY = modelBox.min.y;
@@ -197,6 +208,8 @@ function prepareModel(root) {
   startState = { position: entryPosition, target: entryTarget, fov: Number(config.entry_fov) || 70 };
   exteriorState = buildExteriorState('front');
   backExteriorState = buildExteriorState('back');
+  leftExteriorState = buildExteriorState('left');
+  rightExteriorState = buildExteriorState('right');
   document.getElementById('roofBtn')?.classList.toggle('unmatched', roofMeshes.length === 0);
   document.getElementById('upperBtn')?.classList.toggle('unmatched', slabMeshes.length === 0);
   resetView();
@@ -205,8 +218,7 @@ function prepareModel(root) {
 
 function buildExteriorState(side = 'front') {
   const exteriorFov = Number(config.exterior_fov) || 68;
-  const isBack = side === 'back';
-  if (!isBack && Array.isArray(config.exterior_position)) {
+  if (side === 'front' && Array.isArray(config.exterior_position)) {
     return {
       position: vec3(config.exterior_position),
       target: Array.isArray(config.exterior_target) ? vec3(config.exterior_target) : modelCenter.clone(),
@@ -214,27 +226,55 @@ function buildExteriorState(side = 'front') {
     };
   }
 
-  // Frame either exterior from a slight diagonal and modest elevation so the
-  // facade, roof, and some depth remain visible without sending the property
-  // off-screen. FRONT uses +Z; BACK mirrors the view from -Z.
-  const aspect = Math.max(camera.aspect || 1, 0.62);
-  const projectedHeight = Math.max(
-    modelSize.y * 1.35,
-    (modelSize.x / aspect) * 1.25,
-    6,
-  );
-  const frameDistance = (projectedHeight * 0.5) / Math.tan(THREE.MathUtils.degToRad(exteriorFov * 0.5));
-  const distance = Math.max(frameDistance * 1.28, modelSize.z * 0.7, 7);
-  const elevation = Math.max(modelSize.y * 0.30, modelSize.z * 0.16, 2.2);
-  const sideOffset = Math.max(modelSize.x * 0.18, 1.2);
-  const position = new THREE.Vector3(
-    modelCenter.x + (isBack ? -sideOffset : sideOffset),
-    modelCenter.y + elevation,
-    isBack ? modelBox.min.z - distance : modelBox.max.z + distance,
-  );
-  const target = !isBack && Array.isArray(config.exterior_target)
+  // Frame the building itself rather than the full site pad. Each view uses a
+  // small diagonal offset and modest elevation, then solves the perspective
+  // distance against both the horizontal and vertical field of view. This
+  // keeps the property centered and large enough on portrait mobile screens.
+  const frameBox = exteriorFrameBox.isEmpty() ? modelBox : exteriorFrameBox;
+  const frameCenter = frameBox.getCenter(new THREE.Vector3());
+  const frameSize = frameBox.getSize(new THREE.Vector3());
+  const cameraFromTarget = {
+    front: new THREE.Vector3(0.13, 0.23, 1),
+    back: new THREE.Vector3(-0.13, 0.23, -1),
+    left: new THREE.Vector3(-1, 0.23, -0.13),
+    right: new THREE.Vector3(1, 0.23, 0.13),
+  }[side] || new THREE.Vector3(0.13, 0.23, 1);
+  cameraFromTarget.normalize();
+
+  const target = side === 'front' && Array.isArray(config.exterior_target)
     ? vec3(config.exterior_target)
-    : new THREE.Vector3(modelCenter.x, modelCenter.y - modelSize.y * 0.04, modelCenter.z);
+    : new THREE.Vector3(frameCenter.x, frameCenter.y - frameSize.y * 0.035, frameCenter.z);
+  const forward = cameraFromTarget.clone().negate();
+  const worldUp = new THREE.Vector3(0, 1, 0);
+  const rightAxis = new THREE.Vector3().crossVectors(forward, worldUp).normalize();
+  const upAxis = new THREE.Vector3().crossVectors(rightAxis, forward).normalize();
+  const verticalHalfFov = THREE.MathUtils.degToRad(exteriorFov * 0.5);
+  const horizontalHalfFov = Math.atan(Math.tan(verticalHalfFov) * Math.max(camera.aspect || 1, 0.35));
+  const portrait = (camera.aspect || 1) < 0.78;
+  const fill = portrait ? 0.84 : 0.76;
+  const tanHorizontal = Math.max(Math.tan(horizontalHalfFov) * fill, 0.05);
+  const tanVertical = Math.max(Math.tan(verticalHalfFov) * fill, 0.05);
+
+  let distance = 0;
+  const corners = [
+    new THREE.Vector3(frameBox.min.x, frameBox.min.y, frameBox.min.z),
+    new THREE.Vector3(frameBox.min.x, frameBox.min.y, frameBox.max.z),
+    new THREE.Vector3(frameBox.min.x, frameBox.max.y, frameBox.min.z),
+    new THREE.Vector3(frameBox.min.x, frameBox.max.y, frameBox.max.z),
+    new THREE.Vector3(frameBox.max.x, frameBox.min.y, frameBox.min.z),
+    new THREE.Vector3(frameBox.max.x, frameBox.min.y, frameBox.max.z),
+    new THREE.Vector3(frameBox.max.x, frameBox.max.y, frameBox.min.z),
+    new THREE.Vector3(frameBox.max.x, frameBox.max.y, frameBox.max.z),
+  ];
+  corners.forEach(corner => {
+    const relative = corner.sub(target);
+    const depth = relative.dot(forward);
+    const requiredHorizontal = Math.abs(relative.dot(rightAxis)) / tanHorizontal - depth;
+    const requiredVertical = Math.abs(relative.dot(upAxis)) / tanVertical - depth;
+    distance = Math.max(distance, requiredHorizontal, requiredVertical);
+  });
+  distance += Math.max(frameSize.x, frameSize.z) * 0.035 + 0.35;
+  const position = target.clone().addScaledVector(cameraFromTarget, Math.max(distance, 4));
   return { position, target, fov: exteriorFov };
 }
 
@@ -344,6 +384,14 @@ function backExteriorView() {
   backExteriorState = buildExteriorState('back');
   applyState(backExteriorState, true);
 }
+function leftExteriorView() {
+  leftExteriorState = buildExteriorState('left');
+  applyState(leftExteriorState, true);
+}
+function rightExteriorView() {
+  rightExteriorState = buildExteriorState('right');
+  applyState(rightExteriorState, true);
+}
 function toggleFly() { fly = !fly; updateStatus(); }
 function toggleRoof() { if (!roofMeshes.length) return; showRoof = !showRoof; roofMeshes.forEach(mesh => { mesh.visible = showRoof; }); updateStatus(); }
 function toggleSlabs() { if (!slabMeshes.length) return; showSlabs = !showSlabs; slabMeshes.forEach(mesh => { mesh.visible = showSlabs; }); updateStatus(); }
@@ -428,7 +476,7 @@ function bindTap(id, action) { document.getElementById(id)?.addEventListener('cl
 bindHold('moveForward','MobileForward'); bindHold('moveBack','MobileBack'); bindHold('moveLeft','MobileLeft'); bindHold('moveRight','MobileRight');
 const enableMobileVerticalMovement = () => { if (!fly) { fly = true; updateStatus(); } };
 bindHold('riseBtn','MobileRise',enableMobileVerticalMovement); bindHold('lowerBtn','MobileLower',enableMobileVerticalMovement);
-bindTap('exteriorBtn',exteriorView); bindTap('backExteriorBtn',backExteriorView); bindTap('roofBtn',toggleRoof); bindTap('upperBtn',toggleSlabs); bindTap('resetBtn',resetView);
+bindTap('exteriorBtn',exteriorView); bindTap('backExteriorBtn',backExteriorView); bindTap('leftExteriorBtn',leftExteriorView); bindTap('rightExteriorBtn',rightExteriorView); bindTap('roofBtn',toggleRoof); bindTap('upperBtn',toggleSlabs); bindTap('resetBtn',resetView);
 function toggleUI() {
   const ui = document.getElementById('ui');
   const button = document.getElementById('toggleUI');
