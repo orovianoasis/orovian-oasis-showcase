@@ -1,5 +1,25 @@
 # Project field reference
 
+For one-folder projects, `property-details.json` is the preferred editable control file. `project.toml` remains the advanced manually organized format.
+
+## Automatic walkthrough fields in `property-details.json`
+
+The optional `walkthrough` object controls DAE-generated tours. Most values can stay at their defaults.
+
+| Field | Purpose |
+|---|---|
+| `prefer_dae` | Use the DAE-generated tour even when an older HTML/GLB package is present |
+| `model_scale` | Uniform scale applied to the converted model |
+| `model_offset` | `[x, y, z]` model translation |
+| `model_rotation_degrees` | `[x, y, z]` rotation correction |
+| `entry_position` / `entry_target` | Optional reset-camera coordinates; `null` uses automatic placement |
+| `exterior_position` / `exterior_target` | Optional exterior-camera coordinates |
+| `roof_match` | Object/material name fragments controlled by ROOF |
+| `slab_match` | Object/material name fragments controlled by SLABS |
+| `collision_exclude` | Name fragments excluded from walking collision |
+| `eye_height`, `player_radius`, `step_height`, `max_drop` | Walk-mode collision tuning |
+| `walk_speed`, `run_speed`, `fly_speed` | Movement speeds |
+
 Each `project.toml` is the canonical public record for one project.
 
 ## Top-level quick-update fields

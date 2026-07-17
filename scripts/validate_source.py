@@ -33,6 +33,11 @@ required_files = [
     "assets/brand/favicon.png",
     "scripts/build_site.py",
     "scripts/raw_project.py",
+    "scripts/build_walkthroughs.py",
+    "scripts/dae_to_glb_blender.py",
+    "walkthrough-system/viewer-template.html",
+    "walkthrough-system/viewer.bundle.js",
+    "walkthrough-system/package.json",
 ]
 for relative in required_files:
     path = ROOT / relative

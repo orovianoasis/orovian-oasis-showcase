@@ -1,69 +1,110 @@
 # One-folder property upload
 
-The default workflow does **not** require `project.toml`.
+Upload one extracted property folder into `content/projects/`.
 
-## What to upload
-
-Extract the property package and add one or more WebP cover images to the same folder as the exported files. Use `cover-front.webp` and `cover-back.webp` for the normal front/rear slideshow. Additional files such as `cover-03.webp` are also detected.
+## Chief Architect automatic walkthrough folder
 
 ```text
-luxury_custom_home/
+new-house/
+├── property-details.json
 ├── cover-front.webp
 ├── cover-back.webp
-├── Luxury_Custom_Home_Ground_Floor.dxf
-├── Luxury_Custom_Home_Upper_Floor.dxf
-├── Luxury_Custom_Home_Drawing_Index.dxf
-├── Luxury_Custom_Home_Walkable_Model.glb
-├── Luxury_Custom_Home_Interactive_Walkthrough_Keyboard_Turn.html
-├── Luxury_Custom_Home_Geometry.obj
-└── README.txt
+├── new-house.dae
+├── textures/
+├── ground-floor.dxf
+└── upper-floor.dxf
 ```
 
-Upload that entire extracted folder into:
+This is the preferred new workflow. GitHub Actions converts the DAE and its referenced texture files to a GLB, connects it to the permanent walkthrough interface, and publishes the tour automatically.
+
+Do not upload the ZIP. Extract it and upload the one outer project folder.
+
+## Existing custom walkthrough folder
+
+Existing packages remain supported:
 
 ```text
-content/projects/
+luxury-custom-home/
+├── property-details.json
+├── cover-front.webp
+├── cover-back.webp
+├── walkthrough.html
+├── model.glb
+├── ground-floor.dxf
+└── upper-floor.dxf
 ```
 
-Do not upload the ZIP file. GitHub stores ZIP files without extracting them.
+When both HTML and GLB are present, the website preserves that tour rather than reconverting it.
 
-## What the website does automatically
+## The one editable control file
 
-During the GitHub Actions build, the importer:
+Copy:
 
-- Converts spaces and underscores in the folder name into a hyphenated public URL.
-- Reads the project title, summary, square footage, bedrooms, bathrooms, garage, and stories from `README.txt` when available.
-- Detects the walkthrough HTML and GLB model without renaming the source files.
-- Copies all required walkthrough support files while excluding source-only OBJ, PLAN, DWG, and ZIP files from the public tour.
-- Generates `viewer.html`, `house.glb`, `collision.json`, and `manifest.json` in the published output.
-- Detects every DXF file, creates a browser-viewable SVG preview, and keeps the original DXF as a download.
-- Detects every image whose filename begins with `cover` and creates the homepage-card and project-page carousel. With only one cover, it behaves as a static image.
-- Uses `project_carousel_autoplay` and `project_carousel_interval_ms` from `content/site.toml` for global slideshow behavior.
-- Publishes the property automatically.
-- Hides the Structure Demo after the first real property is detected.
-- Features the first real property automatically when no project has been explicitly featured.
-
-## Automatic category choice
-
-The importer reads the folder and README text:
-
-- `rehab`, `fix-and-flip`, `renovation`, or `transformation` → **Transformations**
-- `MLS`, `listing`, or `for sale` → **Properties**
-- Everything else → **Concept Homes**
-
-## Optional advanced control
-
-A manually organized project containing `project.toml` still works exactly as before. Use it only when you need precise control over price, status, category, checkout links, licensing text, SEO, or featured placement.
-
-The simple one-folder workflow and advanced `project.toml` workflow can exist together in the same repository.
-
-## Autoplay or manual/static mode
-
-The default rotates every five seconds and still supports arrows, dots, mouse clicks, and touch swipes. In `content/site.toml`:
-
-```toml
-project_carousel_autoplay = true
-project_carousel_interval_ms = 5000
+```text
+content/project-templates/property-details-template.json
 ```
 
-Change autoplay to `false` to keep every carousel manual/static while preserving its arrows and swipe controls. Advanced `project.toml` projects can override this with a `[carousel]` section.
+into the property folder and rename the copy:
+
+```text
+property-details.json
+```
+
+Edit that one file to change title, summary, category, location, publication status, featured status, square footage, bedrooms, bathrooms, garage, stories, price, checkout link, button labels, carousel behavior, and optional walkthrough settings.
+
+The outer folder name controls the permanent URL. Changing `title` changes the displayed name everywhere without breaking that URL.
+
+## Pricing behavior
+
+```json
+"price": null,
+"checkout_url": ""
+```
+
+Displays **Contact for pricing** and opens the property-aware Contact Us popup.
+
+```json
+"price": 125000,
+"checkout_url": ""
+```
+
+Displays **$125,000** and keeps **Request Details**.
+
+```json
+"price": 125000,
+"checkout_url": "https://your-checkout-link.example"
+```
+
+Displays **$125,000** and replaces Request Details with **Buy Now**.
+
+Set `show_contact_with_buy_button` to `true` to display both buttons.
+
+## Walkthrough adjustments
+
+Most DAE exports need no manual walkthrough settings. Optional values live under `walkthrough` in `property-details.json`:
+
+```json
+"walkthrough": {
+  "entry_position": null,
+  "entry_target": null,
+  "exterior_position": null,
+  "exterior_target": null,
+  "roof_match": ["roof", "roofing"],
+  "slab_match": ["slab", "floor platform"]
+}
+```
+
+Leave camera positions as `null` for automatic placement. Add object or material name fragments to the matching lists when Chief exports different roof or slab names.
+
+Full DAE instructions: `docs/editing/CHIEF_ARCHITECT_DAE_WORKFLOW.md`
+
+## JSON rules
+
+- Text uses double quotes.
+- Entries are separated by commas.
+- Numbers do not use quotes.
+- Boolean values are `true` or `false` without quotes.
+- No public price is `null` without quotes.
+- JSON does not permit comments.
+
+An invalid JSON file stops the build and reports the exact line and column.

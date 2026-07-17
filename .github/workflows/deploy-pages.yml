@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: Check out repository
         uses: actions/checkout@v6
@@ -24,6 +24,30 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: '3.13'
+      - name: Detect Chief Architect DAE exports
+        id: dae
+        shell: bash
+        run: |
+          if find content/projects -type f \( -iname '*.dae' \) -print -quit | grep -q .; then
+            echo "has_dae=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_dae=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Restore converted walkthrough cache
+        if: steps.dae.outputs.has_dae == 'true'
+        uses: actions/cache@v4
+        with:
+          path: .walkthrough-cache
+          key: walkthrough-${{ runner.os }}-${{ hashFiles('content/projects/**/*.dae', 'content/projects/**/*.DAE', 'content/projects/**/*.png', 'content/projects/**/*.jpg', 'content/projects/**/*.jpeg', 'content/projects/**/*.webp') }}
+          restore-keys: |
+            walkthrough-${{ runner.os }}-
+      - name: Install compatible Blender converter
+        if: steps.dae.outputs.has_dae == 'true'
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y blender
+      - name: Prepare automatic walkthroughs
+        run: python scripts/build_walkthroughs.py --strict
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
       - name: Validate source structure

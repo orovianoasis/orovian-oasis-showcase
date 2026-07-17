@@ -30,6 +30,17 @@ for project in catalog.get("projects",[]):
                     parsed=json.loads(target.read_text(encoding="utf-8"))
                     if name=="manifest.json": manifest=parsed
                 except Exception as exc: errors.append(f"{project.get('slug')}: invalid {name}: {exc}")
+        if manifest.get("generator") == "Orovian Oasis Chief Architect DAE importer":
+            for generated_required in ("viewer.bundle.js", "walkthrough-config.json", "conversion-report.json"):
+                generated_target = tour / generated_required
+                if not generated_target.exists() or generated_target.stat().st_size == 0:
+                    errors.append(f"{project.get('slug')}: generated DAE tour missing or empty {generated_required}")
+            config_target = tour / "walkthrough-config.json"
+            if config_target.exists():
+                try:
+                    json.loads(config_target.read_text(encoding="utf-8"))
+                except Exception as exc:
+                    errors.append(f"{project.get('slug')}: invalid walkthrough-config.json: {exc}")
         model_name=str(manifest.get("model", "house.glb") or "").strip()
         if model_name:
             glb=tour/model_name

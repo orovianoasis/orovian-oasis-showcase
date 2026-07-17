@@ -12,8 +12,10 @@ from typing import Any
 IMAGE_SUFFIXES = {".webp", ".png", ".jpg", ".jpeg", ".svg", ".avif"}
 IGNORED_DIRECTORY_NAMES = {".git", "__MACOSX", "node_modules", "dist"}
 IGNORED_TOUR_SUFFIXES = {
-    ".dxf", ".dwg", ".obj", ".plan", ".zip", ".7z", ".rar", ".toml", ".md", ".txt"
+    ".dxf", ".dwg", ".obj", ".dae", ".plan", ".zip", ".7z", ".rar", ".toml", ".md", ".txt"
 }
+DETAILS_FILENAMES = {"property-details.json", "project-details.json"}
+
 WORD_NUMBERS = {
     "zero": 0,
     "one": 1,
@@ -71,6 +73,10 @@ def _directory_score(folder: Path) -> int:
             score += 12 if any(word in name for word in ("walkthrough", "interactive", "viewer", "tour")) else 7
         elif suffix == ".glb":
             score += 8
+        elif suffix == ".dae":
+            score += 8
+        elif name in DETAILS_FILENAMES:
+            score += 4
         elif suffix == ".dxf":
             score += 3
         elif name in {"readme.txt", "readme.md"}:
@@ -163,6 +169,7 @@ def discover_raw_files(raw_root: Path) -> dict[str, Any]:
     cover = covers[0] if covers else None
     readme = min(readmes, key=lambda p: (len(p.relative_to(raw_root).parts), p.name.lower())) if readmes else None
     collision = next((p for p in files if p.name.lower() == "collision.json"), None)
+    details = next((p for p in files if p.name.lower() in DETAILS_FILENAMES), None)
 
     return {
         "all": files,
@@ -173,6 +180,7 @@ def discover_raw_files(raw_root: Path) -> dict[str, Any]:
         "glb": glb,
         "dxfs": dxfs,
         "collision": collision,
+        "details": details,
     }
 
 
@@ -318,7 +326,20 @@ def _floor_level(path: Path, project_slug: str) -> str:
 def inspect_raw_project(project_folder: Path) -> tuple[Path, dict[str, Any], list[str]]:
     raw_root = find_raw_root(project_folder)
     files = discover_raw_files(raw_root)
+    generated_tour = project_folder / ".walkthrough-build"
+    if (generated_tour / "viewer.html").is_file() and (generated_tour / "house.glb").is_file():
+        files["viewer"] = generated_tour / "viewer.html"
+        files["glb"] = generated_tour / "house.glb"
+        files["collision"] = generated_tour / "collision.json" if (generated_tour / "collision.json").is_file() else None
+        files["generated_tour"] = generated_tour
     if raw_root != project_folder:
+        outer_details = next((
+            path for path in project_folder.iterdir()
+            if path.is_file() and path.name.lower() in DETAILS_FILENAMES
+        ), None)
+        if outer_details:
+            files["details"] = outer_details
+
         outer_covers = [
             path for path in project_folder.iterdir()
             if path.is_file()
@@ -356,6 +377,9 @@ def inspect_raw_project(project_folder: Path) -> tuple[Path, dict[str, Any], lis
             files["cover"] = existing[0]
     warnings: list[str] = []
     if not files["viewer"]:
+        dae_found = any(path.suffix.lower() == ".dae" for path in files.get("all", []))
+        if dae_found:
+            raise RawProjectError("contains a DAE model, but its automatic walkthrough was not prepared; run scripts/build_walkthroughs.py before validation")
         raise RawProjectError("is missing the walkthrough HTML file")
     if not files["glb"]:
         viewer_text = _read_text(files["viewer"])
@@ -369,9 +393,210 @@ def inspect_raw_project(project_folder: Path) -> tuple[Path, dict[str, Any], lis
     return raw_root, files, warnings
 
 
+
+_MISSING = object()
+
+
+def _details_pick(details: dict[str, Any], flat_key: str, section: str | None = None, nested_key: str | None = None):
+    if flat_key in details:
+        return details[flat_key]
+    if section:
+        nested = details.get(section)
+        if isinstance(nested, dict):
+            key = nested_key or flat_key
+            if key in nested:
+                return nested[key]
+    return _MISSING
+
+
+def _bool_value(value: Any, default: bool = False) -> bool:
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, (int, float)):
+        return value != 0
+    if isinstance(value, str):
+        lowered = value.strip().lower()
+        if lowered in {"true", "yes", "on", "1"}:
+            return True
+        if lowered in {"false", "no", "off", "0", ""}:
+            return False
+    return default
+
+
+def _number_value(value: Any, default: float = 0.0) -> float:
+    if value is None or value == "":
+        return default
+    if isinstance(value, (int, float)):
+        return float(value)
+    cleaned = re.sub(r"[^0-9.\-]", "", str(value))
+    try:
+        return float(cleaned)
+    except ValueError:
+        return default
+
+
+def _integer_value(value: Any, default: int = 0) -> int:
+    return int(round(_number_value(value, float(default))))
+
+
+def _normalized_category(value: Any, default: str) -> str:
+    key = slugify(str(value or ""))
+    aliases = {
+        "concept": "concept-home",
+        "concept-home": "concept-home",
+        "concept-homes": "concept-home",
+        "design": "concept-home",
+        "transformation": "transformation",
+        "transformations": "transformation",
+        "rehab": "transformation",
+        "renovation": "transformation",
+        "property": "property",
+        "properties": "property",
+        "real-estate": "property",
+        "listing": "property",
+    }
+    return aliases.get(key, default)
+
+
+def _load_property_details(path: Path | None) -> dict[str, Any]:
+    if not path:
+        return {}
+    try:
+        value = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise RawProjectError(f"has invalid {path.name}: line {exc.lineno}, column {exc.colno}: {exc.msg}") from exc
+    if not isinstance(value, dict):
+        raise RawProjectError(f"{path.name} must contain one JSON object")
+    return value
+
+
+def apply_property_details(project: dict[str, Any], details: dict[str, Any]) -> None:
+    if not details:
+        return
+
+    identity = project["identity"]
+    for key in ("title", "subtitle", "location", "summary"):
+        value = _details_pick(details, key, "identity", key)
+        if value is not _MISSING and value is not None:
+            identity[key] = str(value).strip()
+    year = _details_pick(details, "year", "identity", "year")
+    if year is not _MISSING:
+        identity["year"] = _integer_value(year, identity.get("year", date.today().year))
+
+    for key in ("published", "featured"):
+        value = _details_pick(details, key)
+        if value is not _MISSING:
+            project[key] = _bool_value(value, project.get(key, False))
+    value = _details_pick(details, "sort_order")
+    if value is not _MISSING:
+        project["sort_order"] = _integer_value(value, project.get("sort_order", 50))
+    value = _details_pick(details, "category")
+    if value is not _MISSING:
+        project["category"] = _normalized_category(value, project["category"])
+    status_value = _details_pick(details, "status")
+    status_label_value = _details_pick(details, "status_label")
+    if status_value is not _MISSING and status_value is not None:
+        project["status"] = slugify(str(status_value))
+        if status_label_value is _MISSING:
+            project["status_label"] = titleize(str(status_value))
+    if status_label_value is not _MISSING and status_label_value is not None:
+        project["status_label"] = str(status_label_value).strip()
+    updated_value = _details_pick(details, "updated")
+    if updated_value is not _MISSING and updated_value is not None:
+        project["updated"] = str(updated_value).strip()
+
+    facts = project["facts"]
+    for key in ("square_feet", "bedrooms", "full_bathrooms", "half_bathrooms", "garage", "stories"):
+        value = _details_pick(details, key, "facts", key)
+        if value is not _MISSING:
+            facts[key] = _integer_value(value, facts.get(key, 0))
+    bathrooms = _details_pick(details, "bathrooms", "facts", "bathrooms")
+    explicit_full = _details_pick(details, "full_bathrooms", "facts", "full_bathrooms")
+    explicit_half = _details_pick(details, "half_bathrooms", "facts", "half_bathrooms")
+    if bathrooms is not _MISSING and explicit_full is _MISSING and explicit_half is _MISSING:
+        total = max(0.0, _number_value(bathrooms))
+        facts["full_bathrooms"] = int(math.floor(total))
+        facts["half_bathrooms"] = 1 if total - math.floor(total) >= 0.4 else 0
+    lot_size = _details_pick(details, "lot_size", "facts", "lot_size")
+    if lot_size is not _MISSING:
+        facts["lot_size"] = str(lot_size or "").strip()
+
+    pricing = project["pricing"]
+    price_value = _details_pick(details, "price", "pricing", "amount")
+    explicit_show = _details_pick(details, "show_price", "pricing", "show")
+    display_text = _details_pick(details, "price_display_text", "pricing", "display_text")
+    if price_value is not _MISSING:
+        amount = max(0.0, _number_value(price_value))
+        pricing["amount"] = int(amount) if amount.is_integer() else amount
+        pricing["show"] = amount > 0
+    if display_text is not _MISSING:
+        pricing["display_text"] = str(display_text or "").strip()
+        if pricing["display_text"]:
+            pricing["show"] = True
+    if explicit_show is not _MISSING:
+        pricing["show"] = _bool_value(explicit_show, pricing.get("show", False))
+
+    pricing_keys = {
+        "currency": "currency",
+        "price_prefix": "prefix",
+        "price_suffix": "suffix",
+        "checkout_url": "checkout_url",
+        "purchase_url": "checkout_url",
+        "buy_button_label": "checkout_label",
+        "contact_button_label": "inquiry_label",
+        "inquiry_url": "inquiry_url",
+    }
+    for flat, target in pricing_keys.items():
+        value = _details_pick(details, flat, "pricing", target)
+        if value is not _MISSING:
+            pricing[target] = str(value or "").strip()
+    show_inquiry = _details_pick(details, "show_contact_with_buy_button", "pricing", "show_inquiry_with_checkout")
+    if show_inquiry is not _MISSING:
+        pricing["show_inquiry_with_checkout"] = _bool_value(show_inquiry)
+
+    carousel = project.setdefault("carousel", {})
+    autoplay = _details_pick(details, "carousel_autoplay", "carousel", "autoplay")
+    if autoplay is not _MISSING:
+        carousel["autoplay"] = _bool_value(autoplay, True)
+    interval = _details_pick(details, "carousel_interval_ms", "carousel", "interval_ms")
+    if interval is not _MISSING:
+        carousel["interval_ms"] = max(2000, _integer_value(interval, 5000))
+
+    tour = project["tour"]
+    label = _details_pick(details, "tour_button_label", "tour", "label")
+    if label is not _MISSING:
+        tour["label"] = str(label or "Launch 3D Walkthrough").strip()
+    open_new = _details_pick(details, "tour_open_new_tab", "tour", "open_new_tab")
+    if open_new is not _MISSING:
+        tour["open_new_tab"] = _bool_value(open_new)
+    enabled = _details_pick(details, "tour_enabled", "tour", "enabled")
+    if enabled is not _MISSING:
+        tour["enabled"] = _bool_value(enabled, tour.get("enabled", False))
+
+    concept = project.setdefault("concept", {})
+    for flat, target in (("product_type", "product_type"), ("license_type", "license_type")):
+        value = _details_pick(details, flat, "concept", target)
+        if value is not _MISSING:
+            concept[target] = str(value or "").strip()
+    for flat, target in (("customizable", "customizable"), ("construction_ready", "construction_ready")):
+        value = _details_pick(details, flat, "concept", target)
+        if value is not _MISSING:
+            concept[target] = _bool_value(value, concept.get(target, False))
+
+    for section in ("property", "transformation", "seo"):
+        value = details.get(section)
+        if isinstance(value, dict):
+            project.setdefault(section, {}).update(value)
+    for key in ("materials", "deliverables", "purchase_options"):
+        value = details.get(key)
+        if isinstance(value, list):
+            project[key] = value
+
+
 def auto_project_from_folder(project_folder: Path) -> tuple[dict[str, Any], list[str]]:
     raw_root, files, warnings = inspect_raw_project(project_folder)
     readme_text = _read_text(files["readme"])
+    details = _load_property_details(files.get("details"))
     title = infer_title(raw_root, files, readme_text)
     summary = infer_summary(title, readme_text)
     combined_text = "\n".join((readme_text, title, summary))
@@ -469,7 +694,11 @@ def auto_project_from_folder(project_folder: Path) -> tuple[dict[str, Any], list
         "_raw_cover_sources": covers,
         "_raw_cover_paths": gallery_paths,
         "_raw_warnings": warnings,
+        "_property_details_file": files.get("details"),
     }
+    apply_property_details(project, details)
+    if files.get("details"):
+        warnings.append(f"using editable details from {files['details'].name}")
     return project, warnings
 
 
@@ -653,21 +882,28 @@ def stage_raw_project(project: dict[str, Any], destination: Path) -> None:
 
     tour_dir = destination / "tour"
     tour_dir.mkdir(parents=True, exist_ok=True)
+    generated_tour: Path | None = files.get("generated_tour")
+    if generated_tour:
+        shutil.copytree(generated_tour, tour_dir, dirs_exist_ok=True)
     cover_resolved = {source.resolve() for source in cover_sources}
     if cover and not cover_resolved:
         cover_resolved.add(cover.resolve())
-    for source in files["all"]:
-        if source.resolve() in cover_resolved:
-            continue
-        if source.suffix.lower() in IGNORED_TOUR_SUFFIXES:
-            continue
-        relative = source.relative_to(raw_root)
-        target = tour_dir / relative
-        target.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(source, target)
+    details_source: Path | None = files.get("details")
+    if not generated_tour:
+        for source in files["all"]:
+            if details_source and source.resolve() == details_source.resolve():
+                continue
+            if source.resolve() in cover_resolved:
+                continue
+            if source.suffix.lower() in IGNORED_TOUR_SUFFIXES:
+                continue
+            relative = source.relative_to(raw_root)
+            target = tour_dir / relative
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(source, target)
 
     viewer: Path = files["viewer"]
-    viewer_relative = viewer.relative_to(raw_root).as_posix()
+    viewer_relative = "viewer.html" if generated_tour else viewer.relative_to(raw_root).as_posix()
     canonical_viewer = tour_dir / "viewer.html"
     if viewer_relative != "viewer.html":
         target_json = json.dumps(viewer_relative)
@@ -681,8 +917,12 @@ def stage_raw_project(project: dict[str, Any], destination: Path) -> None:
     glb: Path | None = files.get("glb")
     if glb:
         canonical_glb = tour_dir / "house.glb"
-        if glb.relative_to(raw_root).as_posix() != "house.glb":
+        glb_relative = "house.glb" if generated_tour else glb.relative_to(raw_root).as_posix()
+        if glb_relative != "house.glb":
             shutil.copy2(glb, canonical_glb)
+
+    if generated_tour:
+        return
 
     viewer_text = _read_text(viewer)
     collision_source: Path | None = files.get("collision")

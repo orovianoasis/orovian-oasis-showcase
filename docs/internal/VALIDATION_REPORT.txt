@@ -1,32 +1,31 @@
-OROVIAN OASIS SHOWCASE — VALIDATION REPORT 3.2
+OROVIAN OASIS SHOWCASE — VALIDATION REPORT 3.8
 
-PASS: rebuilt from v2.9 source package
-PASS: source structure validation with no raw property present
-PASS: strict baseline site generation
-PASS: baseline generated output validation
-PASS: Python syntax compilation — build and validation scripts
-PASS: JavaScript syntax — site.js
-PASS: JavaScript syntax — contact.js
-PASS: JavaScript syntax — dynamics.js
-PASS: JavaScript syntax — mobile.js
-PASS: one-folder import using the supplied Luxury Custom Home package
-PASS: underscored source folder converted to hyphenated public slug
-PASS: nested wrapper-folder import
-PASS: README title and project-summary extraction
-PASS: README facts extraction — 5,850 sq. ft., 4 beds, 4.5 baths, 3-car garage, 2 stories
-PASS: original walkthrough HTML preserved and connected
-PASS: original GLB preserved and canonical house.glb generated
-PASS: collision.json and manifest.json generated
-PASS: DXF source downloads preserved
-PASS: browser-viewable SVG previews generated from all supplied DXFs
-PASS: real project automatically replaces Structure Demo in published output
-PASS: first real project automatically becomes featured
-PASS: final raw-project generated output validation
-PASS: ZIP integrity test
+PASS: v3.8 rebuilt from the user-supplied current repository
+PASS: no website layout, visual styling, contact behavior, filters, project-card behavior, pricing logic, or existing project content was redesigned
+PASS: existing HTML/GLB walkthrough packages remain recognized and publish successfully
+PASS: source structure validation
+PASS: strict production site generation
+PASS: generated output validation for both existing projects
+PASS: Python compilation for all repository scripts
+PASS: JavaScript syntax for the prebuilt reusable walkthrough bundle
+PASS: JSON validation for project templates and project data
+PASS: GitHub workflow YAML parsing
+PASS: automatic DAE project discovery, including uppercase .DAE filenames
+PASS: Windows-style and absolute texture references are rewritten to uploaded GitHub texture files
+PASS: DAE conversion cache fingerprint includes the model, referenced textures, and converter source
+PASS: generated viewer, GLB, runtime collision metadata, manifest, configuration, and conversion report are staged into the public tour
+PASS: generated tour output validation requires viewer.bundle.js, walkthrough-config.json, conversion-report.json, and a valid GLB 2.0 header
+PASS: synthetic end-to-end DAE pipeline smoke test using a controlled Blender-command harness
+PASS: existing project compatibility after the importer rebuild
+PASS: ZIP integrity and fresh-extraction validation
 
-Version 3.2 one-folder contract:
+IMPORTANT TEST BOUNDARY
+No Chief Architect DAE export was included in the supplied repository, and a full Blender installation was unavailable in the artifact environment. The GitHub workflow and conversion command were therefore tested with a controlled Blender-command harness rather than a real Chief-exported DAE. The workflow installs Blender 3.x on Ubuntu 22.04 and executes scripts/dae_to_glb_blender.py when a DAE is committed.
+
+Version 3.8 one-folder contract:
+- Export a Collada/DAE model from Chief Architect and keep its textures beside it or in a textures folder.
 - Upload one extracted property folder into content/projects/.
-- Add cover.webp to that folder for the public card image.
-- Keep the original README, walkthrough HTML, GLB, DXF, OBJ, and filenames.
-- project.toml is optional and reserved for advanced overrides.
-- ZIP files are not unpacked by the site and should not be uploaded as the project itself.
+- Add property-details.json for one-file control of public data and optional walkthrough tuning.
+- GitHub Actions converts the DAE to GLB and connects the permanent custom walkthrough automatically.
+- Existing HTML/GLB tours remain supported unchanged unless walkthrough.prefer_dae is true.
+- Generated walkthrough files are build products and do not need to be uploaded or committed.

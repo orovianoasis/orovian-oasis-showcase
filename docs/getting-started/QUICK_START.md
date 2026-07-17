@@ -43,15 +43,15 @@ The repository contains one published structure demo. It proves the gallery, pro
 
 ## 5. Add the first real project
 
-Extract the completed property package, add `cover.webp`, and upload the entire folder into:
+Export the property from Chief Architect as Collada/DAE with its texture files, add `cover.webp` or front/back cover images, and upload the entire extracted folder into:
 
 ```text
 content/projects/
 ```
 
-Keep the original walkthrough HTML, GLB, DXF, OBJ, README, and filenames. The website importer connects everything automatically. Do not upload the ZIP itself.
+GitHub Actions converts the DAE, connects the permanent custom walkthrough controls, and publishes it automatically. Existing HTML/GLB walkthrough packages remain supported. Do not upload the ZIP itself.
 
-See `docs/editing/ONE_FOLDER_PROJECT_UPLOAD.md`.
+See `docs/editing/CHIEF_ARCHITECT_DAE_WORKFLOW.md`.
 
 ## Folder convention
 
