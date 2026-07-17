@@ -31,15 +31,17 @@ canvas{width:100%;height:100%;display:block;touch-action:none;background:linear-
 <div id="ui"><b>__PROJECT_TITLE__ — Walkthrough Controls</b>
 <div class="desktopHelp"><b>Move:</b> WASD or arrow keys. Hold <b>Q</b> with the arrows to turn and look, or use the mouse.<br>
 <b>Modes:</b> Walk follows floors and stairs. Press <b>F</b> for Fly; use <b>Space/C</b> for altitude and hold <b>Shift</b> to run.<br>
-<b>Views:</b> <b>E</b> opens the elevated front view, <b>B</b> opens the elevated back view, <b>J</b> opens SIDE L, <b>L</b> opens SIDE R, <b>R</b> toggles the roof, <b>U</b> toggles slabs, <b>X</b> resets, and the mouse wheel zooms.</div>
+<b>Views:</b> <b>E</b> opens the elevated front view, <b>B</b> opens the elevated back view, <b>J</b> opens SIDE L, <b>L</b> opens SIDE R, <b>R</b> toggles the roof, <b>U</b> toggles slabs, <b>X</b> resets, and the mouse wheel zooms.<br>
+<b>Doors:</b> Double-click a recognized door to open or close it.</div>
 <div class="mobileHelp"><b>Move:</b> Use the center D-pad. Drag the scene to look and pinch to zoom.<br>
 <b>Height:</b> Hold <b>UP</b> or <b>DOWN</b> for vertical movement. The small center <b>RESET</b> button returns to the starting walk view.<br>
-<b>Views:</b> <b>FRONT</b>, <b>BACK</b>, <b>SIDE L</b>, and <b>SIDE R</b> open centered elevated exterior views. <b>ROOF</b> and <b>SLABS</b> show or hide matched building layers.</div>
+<b>Views:</b> <b>FRONT</b>, <b>BACK</b>, <b>SIDE L</b>, and <b>SIDE R</b> open centered elevated exterior views. Swipe direction stays consistent while orbiting the house. <b>ROOF</b> and <b>SLABS</b> show or hide matched building layers.<br>
+<b>Doors:</b> Double-tap a recognized door to open or close it.</div>
 <button id="enter" type="button">Enter Walkthrough</button><div id="status">Loading model…</div></div>
 <div id="quickToggles" aria-label="Display toggles"><button class="hudToggle" id="toggleUI" type="button" aria-pressed="false">INFO ON</button><button class="hudToggle" id="toggleTools" type="button" aria-pressed="false">TOOLS ON</button></div>
 <div id="mobileControls" aria-label="Mobile walkthrough controls">
   <div id="dpad" aria-label="Movement controls"><button class="touchBtn" id="moveForward" type="button" aria-label="Move forward">▲</button><button class="touchBtn" id="moveLeft" type="button" aria-label="Move left">◀</button><button id="resetBtn" type="button" aria-label="Reset to starting view">RESET</button><button class="touchBtn" id="moveBack" type="button" aria-label="Move backward">▼</button><button class="touchBtn" id="moveRight" type="button" aria-label="Move right">▶</button></div>
-  <div id="lookHint"><span>Drag: look</span><span>Pinch: zoom</span></div>
+  <div id="lookHint"><span>Drag: look</span><span>Pinch: zoom</span><span>Double-tap: doors</span></div>
   <div class="mobileActionGroup" id="mobileActionsLeft" aria-label="Exterior views"><button class="actionBtn" id="exteriorBtn" type="button">FRONT</button><button class="actionBtn" id="backExteriorBtn" type="button">BACK</button><button class="actionBtn" id="leftExteriorBtn" type="button">SIDE L</button><button class="actionBtn" id="rightExteriorBtn" type="button">SIDE R</button></div>
   <div class="mobileActionGroup" id="mobileActionsRight" aria-label="Height and building layers"><button class="actionBtn" id="riseBtn" type="button">UP</button><button class="actionBtn" id="lowerBtn" type="button">DOWN</button><button class="actionBtn" id="roofBtn" type="button">ROOF</button><button class="actionBtn" id="upperBtn" type="button">SLABS</button></div>
 </div>

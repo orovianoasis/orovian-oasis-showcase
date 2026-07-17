@@ -39,6 +39,8 @@ const collisionMeshes = [];
 const roofMeshes = [];
 const slabMeshes = [];
 const exteriorFrameMeshes = [];
+const doorMeshes = [];
+const doorRecords = new Map();
 let modelRoot = null;
 let modelBox = new THREE.Box3();
 let modelCenter = new THREE.Vector3();
@@ -63,6 +65,9 @@ let dragPointer = null;
 let dragX = 0;
 let dragY = 0;
 let pinchDistance = 0;
+let exteriorOrbit = null;
+let pointerLockTimer = null;
+let lastTouchTap = { time: 0, x: 0, y: 0 };
 const activePointers = new Map();
 
 const defaults = {
@@ -85,6 +90,12 @@ const defaults = {
   entry_target: null,
   exterior_position: null,
   exterior_target: null,
+  exterior_distance_scale: 0.92,
+  door_match: ['(^|[_\\s-])door([_\\s-]|$)', 'entry[_\\s-]?door', 'interior[_\\s-]?door', 'pivot[_\\s-]?door', 'glass[_\\s-]?door'],
+  door_exclude: ['garage[_\\s-]?door', 'cabinet', 'drawer', 'doorway', 'frame', 'trim', 'handle', 'knob'],
+  door_open_angle_degrees: 88,
+  door_animation_seconds: 0.55,
+  door_max_distance: 12,
   background: '#8da8b6'
 };
 
@@ -169,6 +180,8 @@ function prepareModel(root) {
   const slabPatterns = regexList(config.slab_match);
   const excludePatterns = regexList(config.collision_exclude);
   const exteriorFrameExcludePatterns = regexList(config.exterior_frame_exclude || defaults.exterior_frame_exclude);
+  const doorPatterns = regexList(config.door_match || defaults.door_match);
+  const doorExcludePatterns = regexList(config.door_exclude || defaults.door_exclude);
   root.traverse(object => {
     if (!object.isMesh || !object.geometry) return;
     const text = objectSearchText(object);
@@ -181,14 +194,37 @@ function prepareModel(root) {
     if (!matchesAny(objectName, exteriorFrameExcludePatterns)) exteriorFrameMeshes.push(object);
     if (matchesAny(text, roofPatterns)) roofMeshes.push(object);
     if (matchesAny(text, slabPatterns)) slabMeshes.push(object);
+    if (matchesAny(text, doorPatterns) && !matchesAny(text, doorExcludePatterns)) doorMeshes.push(object);
   });
   scene.add(root);
+  root.updateMatrixWorld(true);
   modelBox.setFromObject(root);
+  modelBox.getCenter(modelCenter);
+  modelBox.getSize(modelSize);
+
   exteriorFrameBox.makeEmpty();
   exteriorFrameMeshes.forEach(mesh => exteriorFrameBox.expandByObject(mesh, true));
   if (exteriorFrameBox.isEmpty()) exteriorFrameBox.copy(modelBox);
-  modelBox.getCenter(modelCenter);
-  modelBox.getSize(modelSize);
+
+  // Roof and upper-slab meshes usually describe the actual building footprint
+  // more accurately than landscaping or a merged site mesh. Use that footprint
+  // for exterior camera framing whenever it is large enough to be meaningful.
+  const structuralBox = new THREE.Box3();
+  [...new Set([...roofMeshes, ...slabMeshes])].forEach(mesh => structuralBox.expandByObject(mesh, true));
+  if (!structuralBox.isEmpty()) {
+    const structuralSize = structuralBox.getSize(new THREE.Vector3());
+    if (structuralSize.x > 1.5 && structuralSize.z > 1.5) {
+      const padX = Math.max(0.45, structuralSize.x * 0.075);
+      const padZ = Math.max(0.45, structuralSize.z * 0.075);
+      const minY = Math.max(modelBox.min.y, structuralBox.min.y - Math.max(2.5, modelSize.y * 0.72));
+      exteriorFrameBox.set(
+        new THREE.Vector3(structuralBox.min.x - padX, minY, structuralBox.min.z - padZ),
+        new THREE.Vector3(structuralBox.max.x + padX, structuralBox.max.y, structuralBox.max.z + padZ),
+      );
+    }
+  }
+
+  prepareDoors();
   lastGroundY = modelBox.min.y;
   const maxDimension = Math.max(modelSize.x, modelSize.y, modelSize.z, 10);
   camera.far = Math.max(1000, maxDimension * 18);
@@ -243,7 +279,7 @@ function buildExteriorState(side = 'front') {
 
   const target = side === 'front' && Array.isArray(config.exterior_target)
     ? vec3(config.exterior_target)
-    : new THREE.Vector3(frameCenter.x, frameCenter.y - frameSize.y * 0.035, frameCenter.z);
+    : new THREE.Vector3(frameCenter.x, frameCenter.y - frameSize.y * 0.07, frameCenter.z);
   const forward = cameraFromTarget.clone().negate();
   const worldUp = new THREE.Vector3(0, 1, 0);
   const rightAxis = new THREE.Vector3().crossVectors(forward, worldUp).normalize();
@@ -251,7 +287,7 @@ function buildExteriorState(side = 'front') {
   const verticalHalfFov = THREE.MathUtils.degToRad(exteriorFov * 0.5);
   const horizontalHalfFov = Math.atan(Math.tan(verticalHalfFov) * Math.max(camera.aspect || 1, 0.35));
   const portrait = (camera.aspect || 1) < 0.78;
-  const fill = portrait ? 0.84 : 0.76;
+  const fill = portrait ? 0.93 : 0.86;
   const tanHorizontal = Math.max(Math.tan(horizontalHalfFov) * fill, 0.05);
   const tanVertical = Math.max(Math.tan(verticalHalfFov) * fill, 0.05);
 
@@ -273,9 +309,130 @@ function buildExteriorState(side = 'front') {
     const requiredVertical = Math.abs(relative.dot(upAxis)) / tanVertical - depth;
     distance = Math.max(distance, requiredHorizontal, requiredVertical);
   });
-  distance += Math.max(frameSize.x, frameSize.z) * 0.035 + 0.35;
-  const position = target.clone().addScaledVector(cameraFromTarget, Math.max(distance, 4));
+  distance += Math.max(frameSize.x, frameSize.z) * 0.025 + 0.22;
+  distance *= THREE.MathUtils.clamp(Number(config.exterior_distance_scale) || defaults.exterior_distance_scale, 0.55, 1.4);
+  const position = target.clone().addScaledVector(cameraFromTarget, Math.max(distance, 3.2));
   return { position, target, fov: exteriorFov };
+}
+
+
+function prepareDoors() {
+  doorRecords.clear();
+  const openAngle = THREE.MathUtils.degToRad(Number(config.door_open_angle_degrees) || defaults.door_open_angle_degrees);
+  doorMeshes.forEach(object => {
+    const box = new THREE.Box3().setFromObject(object);
+    const size = box.getSize(new THREE.Vector3());
+    if (size.y < 0.8 || Math.max(size.x, size.z) < 0.35) return;
+    const name = objectSearchText(object);
+    const widthAxis = size.x >= size.z ? 'x' : 'z';
+    const useMaxHinge = /(^|[_\s-])(right|rh|hinge-r)([_\s-]|$)/i.test(name);
+    const hinge = box.getCenter(new THREE.Vector3());
+    hinge[widthAxis] = useMaxHinge ? box.max[widthAxis] : box.min[widthAxis];
+    const originalWorldPosition = object.getWorldPosition(new THREE.Vector3());
+    const originalWorldQuaternion = object.getWorldQuaternion(new THREE.Quaternion());
+    doorRecords.set(object, {
+      object,
+      parent: object.parent,
+      hinge,
+      originalWorldPosition,
+      originalWorldQuaternion,
+      progress: 0,
+      from: 0,
+      to: 0,
+      startedAt: 0,
+      direction: useMaxHinge ? -1 : 1,
+      angle: openAngle,
+    });
+  });
+}
+
+function setDoorProgress(record, progress) {
+  const angle = record.angle * record.direction * progress;
+  const rotation = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), angle);
+  const worldPosition = record.originalWorldPosition.clone().sub(record.hinge).applyQuaternion(rotation).add(record.hinge);
+  const worldQuaternion = rotation.clone().multiply(record.originalWorldQuaternion);
+  if (record.parent) {
+    record.parent.updateMatrixWorld(true);
+    const localPosition = record.parent.worldToLocal(worldPosition.clone());
+    const parentQuaternion = record.parent.getWorldQuaternion(new THREE.Quaternion());
+    record.object.position.copy(localPosition);
+    record.object.quaternion.copy(parentQuaternion.invert().multiply(worldQuaternion));
+  } else {
+    record.object.position.copy(worldPosition);
+    record.object.quaternion.copy(worldQuaternion);
+  }
+  record.object.updateMatrixWorld(true);
+}
+
+function toggleDoor(record) {
+  if (!record) return false;
+  record.from = record.progress;
+  record.to = record.progress > 0.5 ? 0 : 1;
+  record.startedAt = performance.now();
+  return true;
+}
+
+function updateDoors(now) {
+  const seconds = Math.max(0.12, Number(config.door_animation_seconds) || defaults.door_animation_seconds);
+  doorRecords.forEach(record => {
+    if (record.progress === record.to) return;
+    const raw = THREE.MathUtils.clamp((now - record.startedAt) / (seconds * 1000), 0, 1);
+    const eased = raw < 0.5 ? 2 * raw * raw : 1 - Math.pow(-2 * raw + 2, 2) / 2;
+    record.progress = THREE.MathUtils.lerp(record.from, record.to, eased);
+    setDoorProgress(record, record.progress);
+    if (raw >= 1) record.progress = record.to;
+  });
+}
+
+function doorAtScreen(clientX, clientY) {
+  if (!doorRecords.size) return null;
+  const rect = canvas.getBoundingClientRect();
+  const x = Number.isFinite(clientX) ? clientX : rect.left + rect.width * 0.5;
+  const y = Number.isFinite(clientY) ? clientY : rect.top + rect.height * 0.5;
+  const pointer = new THREE.Vector2(((x - rect.left) / rect.width) * 2 - 1, -(((y - rect.top) / rect.height) * 2 - 1));
+  raycaster.setFromCamera(pointer, camera);
+  raycaster.near = 0;
+  raycaster.far = Number(config.door_max_distance) || defaults.door_max_distance;
+  const hits = raycaster.intersectObjects([...doorRecords.keys()], false);
+  return hits.length ? doorRecords.get(hits[0].object) : null;
+}
+
+function interactDoorAt(clientX, clientY) {
+  const record = doorAtScreen(clientX, clientY);
+  if (!record) return false;
+  clearTimeout(pointerLockTimer);
+  pointerLockTimer = null;
+  return toggleDoor(record);
+}
+
+function clearGestureState() {
+  dragging = false;
+  dragPointer = null;
+  pinchDistance = 0;
+  activePointers.clear();
+}
+
+function setExteriorOrbit(state) {
+  const offset = state.position.clone().sub(state.target);
+  const radius = Math.max(offset.length(), 0.1);
+  exteriorOrbit = {
+    target: state.target.clone(),
+    radius,
+    azimuth: Math.atan2(offset.x, offset.z),
+    elevation: Math.asin(THREE.MathUtils.clamp(offset.y / radius, -0.95, 0.95)),
+  };
+}
+
+function updateExteriorOrbitCamera() {
+  if (!exteriorOrbit) return;
+  const horizontal = Math.cos(exteriorOrbit.elevation) * exteriorOrbit.radius;
+  camera.position.set(
+    exteriorOrbit.target.x + Math.sin(exteriorOrbit.azimuth) * horizontal,
+    exteriorOrbit.target.y + Math.sin(exteriorOrbit.elevation) * exteriorOrbit.radius,
+    exteriorOrbit.target.z + Math.cos(exteriorOrbit.azimuth) * horizontal,
+  );
+  lookAtAngles(camera.position, exteriorOrbit.target);
+  updateCameraRotation();
 }
 
 function raycast(origin, direction, far = Infinity, meshes = collisionMeshes) {
@@ -334,6 +491,7 @@ function movePlayer(delta) {
   if (keys.KeyA || (!turnMode && keys.ArrowLeft) || keys.MobileLeft) movement.sub(right);
   if (keys.KeyD || (!turnMode && keys.ArrowRight) || keys.MobileRight) movement.add(right);
   if (movement.lengthSq() > 0) movement.normalize();
+  if (movement.lengthSq() > 0 || keys.Space || keys.KeyC || keys.ControlLeft || keys.ControlRight || keys.MobileRise || keys.MobileLower) exteriorOrbit = null;
 
   const position = camera.position.clone();
   if (movement.lengthSq() > 0) {
@@ -375,22 +533,27 @@ function applyState(state, flyMode) {
   updateCameraRotation();
   updateStatus();
 }
-function resetView() { applyState(startState, false); }
+function resetView() { exteriorOrbit = null; clearGestureState(); applyState(startState, false); }
+function applyExteriorState(state) {
+  clearGestureState();
+  applyState(state, true);
+  setExteriorOrbit(state);
+}
 function exteriorView() {
   if (!Array.isArray(config.exterior_position)) exteriorState = buildExteriorState('front');
-  applyState(exteriorState, true);
+  applyExteriorState(exteriorState);
 }
 function backExteriorView() {
   backExteriorState = buildExteriorState('back');
-  applyState(backExteriorState, true);
+  applyExteriorState(backExteriorState);
 }
 function leftExteriorView() {
   leftExteriorState = buildExteriorState('left');
-  applyState(leftExteriorState, true);
+  applyExteriorState(leftExteriorState);
 }
 function rightExteriorView() {
   rightExteriorState = buildExteriorState('right');
-  applyState(rightExteriorState, true);
+  applyExteriorState(rightExteriorState);
 }
 function toggleFly() { fly = !fly; updateStatus(); }
 function toggleRoof() { if (!roofMeshes.length) return; showRoof = !showRoof; roofMeshes.forEach(mesh => { mesh.visible = showRoof; }); updateStatus(); }
@@ -415,7 +578,17 @@ window.addEventListener('keydown', event => {
 }, { passive: false });
 window.addEventListener('keyup', event => { keys[event.code] = false; });
 window.addEventListener('blur', () => { Object.keys(keys).forEach(key => { keys[key] = false; }); });
-canvas.addEventListener('click', () => { if (window.matchMedia('(pointer:fine)').matches && document.pointerLockElement !== canvas) canvas.requestPointerLock?.(); });
+canvas.addEventListener('click', event => {
+  if (!window.matchMedia('(pointer:fine)').matches || document.pointerLockElement === canvas) return;
+  clearTimeout(pointerLockTimer);
+  pointerLockTimer = setTimeout(() => canvas.requestPointerLock?.(), 360);
+});
+canvas.addEventListener('dblclick', event => {
+  event.preventDefault();
+  clearTimeout(pointerLockTimer);
+  pointerLockTimer = null;
+  interactDoorAt(document.pointerLockElement === canvas ? undefined : event.clientX, document.pointerLockElement === canvas ? undefined : event.clientY);
+});
 document.addEventListener('mousemove', event => {
   if (document.pointerLockElement !== canvas) return;
   yaw -= event.movementX * 0.0022;
@@ -426,7 +599,7 @@ canvas.addEventListener('wheel', event => { event.preventDefault(); setFov(fov +
 function isControlTarget(target) { return Boolean(target.closest('button,#ui,#quickToggles,#mobileControls')); }
 canvas.addEventListener('pointerdown', event => {
   if (isControlTarget(event.target)) return;
-  activePointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+  activePointers.set(event.pointerId, { x: event.clientX, y: event.clientY, startX: event.clientX, startY: event.clientY, startedAt: performance.now(), moved: false });
   canvas.setPointerCapture?.(event.pointerId);
   if (activePointers.size === 1) { dragging = true; dragPointer = event.pointerId; dragX = event.clientX; dragY = event.clientY; }
   if (activePointers.size === 2) {
@@ -436,7 +609,11 @@ canvas.addEventListener('pointerdown', event => {
 });
 canvas.addEventListener('pointermove', event => {
   if (!activePointers.has(event.pointerId)) return;
-  activePointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+  const pointerRecord = activePointers.get(event.pointerId);
+  pointerRecord.x = event.clientX;
+  pointerRecord.y = event.clientY;
+  if (Math.hypot(event.clientX - pointerRecord.startX, event.clientY - pointerRecord.startY) > 10) pointerRecord.moved = true;
+  activePointers.set(event.pointerId, pointerRecord);
   if (activePointers.size === 2) {
     const points = [...activePointers.values()];
     const distance = Math.hypot(points[0].x - points[1].x, points[0].y - points[1].y);
@@ -445,15 +622,37 @@ canvas.addEventListener('pointermove', event => {
     return;
   }
   if (dragging && dragPointer === event.pointerId) {
-    yaw -= (event.clientX - dragX) * 0.006;
-    pitch = THREE.MathUtils.clamp(pitch - (event.clientY - dragY) * 0.005, -1.48, 1.48);
+    const deltaX = event.clientX - dragX;
+    const deltaY = event.clientY - dragY;
+    if (exteriorOrbit) {
+      // Orbit around the house with one consistent swipe direction for FRONT,
+      // BACK, SIDE L, and SIDE R. The view no longer flips after side presets.
+      exteriorOrbit.azimuth -= deltaX * 0.006;
+      exteriorOrbit.elevation = THREE.MathUtils.clamp(exteriorOrbit.elevation - deltaY * 0.0045, 0.08, 1.18);
+      updateExteriorOrbitCamera();
+    } else {
+      yaw -= deltaX * 0.006;
+      pitch = THREE.MathUtils.clamp(pitch - deltaY * 0.005, -1.48, 1.48);
+    }
     dragX = event.clientX; dragY = event.clientY;
   }
 });
 function endPointer(event) {
+  const pointerRecord = activePointers.get(event.pointerId);
+  const wasSinglePointer = activePointers.size === 1;
   activePointers.delete(event.pointerId);
   if (dragPointer === event.pointerId) { dragging = false; dragPointer = null; }
   if (activePointers.size < 2) pinchDistance = 0;
+  if (event.type === 'pointerup' && event.pointerType !== 'mouse' && pointerRecord && wasSinglePointer && !pointerRecord.moved) {
+    const now = performance.now();
+    const closeEnough = Math.hypot(event.clientX - lastTouchTap.x, event.clientY - lastTouchTap.y) < 34;
+    if (now - lastTouchTap.time < 360 && closeEnough) {
+      interactDoorAt(event.clientX, event.clientY);
+      lastTouchTap = { time: 0, x: 0, y: 0 };
+    } else {
+      lastTouchTap = { time: now, x: event.clientX, y: event.clientY };
+    }
+  }
 }
 canvas.addEventListener('pointerup', endPointer);
 canvas.addEventListener('pointercancel', endPointer);
@@ -502,6 +701,7 @@ function animate() {
   requestAnimationFrame(animate);
   const delta = Math.min(clock.getDelta(), 0.05);
   movePlayer(delta);
+  updateDoors(performance.now());
   renderer.render(scene, camera);
 }
 
