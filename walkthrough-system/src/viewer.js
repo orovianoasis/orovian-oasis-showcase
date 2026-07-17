@@ -40,7 +40,9 @@ const roofMeshes = [];
 const slabMeshes = [];
 const exteriorFrameMeshes = [];
 const doorMeshes = [];
+const garageDoorMeshes = [];
 const doorRecords = new Map();
+const garageDoorRecords = new Map();
 let modelRoot = null;
 let modelBox = new THREE.Box3();
 let modelCenter = new THREE.Vector3();
@@ -65,7 +67,6 @@ let dragPointer = null;
 let dragX = 0;
 let dragY = 0;
 let pinchDistance = 0;
-let exteriorOrbit = null;
 let pointerLockTimer = null;
 let lastTouchTap = { time: 0, x: 0, y: 0 };
 const activePointers = new Map();
@@ -85,17 +86,28 @@ const defaults = {
   roof_match: ['roof', 'roofing'],
   slab_match: ['slab', 'floor platform', 'floor-platform', 'floor system', 'upper platform'],
   collision_exclude: ['glass', 'window', 'curtain', 'fixture', 'furniture', 'plant', 'landscape'],
-  exterior_frame_exclude: ['landscape', 'site pad', 'site_pad', 'driveway', 'entry walk', 'entry_walk', 'walkway', 'sidewalk', 'terrain', 'lawn', 'ground plane', 'ground_plane', 'pool water', 'pool_water', 'pool coping', 'pool_coping'],
+  exterior_frame_exclude: ['landscape', 'site pad', 'site_pad', 'site', 'driveway', 'drive', 'entry walk', 'entry_walk', 'walkway', 'sidewalk', 'terrain', 'lawn', 'ground plane', 'ground_plane', 'ground', 'pool', 'spa', 'water', 'deck', 'terrace', 'patio', 'hardscape', 'firepit', 'lounger', 'planter', 'tree', 'shrub', 'plant', 'furniture', 'fixture', 'appliance', 'car', 'vehicle'],
   entry_position: null,
   entry_target: null,
   exterior_position: null,
   exterior_target: null,
   exterior_distance_scale: 0.92,
+  exterior_screen_fill: 0.90,
+  exterior_elevation_degrees: 19,
+  exterior_angle_degrees: 0,
+  exterior_target_height_ratio: 0.42,
+  exterior_front_direction: null,
   door_match: ['(^|[_\\s-])door([_\\s-]|$)', 'entry[_\\s-]?door', 'interior[_\\s-]?door', 'pivot[_\\s-]?door', 'glass[_\\s-]?door'],
   door_exclude: ['garage[_\\s-]?door', 'cabinet', 'drawer', 'doorway', 'frame', 'trim', 'handle', 'knob'],
   door_open_angle_degrees: 88,
   door_animation_seconds: 0.55,
   door_max_distance: 12,
+  garage_door_match: ['garage[_\\s-]?door', 'overhead[_\\s-]?door', 'sectional[_\\s-]?door', 'roll[_\\s-]?up[_\\s-]?door'],
+  garage_door_exclude: ['frame', 'trim', 'track', 'opener', 'motor', 'hardware', 'handle', 'knob'],
+  garage_door_animation_seconds: 0.9,
+  garage_door_lift_ratio: 0.92,
+  garage_door_inset_ratio: 0.3,
+  garage_door_max_distance: 60,
   background: '#8da8b6'
 };
 
@@ -182,6 +194,8 @@ function prepareModel(root) {
   const exteriorFrameExcludePatterns = regexList(config.exterior_frame_exclude || defaults.exterior_frame_exclude);
   const doorPatterns = regexList(config.door_match || defaults.door_match);
   const doorExcludePatterns = regexList(config.door_exclude || defaults.door_exclude);
+  const garageDoorPatterns = regexList(config.garage_door_match || defaults.garage_door_match);
+  const garageDoorExcludePatterns = regexList(config.garage_door_exclude || defaults.garage_door_exclude);
   root.traverse(object => {
     if (!object.isMesh || !object.geometry) return;
     const text = objectSearchText(object);
@@ -194,6 +208,7 @@ function prepareModel(root) {
     if (!matchesAny(objectName, exteriorFrameExcludePatterns)) exteriorFrameMeshes.push(object);
     if (matchesAny(text, roofPatterns)) roofMeshes.push(object);
     if (matchesAny(text, slabPatterns)) slabMeshes.push(object);
+    if (matchesAny(objectName, garageDoorPatterns) && !matchesAny(objectName, garageDoorExcludePatterns)) garageDoorMeshes.push(object);
     if (matchesAny(text, doorPatterns) && !matchesAny(text, doorExcludePatterns)) doorMeshes.push(object);
   });
   scene.add(root);
@@ -206,25 +221,32 @@ function prepareModel(root) {
   exteriorFrameMeshes.forEach(mesh => exteriorFrameBox.expandByObject(mesh, true));
   if (exteriorFrameBox.isEmpty()) exteriorFrameBox.copy(modelBox);
 
-  // Roof and upper-slab meshes usually describe the actual building footprint
-  // more accurately than landscaping or a merged site mesh. Use that footprint
-  // for exterior camera framing whenever it is large enough to be meaningful.
+  // Build the camera footprint from actual roof/slab object names, not material
+  // names. Material matching previously pulled in car roofs, pool/site slabs, and
+  // other unrelated geometry, which shifted the target and pushed the house away.
   const structuralBox = new THREE.Box3();
-  [...new Set([...roofMeshes, ...slabMeshes])].forEach(mesh => structuralBox.expandByObject(mesh, true));
+  const structuralMeshes = [...new Set([...roofMeshes, ...slabMeshes])].filter(mesh => {
+    const objectName = String(mesh.name || '').toLowerCase();
+    const namedStructure = matchesAny(objectName, roofPatterns) || matchesAny(objectName, slabPatterns);
+    return namedStructure && !matchesAny(objectName, exteriorFrameExcludePatterns);
+  });
+  structuralMeshes.forEach(mesh => structuralBox.expandByObject(mesh, true));
   if (!structuralBox.isEmpty()) {
     const structuralSize = structuralBox.getSize(new THREE.Vector3());
     if (structuralSize.x > 1.5 && structuralSize.z > 1.5) {
-      const padX = Math.max(0.45, structuralSize.x * 0.075);
-      const padZ = Math.max(0.45, structuralSize.z * 0.075);
-      const minY = Math.max(modelBox.min.y, structuralBox.min.y - Math.max(2.5, modelSize.y * 0.72));
+      const candidateMinY = exteriorFrameBox.isEmpty() ? modelBox.min.y : exteriorFrameBox.min.y;
+      const candidateMaxY = exteriorFrameBox.isEmpty() ? modelBox.max.y : exteriorFrameBox.max.y;
+      const padX = Math.max(0.45, structuralSize.x * 0.07);
+      const padZ = Math.max(0.45, structuralSize.z * 0.07);
       exteriorFrameBox.set(
-        new THREE.Vector3(structuralBox.min.x - padX, minY, structuralBox.min.z - padZ),
-        new THREE.Vector3(structuralBox.max.x + padX, structuralBox.max.y, structuralBox.max.z + padZ),
+        new THREE.Vector3(structuralBox.min.x - padX, Math.max(modelBox.min.y, candidateMinY), structuralBox.min.z - padZ),
+        new THREE.Vector3(structuralBox.max.x + padX, Math.min(modelBox.max.y, Math.max(candidateMaxY, structuralBox.max.y)), structuralBox.max.z + padZ),
       );
     }
   }
 
   prepareDoors();
+  prepareGarageDoors();
   lastGroundY = modelBox.min.y;
   const maxDimension = Math.max(modelSize.x, modelSize.y, modelSize.z, 10);
   camera.far = Math.max(1000, maxDimension * 18);
@@ -252,6 +274,20 @@ function prepareModel(root) {
 }
 
 
+function exteriorFrontAxis() {
+  if (Array.isArray(config.exterior_front_direction)) {
+    const configured = vec3(config.exterior_front_direction);
+    configured.y = 0;
+    if (configured.lengthSq() > 1e-6) return configured.normalize();
+  }
+  if (Array.isArray(config.entry_position) && Array.isArray(config.entry_target)) {
+    const fromEntry = vec3(config.entry_position).sub(vec3(config.entry_target));
+    fromEntry.y = 0;
+    if (fromEntry.lengthSq() > 1e-6) return fromEntry.normalize();
+  }
+  return new THREE.Vector3(0, 0, 1);
+}
+
 function buildExteriorState(side = 'front') {
   const exteriorFov = Number(config.exterior_fov) || 68;
   if (side === 'front' && Array.isArray(config.exterior_position)) {
@@ -262,32 +298,36 @@ function buildExteriorState(side = 'front') {
     };
   }
 
-  // Frame the building itself rather than the full site pad. Each view uses a
-  // small diagonal offset and modest elevation, then solves the perspective
-  // distance against both the horizontal and vertical field of view. This
-  // keeps the property centered and large enough on portrait mobile screens.
   const frameBox = exteriorFrameBox.isEmpty() ? modelBox : exteriorFrameBox;
   const frameCenter = frameBox.getCenter(new THREE.Vector3());
   const frameSize = frameBox.getSize(new THREE.Vector3());
-  const cameraFromTarget = {
-    front: new THREE.Vector3(0.13, 0.23, 1),
-    back: new THREE.Vector3(-0.13, 0.23, -1),
-    left: new THREE.Vector3(-1, 0.23, -0.13),
-    right: new THREE.Vector3(1, 0.23, 0.13),
-  }[side] || new THREE.Vector3(0.13, 0.23, 1);
+  const front = exteriorFrontAxis();
+  const back = front.clone().multiplyScalar(-1);
+  const left = new THREE.Vector3(-front.z, 0, front.x).normalize();
+  const right = left.clone().multiplyScalar(-1);
+  const horizontalBase = { front, back, left, right }[side] || front;
+
+  // A small diagonal offset gives each facade depth without redefining the
+  // touch gesture. The camera is still a normal free-look camera after preset use.
+  const angle = THREE.MathUtils.degToRad(THREE.MathUtils.clamp(Number(config.exterior_angle_degrees) || defaults.exterior_angle_degrees, 0, 22));
+  const clockwise = new THREE.Vector3(horizontalBase.z, 0, -horizontalBase.x);
+  const horizontal = horizontalBase.clone().multiplyScalar(Math.cos(angle)).addScaledVector(clockwise, Math.sin(angle)).normalize();
+  const elevation = THREE.MathUtils.degToRad(THREE.MathUtils.clamp(Number(config.exterior_elevation_degrees) || defaults.exterior_elevation_degrees, 6, 38));
+  const cameraFromTarget = horizontal.multiplyScalar(Math.cos(elevation));
+  cameraFromTarget.y = Math.sin(elevation);
   cameraFromTarget.normalize();
 
-  const target = side === 'front' && Array.isArray(config.exterior_target)
+  const targetHeightRatio = THREE.MathUtils.clamp(Number(config.exterior_target_height_ratio) || defaults.exterior_target_height_ratio, 0.25, 0.65);
+  const target = Array.isArray(config.exterior_target)
     ? vec3(config.exterior_target)
-    : new THREE.Vector3(frameCenter.x, frameCenter.y - frameSize.y * 0.07, frameCenter.z);
+    : new THREE.Vector3(frameCenter.x, frameBox.min.y + frameSize.y * targetHeightRatio, frameCenter.z);
   const forward = cameraFromTarget.clone().negate();
   const worldUp = new THREE.Vector3(0, 1, 0);
   const rightAxis = new THREE.Vector3().crossVectors(forward, worldUp).normalize();
   const upAxis = new THREE.Vector3().crossVectors(rightAxis, forward).normalize();
   const verticalHalfFov = THREE.MathUtils.degToRad(exteriorFov * 0.5);
   const horizontalHalfFov = Math.atan(Math.tan(verticalHalfFov) * Math.max(camera.aspect || 1, 0.35));
-  const portrait = (camera.aspect || 1) < 0.78;
-  const fill = portrait ? 0.93 : 0.86;
+  const fill = THREE.MathUtils.clamp(Number(config.exterior_screen_fill) || defaults.exterior_screen_fill, 0.82, 1.22);
   const tanHorizontal = Math.max(Math.tan(horizontalHalfFov) * fill, 0.05);
   const tanVertical = Math.max(Math.tan(verticalHalfFov) * fill, 0.05);
 
@@ -303,14 +343,16 @@ function buildExteriorState(side = 'front') {
     new THREE.Vector3(frameBox.max.x, frameBox.max.y, frameBox.max.z),
   ];
   corners.forEach(corner => {
-    const relative = corner.sub(target);
+    const relative = corner.clone().sub(target);
     const depth = relative.dot(forward);
-    const requiredHorizontal = Math.abs(relative.dot(rightAxis)) / tanHorizontal - depth;
-    const requiredVertical = Math.abs(relative.dot(upAxis)) / tanVertical - depth;
-    distance = Math.max(distance, requiredHorizontal, requiredVertical);
+    distance = Math.max(
+      distance,
+      Math.abs(relative.dot(rightAxis)) / tanHorizontal - depth,
+      Math.abs(relative.dot(upAxis)) / tanVertical - depth,
+    );
   });
-  distance += Math.max(frameSize.x, frameSize.z) * 0.025 + 0.22;
-  distance *= THREE.MathUtils.clamp(Number(config.exterior_distance_scale) || defaults.exterior_distance_scale, 0.55, 1.4);
+  distance += Math.max(frameSize.x, frameSize.z) * 0.012 + 0.08;
+  distance *= THREE.MathUtils.clamp(Number(config.exterior_distance_scale) || defaults.exterior_distance_scale, 0.55, 1.35);
   const position = target.clone().addScaledVector(cameraFromTarget, Math.max(distance, 3.2));
   return { position, target, fov: exteriorFov };
 }
@@ -331,6 +373,7 @@ function prepareDoors() {
     const originalWorldPosition = object.getWorldPosition(new THREE.Vector3());
     const originalWorldQuaternion = object.getWorldQuaternion(new THREE.Quaternion());
     doorRecords.set(object, {
+      kind: 'hinged',
       object,
       parent: object.parent,
       hinge,
@@ -346,22 +389,103 @@ function prepareDoors() {
   });
 }
 
-function setDoorProgress(record, progress) {
+function applyObjectWorldTransform(object, parent, worldPosition, worldQuaternion) {
+  if (parent) {
+    parent.updateMatrixWorld(true);
+    const localPosition = parent.worldToLocal(worldPosition.clone());
+    const parentQuaternion = parent.getWorldQuaternion(new THREE.Quaternion());
+    object.position.copy(localPosition);
+    object.quaternion.copy(parentQuaternion.invert().multiply(worldQuaternion));
+  } else {
+    object.position.copy(worldPosition);
+    object.quaternion.copy(worldQuaternion);
+  }
+  object.updateMatrixWorld(true);
+}
+
+function setHingedDoorProgress(record, progress) {
   const angle = record.angle * record.direction * progress;
   const rotation = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), angle);
   const worldPosition = record.originalWorldPosition.clone().sub(record.hinge).applyQuaternion(rotation).add(record.hinge);
   const worldQuaternion = rotation.clone().multiply(record.originalWorldQuaternion);
-  if (record.parent) {
-    record.parent.updateMatrixWorld(true);
-    const localPosition = record.parent.worldToLocal(worldPosition.clone());
-    const parentQuaternion = record.parent.getWorldQuaternion(new THREE.Quaternion());
-    record.object.position.copy(localPosition);
-    record.object.quaternion.copy(parentQuaternion.invert().multiply(worldQuaternion));
-  } else {
-    record.object.position.copy(worldPosition);
-    record.object.quaternion.copy(worldQuaternion);
-  }
-  record.object.updateMatrixWorld(true);
+  applyObjectWorldTransform(record.object, record.parent, worldPosition, worldQuaternion);
+}
+
+function garageDoorGroupKey(object) {
+  const normalized = String(object.name || 'garage-door')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '');
+  const numbered = normalized.match(/(garage_door_\d+)(?:_(?:panel_?)?\d+)?(?:_|$)/);
+  if (numbered) return numbered[1];
+  return normalized.replace(/_(?:panel|section|segment)_?\d+$/, '') || 'garage-door';
+}
+
+function prepareGarageDoors() {
+  garageDoorRecords.clear();
+  const groups = new Map();
+  garageDoorMeshes.forEach(object => {
+    const key = garageDoorGroupKey(object);
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(object);
+  });
+
+  groups.forEach((objects, key) => {
+    const box = new THREE.Box3();
+    objects.forEach(object => box.expandByObject(object, true));
+    const size = box.getSize(new THREE.Vector3());
+    if (size.y < 0.8 || Math.max(size.x, size.z) < 0.5) return;
+
+    const center = box.getCenter(new THREE.Vector3());
+    const normalAxis = size.x <= size.z ? 'x' : 'z';
+    const inward = new THREE.Vector3();
+    const centerDelta = modelCenter[normalAxis] - center[normalAxis];
+    inward[normalAxis] = Math.abs(centerDelta) > 0.01 ? Math.sign(centerDelta) : -1;
+
+    const liftRatio = THREE.MathUtils.clamp(Number(config.garage_door_lift_ratio) || defaults.garage_door_lift_ratio, 0.5, 1.5);
+    const insetRatio = THREE.MathUtils.clamp(Number(config.garage_door_inset_ratio) || defaults.garage_door_inset_ratio, 0, 0.8);
+    const record = {
+      kind: 'garage',
+      key,
+      objects: objects.map(object => ({
+        object,
+        parent: object.parent,
+        originalWorldPosition: object.getWorldPosition(new THREE.Vector3()),
+        originalWorldQuaternion: object.getWorldQuaternion(new THREE.Quaternion()),
+      })),
+      inward,
+      lift: Math.max(size.y * liftRatio, 1),
+      inset: Math.max(size.y * insetRatio, 0.25),
+      progress: 0,
+      from: 0,
+      to: 0,
+      startedAt: 0,
+    };
+    objects.forEach(object => garageDoorRecords.set(object, record));
+  });
+}
+
+function setGarageDoorProgress(record, progress) {
+  // Simplified sectional motion: lift the complete door above the opening and
+  // ease it inward toward the garage ceiling. Grouped panel meshes stay aligned.
+  const liftProgress = 1 - Math.pow(1 - progress, 2);
+  const insetProgress = progress * progress;
+  const movement = new THREE.Vector3(0, record.lift * liftProgress, 0)
+    .addScaledVector(record.inward, record.inset * insetProgress);
+  record.objects.forEach(item => {
+    applyObjectWorldTransform(
+      item.object,
+      item.parent,
+      item.originalWorldPosition.clone().add(movement),
+      item.originalWorldQuaternion,
+    );
+  });
+}
+
+function setDoorProgress(record, progress) {
+  if (record.kind === 'garage') setGarageDoorProgress(record, progress);
+  else setHingedDoorProgress(record, progress);
 }
 
 function toggleDoor(record) {
@@ -373,9 +497,13 @@ function toggleDoor(record) {
 }
 
 function updateDoors(now) {
-  const seconds = Math.max(0.12, Number(config.door_animation_seconds) || defaults.door_animation_seconds);
-  doorRecords.forEach(record => {
+  const records = new Set([...doorRecords.values(), ...garageDoorRecords.values()]);
+  records.forEach(record => {
     if (record.progress === record.to) return;
+    const configuredSeconds = record.kind === 'garage'
+      ? Number(config.garage_door_animation_seconds) || defaults.garage_door_animation_seconds
+      : Number(config.door_animation_seconds) || defaults.door_animation_seconds;
+    const seconds = Math.max(0.12, configuredSeconds);
     const raw = THREE.MathUtils.clamp((now - record.startedAt) / (seconds * 1000), 0, 1);
     const eased = raw < 0.5 ? 2 * raw * raw : 1 - Math.pow(-2 * raw + 2, 2) / 2;
     record.progress = THREE.MathUtils.lerp(record.from, record.to, eased);
@@ -385,16 +513,24 @@ function updateDoors(now) {
 }
 
 function doorAtScreen(clientX, clientY) {
-  if (!doorRecords.size) return null;
+  if (!doorRecords.size && !garageDoorRecords.size) return null;
   const rect = canvas.getBoundingClientRect();
   const x = Number.isFinite(clientX) ? clientX : rect.left + rect.width * 0.5;
   const y = Number.isFinite(clientY) ? clientY : rect.top + rect.height * 0.5;
   const pointer = new THREE.Vector2(((x - rect.left) / rect.width) * 2 - 1, -(((y - rect.top) / rect.height) * 2 - 1));
   raycaster.setFromCamera(pointer, camera);
   raycaster.near = 0;
-  raycaster.far = Number(config.door_max_distance) || defaults.door_max_distance;
-  const hits = raycaster.intersectObjects([...doorRecords.keys()], false);
-  return hits.length ? doorRecords.get(hits[0].object) : null;
+  const hingedLimit = Number(config.door_max_distance) || defaults.door_max_distance;
+  const garageLimit = Number(config.garage_door_max_distance) || defaults.garage_door_max_distance;
+  raycaster.far = Math.max(hingedLimit, garageLimit);
+  const targets = [...doorRecords.keys(), ...garageDoorRecords.keys()];
+  const hits = raycaster.intersectObjects(targets, false);
+  for (const hit of hits) {
+    const record = garageDoorRecords.get(hit.object) || doorRecords.get(hit.object);
+    const limit = record?.kind === 'garage' ? garageLimit : hingedLimit;
+    if (record && hit.distance <= limit) return record;
+  }
+  return null;
 }
 
 function interactDoorAt(clientX, clientY) {
@@ -410,29 +546,6 @@ function clearGestureState() {
   dragPointer = null;
   pinchDistance = 0;
   activePointers.clear();
-}
-
-function setExteriorOrbit(state) {
-  const offset = state.position.clone().sub(state.target);
-  const radius = Math.max(offset.length(), 0.1);
-  exteriorOrbit = {
-    target: state.target.clone(),
-    radius,
-    azimuth: Math.atan2(offset.x, offset.z),
-    elevation: Math.asin(THREE.MathUtils.clamp(offset.y / radius, -0.95, 0.95)),
-  };
-}
-
-function updateExteriorOrbitCamera() {
-  if (!exteriorOrbit) return;
-  const horizontal = Math.cos(exteriorOrbit.elevation) * exteriorOrbit.radius;
-  camera.position.set(
-    exteriorOrbit.target.x + Math.sin(exteriorOrbit.azimuth) * horizontal,
-    exteriorOrbit.target.y + Math.sin(exteriorOrbit.elevation) * exteriorOrbit.radius,
-    exteriorOrbit.target.z + Math.cos(exteriorOrbit.azimuth) * horizontal,
-  );
-  lookAtAngles(camera.position, exteriorOrbit.target);
-  updateCameraRotation();
 }
 
 function raycast(origin, direction, far = Infinity, meshes = collisionMeshes) {
@@ -491,7 +604,6 @@ function movePlayer(delta) {
   if (keys.KeyA || (!turnMode && keys.ArrowLeft) || keys.MobileLeft) movement.sub(right);
   if (keys.KeyD || (!turnMode && keys.ArrowRight) || keys.MobileRight) movement.add(right);
   if (movement.lengthSq() > 0) movement.normalize();
-  if (movement.lengthSq() > 0 || keys.Space || keys.KeyC || keys.ControlLeft || keys.ControlRight || keys.MobileRise || keys.MobileLower) exteriorOrbit = null;
 
   const position = camera.position.clone();
   if (movement.lengthSq() > 0) {
@@ -533,11 +645,10 @@ function applyState(state, flyMode) {
   updateCameraRotation();
   updateStatus();
 }
-function resetView() { exteriorOrbit = null; clearGestureState(); applyState(startState, false); }
+function resetView() { clearGestureState(); applyState(startState, false); }
 function applyExteriorState(state) {
   clearGestureState();
   applyState(state, true);
-  setExteriorOrbit(state);
 }
 function exteriorView() {
   if (!Array.isArray(config.exterior_position)) exteriorState = buildExteriorState('front');
@@ -624,16 +735,11 @@ canvas.addEventListener('pointermove', event => {
   if (dragging && dragPointer === event.pointerId) {
     const deltaX = event.clientX - dragX;
     const deltaY = event.clientY - dragY;
-    if (exteriorOrbit) {
-      // Orbit around the house with one consistent swipe direction for FRONT,
-      // BACK, SIDE L, and SIDE R. The view no longer flips after side presets.
-      exteriorOrbit.azimuth -= deltaX * 0.006;
-      exteriorOrbit.elevation = THREE.MathUtils.clamp(exteriorOrbit.elevation - deltaY * 0.0045, 0.08, 1.18);
-      updateExteriorOrbitCamera();
-    } else {
-      yaw -= deltaX * 0.006;
-      pitch = THREE.MathUtils.clamp(pitch - deltaY * 0.005, -1.48, 1.48);
-    }
+    // Exterior presets only reposition the camera. They never switch touch
+    // controls into an orbit mode, so swipe direction remains identical before
+    // and after FRONT, BACK, SIDE L, or SIDE R.
+    yaw -= deltaX * 0.006;
+    pitch = THREE.MathUtils.clamp(pitch - deltaY * 0.005, -1.48, 1.48);
     dragX = event.clientX; dragY = event.clientY;
   }
 });

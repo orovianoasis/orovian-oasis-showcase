@@ -54,5 +54,30 @@
   "fly_speed": 6.2,
   "step_height": 0.38,
   "max_drop": 1.2,
-  "background": "#8da8b6"
+  "background": "#8da8b6",
+  "exterior_screen_fill": 0.9,
+  "exterior_elevation_degrees": 19,
+  "exterior_angle_degrees": 0,
+  "exterior_target_height_ratio": 0.42,
+  "exterior_front_direction": null,
+  "garage_door_match": [
+    "garage[_\\s-]?door",
+    "overhead[_\\s-]?door",
+    "sectional[_\\s-]?door",
+    "roll[_\\s-]?up[_\\s-]?door"
+  ],
+  "garage_door_exclude": [
+    "frame",
+    "trim",
+    "track",
+    "opener",
+    "motor",
+    "hardware",
+    "handle",
+    "knob"
+  ],
+  "garage_door_animation_seconds": 0.9,
+  "garage_door_lift_ratio": 0.92,
+  "garage_door_inset_ratio": 0.3,
+  "garage_door_max_distance": 60
 }
