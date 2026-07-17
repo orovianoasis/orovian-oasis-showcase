@@ -38,7 +38,8 @@ jobs:
         if: steps.dae.outputs.has_dae == 'true'
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y blender
+          sudo apt-get install -y blender python3-numpy
+          blender --background --factory-startup --python-expr "import numpy; print('Blender NumPy:', numpy.__version__)"
       - name: Prepare automatic walkthroughs
         run: python scripts/build_walkthroughs.py --strict
       - name: Validate source structure
