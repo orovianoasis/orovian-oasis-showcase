@@ -8,6 +8,8 @@ Public GitHub Pages repository for:
 
 Target domain: **showcase.orovianoasis.com**
 
+Legal entity: **Orovian Oasis LLC**
+
 ## The main project-upload rule
 
 For the normal workflow, export a Collada/DAE model and textures from Chief Architect Premier, add `cover-front.webp` and `cover-back.webp` (or one `cover.webp`), and upload that **one extracted folder** into:
