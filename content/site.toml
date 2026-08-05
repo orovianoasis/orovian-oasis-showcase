@@ -4,7 +4,7 @@
 # ============================================================
 
 site_name = "Orovian Oasis Showcase"
-company_name = "Orovian Oasis"
+company_name = "Orovian Oasis LLC"
 custom_domain = "showcase.orovianoasis.com"
 main_site_url = "https://orovianoasis.com"
 default_currency = "USD"
