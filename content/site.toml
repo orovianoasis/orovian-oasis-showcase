@@ -26,12 +26,11 @@ project_carousel_autoplay = true
 project_carousel_interval_ms = 5000
 
 [contact]
-# Add the real public contact details below. The quick-contact popup and contact form use these values.
-phone_display = ""
-phone_href = ""          # Example: "tel:+13125551234"
-text_href = ""           # Example: "sms:+13125551234"
-email = ""               # Example: "hello@orovianoasis.com"
-form_endpoint = ""       # Optional HTTPS form endpoint. Leave blank to open the visitor's email app.
+phone_display = "(205) 902-8988"
+phone_href = "tel:+12059028988"
+text_href = "sms:+12059028988"
+email = "OrovianOasis@gmail.com"
+form_endpoint = ""
 inquiry_url = "https://orovianoasis.com"
 
 [social]
