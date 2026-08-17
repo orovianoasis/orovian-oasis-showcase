@@ -136,13 +136,26 @@ function matchesAny(text, expressions) { return expressions.some(expression => e
 function normalizeYaw(value) {
   return Math.atan2(Math.sin(value), Math.cos(value));
 }
-function worldDirectionFromAngles(includePitch = false) {
-  const cp = includePitch ? Math.cos(pitch) : 1;
-  return new THREE.Vector3(Math.sin(yaw) * cp, includePitch ? Math.sin(pitch) : 0, -Math.cos(yaw) * cp).normalize();
+function cameraDirection(includePitch = false) {
+  // The rendered camera is the single source of truth for movement direction.
+  // This prevents visual heading and movement heading from drifting apart after
+  // mouse/touch turns, reset states, or exterior-view presets.
+  const direction = new THREE.Vector3();
+  camera.getWorldDirection(direction);
+  if (!includePitch) {
+    direction.y = 0;
+    if (direction.lengthSq() < 1e-8) {
+      // At an almost vertical look angle, preserve the last horizontal heading.
+      direction.set(-Math.sin(yaw), 0, -Math.cos(yaw));
+    }
+  }
+  return direction.normalize();
 }
 function lookAtAngles(from, target) {
   const direction = target.clone().sub(from).normalize();
-  yaw = normalizeYaw(Math.atan2(direction.x, -direction.z));
+  // THREE.PerspectiveCamera looks down local -Z. With YXZ Euler rotation,
+  // positive rotation.y points the camera toward -X, so yaw must use -X here.
+  yaw = normalizeYaw(Math.atan2(-direction.x, -direction.z));
   pitch = Math.asin(THREE.MathUtils.clamp(direction.y, -1, 1));
 }
 function applyLookDelta(deltaX, deltaY, horizontalScale, verticalScale) {
@@ -150,6 +163,9 @@ function applyLookDelta(deltaX, deltaY, horizontalScale, verticalScale) {
   // change camera position and never alter the swipe or mouse direction.
   yaw = normalizeYaw(yaw - deltaX * horizontalScale);
   pitch = THREE.MathUtils.clamp(pitch - deltaY * verticalScale, -1.48, 1.48);
+  // Commit look input immediately so movement in the same frame uses the exact
+  // direction the user is already seeing.
+  updateCameraRotation();
 }
 function updateCameraRotation() {
   camera.rotation.order = 'YXZ';
@@ -650,13 +666,16 @@ function movePlayer(delta) {
   const amount = speed * delta;
   const turnMode = keys.KeyQ;
   if (turnMode) {
-    if (keys.ArrowLeft) yaw = normalizeYaw(yaw - 1.85 * delta);
-    if (keys.ArrowRight) yaw = normalizeYaw(yaw + 1.85 * delta);
+    // Match the same first-person convention used by mouse/touch look:
+    // left arrow turns left, right arrow turns right.
+    if (keys.ArrowLeft) yaw = normalizeYaw(yaw + 1.85 * delta);
+    if (keys.ArrowRight) yaw = normalizeYaw(yaw - 1.85 * delta);
     if (keys.ArrowUp) pitch = Math.min(1.45, pitch + 1.35 * delta);
     if (keys.ArrowDown) pitch = Math.max(-1.45, pitch - 1.35 * delta);
+    updateCameraRotation();
   }
-  const forward = worldDirectionFromAngles(false);
-  const right = new THREE.Vector3(-forward.z, 0, forward.x);
+  const forward = cameraDirection(false);
+  const right = new THREE.Vector3().crossVectors(forward, new THREE.Vector3(0, 1, 0)).normalize();
   const movement = new THREE.Vector3();
   if (keys.KeyW || (!turnMode && keys.ArrowUp) || keys.MobileForward) movement.add(forward);
   if (keys.KeyS || (!turnMode && keys.ArrowDown) || keys.MobileBack) movement.sub(forward);
@@ -695,7 +714,6 @@ function applyState(state, flyMode) {
   fov = state.fov;
   fly = flyMode;
   if (flyMode) clampFlyHeight(camera.position);
-  lookAtAngles(camera.position, state.target);
   if (!flyMode) {
     const floor = findFloor(camera.position.x, camera.position.z, camera.position.y, true);
     if (floor !== null) {
@@ -703,6 +721,9 @@ function applyState(state, flyMode) {
       camera.position.y = floor + (Number(config.eye_height) || defaults.eye_height);
     }
   }
+  // Resolve the final camera position first, then calculate look angles from it.
+  // That keeps reset/exterior presets and subsequent movement on one heading.
+  lookAtAngles(camera.position, state.target);
   updateCameraRotation();
   updateStatus();
 }
@@ -769,13 +790,25 @@ document.addEventListener('mousemove', event => {
 canvas.addEventListener('wheel', event => { event.preventDefault(); setFov(fov + Math.sign(event.deltaY) * 3); }, { passive: false });
 
 function isControlTarget(target) { return Boolean(target.closest('button,#ui,#quickToggles,#mobileControls')); }
+function beginLookGesture(pointerId, pointerRecord) {
+  dragging = true;
+  dragPointer = pointerId;
+  dragX = pointerRecord.x;
+  dragY = pointerRecord.y;
+}
 canvas.addEventListener('pointerdown', event => {
   if (isControlTarget(event.target)) return;
-  activePointers.set(event.pointerId, { x: event.clientX, y: event.clientY, startX: event.clientX, startY: event.clientY, startedAt: performance.now(), moved: false });
+  const pointerRecord = { x: event.clientX, y: event.clientY, startX: event.clientX, startY: event.clientY, startedAt: performance.now(), moved: false };
+  activePointers.set(event.pointerId, pointerRecord);
   canvas.setPointerCapture?.(event.pointerId);
-  if (activePointers.size === 1) { dragging = true; dragPointer = event.pointerId; dragX = event.clientX; dragY = event.clientY; }
-  if (activePointers.size === 2) {
-    const points = [...activePointers.values()];
+  if (activePointers.size === 1) {
+    beginLookGesture(event.pointerId, pointerRecord);
+  } else {
+    // Entering a pinch suspends look rotation. Without this handoff, the old
+    // one-finger baseline can survive the pinch and create a large turn/jump.
+    dragging = false;
+    dragPointer = null;
+    const points = [...activePointers.values()].slice(0, 2);
     pinchDistance = Math.hypot(points[0].x - points[1].x, points[0].y - points[1].y);
   }
 });
@@ -786,29 +819,51 @@ canvas.addEventListener('pointermove', event => {
   pointerRecord.y = event.clientY;
   if (Math.hypot(event.clientX - pointerRecord.startX, event.clientY - pointerRecord.startY) > 10) pointerRecord.moved = true;
   activePointers.set(event.pointerId, pointerRecord);
-  if (activePointers.size === 2) {
-    const points = [...activePointers.values()];
+
+  if (activePointers.size >= 2) {
+    const points = [...activePointers.values()].slice(0, 2);
     const distance = Math.hypot(points[0].x - points[1].x, points[0].y - points[1].y);
     if (pinchDistance) setFov(fov - (distance - pinchDistance) * 0.045);
     pinchDistance = distance;
     return;
   }
-  if (dragging && dragPointer === event.pointerId) {
-    const deltaX = event.clientX - dragX;
-    const deltaY = event.clientY - dragY;
-    // Exterior presets only reposition the camera. They never switch touch
-    // controls into an orbit mode, so swipe direction remains identical before
-    // and after FRONT, BACK, SIDE L, or SIDE R.
-    applyLookDelta(deltaX, deltaY, 0.006, 0.005);
-    dragX = event.clientX; dragY = event.clientY;
+
+  // Any transition from pinch back to one finger gets a fresh baseline. This
+  // eliminates the apparent random inversion/jump caused by stale coordinates.
+  if (!dragging || dragPointer !== event.pointerId) {
+    beginLookGesture(event.pointerId, pointerRecord);
+    return;
   }
+
+  const deltaX = event.clientX - dragX;
+  const deltaY = event.clientY - dragY;
+  // Exterior presets only reposition the camera. They never switch touch
+  // controls into an orbit mode, so swipe direction remains identical before
+  // and after FRONT, BACK, SIDE L, or SIDE R.
+  applyLookDelta(deltaX, deltaY, 0.006, 0.005);
+  dragX = event.clientX;
+  dragY = event.clientY;
 });
 function endPointer(event) {
   const pointerRecord = activePointers.get(event.pointerId);
   const wasSinglePointer = activePointers.size === 1;
   activePointers.delete(event.pointerId);
-  if (dragPointer === event.pointerId) { dragging = false; dragPointer = null; }
-  if (activePointers.size < 2) pinchDistance = 0;
+
+  if (activePointers.size === 1) {
+    const [remainingId, remainingPointer] = activePointers.entries().next().value;
+    pinchDistance = 0;
+    beginLookGesture(remainingId, remainingPointer);
+  } else if (activePointers.size === 0) {
+    dragging = false;
+    dragPointer = null;
+    pinchDistance = 0;
+  } else {
+    dragging = false;
+    dragPointer = null;
+    const points = [...activePointers.values()].slice(0, 2);
+    pinchDistance = Math.hypot(points[0].x - points[1].x, points[0].y - points[1].y);
+  }
+
   if (event.type === 'pointerup' && event.pointerType !== 'mouse' && pointerRecord && wasSinglePointer && !pointerRecord.moved) {
     const now = performance.now();
     const closeEnough = Math.hypot(event.clientX - lastTouchTap.x, event.clientY - lastTouchTap.y) < 34;

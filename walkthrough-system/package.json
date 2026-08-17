@@ -3,7 +3,8 @@
   "private": true,
   "version": "1.0.0",
   "scripts": {
-    "build": "esbuild src/viewer.js --bundle --minify --format=iife --platform=browser --target=es2020 --outfile=viewer.bundle.js"
+    "build": "esbuild src/viewer.js --bundle --minify --format=iife --platform=browser --target=es2020 --outfile=viewer.bundle.js",
+    "test:controls": "node tests/control-invariants.mjs"
   },
   "dependencies": {
     "three": "0.185.1",
