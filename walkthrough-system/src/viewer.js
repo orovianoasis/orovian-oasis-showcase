@@ -221,15 +221,17 @@ async function loadConfig() {
   scene.background = new THREE.Color(config.background || defaults.background);
 }
 
-const flattenedMaterialCache = new WeakMap();
-
-function shouldFlattenSurface(searchText) {
+function shouldUseUniformSurfaceMaterial(searchText) {
+  // Chief/GLTF exports can carry interpolated normals across large architectural
+  // planes. That produces diagonal or streaky light gradients even with shadow
+  // maps disabled. Keep those broad surfaces visually uniform while leaving
+  // glass, doors, rails, furnishings, landscaping, and water physically lit.
   return /(wall|slab|ceiling|soffit|parapet|fascia|column|pier|beam|bulkhead|partition|floor platform|floor-platform|floor system)/i.test(searchText)
     && !/(glass|window|door|garage|handle|knob|frame|trim|railing|baluster|stair rail|stair_rail|plant|tree|shrub|fixture|furniture|appliance|water|pool|spa)/i.test(searchText);
 }
 
-function createDisplayMaterial(material) {
-  if (!material || flattenedMaterialCache.has(material)) return flattenedMaterialCache.get(material) || material;
+function makeUniformSurfaceMaterial(material) {
+  if (!material) return material;
   const display = new THREE.MeshBasicMaterial({
     name: material.name,
     color: material.color ? material.color.clone() : new THREE.Color(0xffffff),
@@ -248,16 +250,13 @@ function createDisplayMaterial(material) {
   display.depthTest = material.depthTest !== false;
   display.premultipliedAlpha = Boolean(material.premultipliedAlpha);
   display.toneMapped = true;
-  if (display.map) display.map.colorSpace = THREE.SRGBColorSpace;
-  flattenedMaterialCache.set(material, display);
   return display;
 }
 
 function keepWalkthroughMaterial(material, searchText) {
-  // Convert large architectural surfaces to display-oriented materials so broad
-  // wall/ceiling planes keep a clean, consistent color instead of showing noisy
-  // directional-light gradients from the 3D export.
-  return shouldFlattenSurface(searchText) ? createDisplayMaterial(material) : material;
+  return shouldUseUniformSurfaceMaterial(searchText)
+    ? makeUniformSurfaceMaterial(material)
+    : material;
 }
 
 function prepareModel(root) {
