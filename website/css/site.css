@@ -875,3 +875,40 @@ body[data-page-kind="home"] .footer-logo-orbit .logo-orbit-disc{background:#0807
   line-height: 1;
   transform: translateY(-3px);
 }
+
+/* ==========================================================
+   BLUEPRINT / PLAN-SET SYSTEM 4.0
+   ========================================================== */
+.blueprint-toolbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:20px;
+  margin:0 0 24px;
+  padding:18px 20px;
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:24px;
+  background:linear-gradient(145deg,rgba(31,21,39,.92),rgba(15,13,19,.88));
+  box-shadow:0 18px 48px rgba(0,0,0,.24);
+}
+.blueprint-toolbar-copy{display:grid;gap:4px;min-width:220px}
+.blueprint-toolbar-copy strong{font-size:.98rem;line-height:1.35}
+.blueprint-toolbar-copy [data-plan-selection-status]{color:var(--muted);font-size:.78rem}
+.blueprint-toolbar-actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+.blueprint-toolbar-actions .button{margin:0}
+.blueprint-toolbar-actions .button:disabled{opacity:.42;cursor:not-allowed;transform:none}
+.floor-card-meta{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
+.plan-select{display:inline-flex;align-items:center;gap:7px;color:var(--muted);font-size:.76rem;font-weight:850;cursor:pointer}
+.plan-select input{width:18px;height:18px;margin:0;accent-color:var(--mint)}
+.blueprint-discipline{display:inline-flex;align-items:center;min-height:28px;padding:5px 9px;border:1px solid rgba(112,240,202,.24);border-radius:999px;color:var(--mint);background:rgba(112,240,202,.065);font-size:.68rem;font-weight:900;letter-spacing:.04em;text-transform:uppercase}
+.floor-card.is-selected{border-color:rgba(112,240,202,.52);box-shadow:0 18px 60px rgba(43,205,164,.11)}
+.floor-card.is-selected .plan-select{color:var(--mint)}
+body.plan-notes-open{overflow:hidden}
+.plan-notes-modal{position:fixed;inset:0;z-index:470;display:none;place-items:center;padding:18px}
+.plan-notes-modal.is-open{display:grid}
+.plan-notes-backdrop{position:absolute;inset:0;width:100%;height:100%;border:0;background:rgba(8,5,12,.88);backdrop-filter:blur(14px)}
+.plan-notes-card{position:relative;z-index:2;width:min(760px,100%);max-height:min(80dvh,720px);overflow:auto;padding:22px;border:1px solid rgba(255,255,255,.17);border-radius:26px;background:linear-gradient(150deg,rgba(45,27,55,.99),rgba(18,11,24,.99));box-shadow:0 35px 120px rgba(0,0,0,.65);outline:none}
+.plan-notes-head{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.09)}
+.plan-notes-head h2{margin:4px 0 0;font-family:var(--serif);font-size:clamp(1.6rem,3vw,2.35rem);font-style:italic}
+.plan-notes-close{display:grid;place-items:center;width:42px;height:42px;flex:0 0 auto;border:1px solid rgba(255,255,255,.17);border-radius:12px;background:rgba(255,255,255,.06);color:var(--coral);font-size:1.6rem;cursor:pointer}
+.plan-notes-card pre{margin:18px 0 0;white-space:pre-wrap;overflow-wrap:anywhere;color:var(--paper);font:500 .92rem/1.65 var(--sans)}

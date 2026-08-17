@@ -1,3 +1,10 @@
-<!-- OROVIAN OASIS SHOWCASE — FLOOR-PLAN PAGE SOURCE -->
+<!-- OROVIAN OASIS SHOWCASE — FLOOR-PLAN / BLUEPRINT PAGE SOURCE -->
 <section class="hero listing-hero"><div class="shell hero-shell" data-reveal><div class="eyebrow">Floor Plans</div><h1>{{PROJECT_TITLE}}</h1><p>{{INTRO}}</p><div class="actions centered-actions"><a class="button" href="../">Back to Project</a></div></div></section>
-<section class="section"><div class="shell"><div class="floor-grid">{{FLOOR_PLAN_CARDS}}</div></div></section>
+<section class="section"><div class="shell">{{FLOOR_PLAN_TOOLBAR}}<div class="floor-grid">{{FLOOR_PLAN_CARDS}}</div></div></section>
+<section class="plan-notes-modal" data-plan-notes-modal role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="plan-notes-title">
+  <button class="plan-notes-backdrop" type="button" data-plan-notes-close aria-label="Close plan notes"></button>
+  <div class="plan-notes-card" tabindex="-1">
+    <div class="plan-notes-head"><div><div class="eyebrow">Sheet Notes</div><h2 id="plan-notes-title" data-plan-notes-heading>Plan Notes</h2></div><button class="plan-notes-close" type="button" data-plan-notes-close aria-label="Close plan notes">×</button></div>
+    <pre data-plan-notes-content>Loading notes…</pre>
+  </div>
+</section>

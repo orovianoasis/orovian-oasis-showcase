@@ -10,7 +10,7 @@ import tomllib
 import urllib.parse
 from pathlib import Path
 
-from raw_project import RawProjectError, auto_project_from_folder, stage_raw_project
+from raw_project import RawProjectError, auto_project_from_folder, stage_raw_project, blueprint_sort_key, normalize_blueprint_item
 
 ROOT = Path(__file__).resolve().parents[1]
 CONTENT = ROOT / "content"
@@ -365,7 +365,7 @@ def load_projects(strict=True):
                 for rel in gallery:
                     if rel and not (folder/rel).is_file(): errors.append(f"{folder.name}: media.gallery item not found: {rel}")
                 for item in p.get("floor_plans",[]):
-                    for field in ("image","pdf","dxf"):
+                    for field in ("image","pdf","dxf","notes"):
                         rel=item.get(field,"")
                         if rel and not (folder/rel).is_file(): errors.append(f"{folder.name}: floor_plans.{field} not found: {rel}")
                 if p.get("tour",{}).get("enabled"):
@@ -416,6 +416,37 @@ def copy_project_assets(project, destination):
     for name in ("assets","floor-plans"):
         source=src/name
         if source.exists(): shutil.copytree(source,destination/name,dirs_exist_ok=True)
+
+
+def _plan_notes_path(item):
+    explicit = str(item.get("notes") or "").strip()
+    if explicit:
+        return explicit
+    source = str(item.get("dxf") or item.get("image") or item.get("level") or "floor-plan")
+    stem = Path(source).stem or "floor-plan"
+    return f"floor-plans/{stem}.notes.txt"
+
+
+def _ensure_plan_notes(project_folder, item, project_title):
+    relative = _plan_notes_path(item)
+    destination = project_folder / relative
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    if destination.is_file():
+        return relative
+    level = str(item.get("level") or "Plan Sheet")
+    discipline = str(item.get("discipline_label") or item.get("discipline") or "Plan Set")
+    destination.write_text(
+        f"{project_title} — {level}\n\n"
+        f"Discipline: {discipline}\n\n"
+        "Project notes for this drawing have not yet been finalized.\n",
+        encoding="utf-8",
+    )
+    return relative
+
+
+def _sheet_slug(value):
+    cleaned = re.sub(r"[^A-Za-z0-9]+", "_", str(value or "Plan_Sheet")).strip("_")
+    return cleaned or "Plan_Sheet"
 
 
 def public_data(value):
@@ -555,7 +586,7 @@ def build(args):
         folder.mkdir(parents=True,exist_ok=True); copy_project_assets(p,folder)
         ident=p.get("identity",{}); media=p.get("media",{})
         project_url=f"{base_url}/{category_path}/{p['slug']}/"
-        floor_plans=p.get("floor_plans",[])
+        floor_plans=sorted((normalize_blueprint_item(item) for item in p.get("floor_plans",[])), key=blueprint_sort_key)
         tour=p.get("tour",{})
         explore=[]
         if floor_plans and site.get("show_floor_plans",True):
@@ -579,12 +610,16 @@ def build(args):
 
         fp_folder=folder/"floor-plans"; fp_folder.mkdir(exist_ok=True)
         cards=[]
-        for item in floor_plans:
+        prepared_plan_items=[]
+        for index, item in enumerate(floor_plans, start=1):
+            item = dict(item)
+            notes_path = _ensure_plan_notes(folder, item, ident.get("title") or p["slug"])
+            item["notes"] = notes_path
+            prepared_plan_items.append(item)
+
             image=Path(item.get("image","")); image_url="../"+image.as_posix() if image.parts and image.parts[0]=="floor-plans" else item.get("image","")
-            links=[]
-            if item.get("pdf"): links.append(f'<a class="button" href="../{esc(item["pdf"])}">Open PDF</a>')
-            if item.get("dxf"): links.append(f'<a class="button" href="../{esc(item["dxf"])}">Download DXF</a>')
             level = str(item.get("level") or "Floor Plan")
+            discipline_label = str(item.get("discipline_label") or item.get("discipline") or "Plan Sheet")
             compact_class = " floor-card-index" if "drawing index" in level.lower() else ""
             preview = (
                 f'<a class="floor-plan-preview" href="{esc(image_url)}" target="_blank" rel="noopener" data-plan-open '
@@ -592,8 +627,58 @@ def build(args):
                 f'<img src="{esc(image_url)}" alt="{esc(level)} floor plan" loading="lazy">'
                 f'<span class="floor-plan-preview-label">🔍 Open &amp; zoom</span></a>'
             )
-            cards.append(f'<article class="panel floor-card{compact_class}" data-reveal><h2>{esc(level)}</h2>{preview}<p class="muted">{esc(item.get("caption"))}</p><div class="actions">{"".join(links)}</div></article>')
-        floor_body=floor_template.replace("{{PROJECT_TITLE}}",esc(ident.get("title"))).replace("{{INTRO}}","Customer-facing floor plans and available downloads.").replace("{{FLOOR_PLAN_CARDS}}",''.join(cards) or '<div class="empty">Floor plans have not been published yet.</div>')
+
+            links=[]
+            if item.get("pdf"):
+                links.append(f'<a class="button" href="../{esc(item["pdf"])}" target="_blank" rel="noopener">Open PDF</a>')
+            if item.get("dxf"):
+                links.append(f'<a class="button" href="../{esc(item["dxf"])}" download>Download DXF</a>')
+            links.append(f'<button class="button" type="button" data-plan-notes data-plan-notes-url="../{esc(notes_path)}" data-plan-notes-title="{esc(level)}">Notes</button>')
+
+            plan_folder = f"{index:02d}_{_sheet_slug(level)}"
+            files=[]
+            for relative in (item.get("dxf"), item.get("pdf"), notes_path):
+                if not relative:
+                    continue
+                file_path = folder / str(relative)
+                if not file_path.is_file():
+                    continue
+                archive_name = f"{plan_folder}/{Path(str(relative)).name}"
+                files.append((f"../{str(relative)}", archive_name))
+            file_nodes=''.join(
+                f'<span hidden data-plan-file data-plan-file-url="{esc(url)}" data-plan-file-name="{esc(name)}"></span>'
+                for url, name in files
+            )
+            caption = item.get("caption") or "Published plan sheet and available technical downloads."
+            cards.append(
+                f'<article class="panel floor-card{compact_class}" data-reveal data-plan-card data-plan-order="{index}">'
+                f'<div class="floor-card-meta"><label class="plan-select"><input type="checkbox" data-plan-select aria-label="Select {esc(level)} for download"><span>Select</span></label>'
+                f'<span class="blueprint-discipline">{esc(discipline_label)}</span></div>'
+                f'<h2>{esc(level)}</h2>{preview}<p class="muted">{esc(caption)}</p><div class="actions">{"".join(links)}</div>{file_nodes}</article>'
+            )
+
+        toolbar = ""
+        if prepared_plan_items:
+            project_zip_name = _sheet_slug(ident.get("title") or p["slug"])
+            toolbar = (
+                f'<div class="blueprint-toolbar" data-blueprint-toolbar data-plan-project="{esc(project_zip_name)}">'
+                '<div class="blueprint-toolbar-copy"><div class="eyebrow">Plan Set</div><strong>Choose individual sheets or download the complete available set.</strong>'
+                '<span data-plan-selection-status>0 sheets selected</span></div>'
+                '<div class="blueprint-toolbar-actions">'
+                '<button class="button" type="button" data-plan-select-all>Select All</button>'
+                '<button class="button" type="button" data-plan-clear disabled>Clear</button>'
+                '<button class="button" type="button" data-plan-download-selected disabled>Download Selected</button>'
+                '<button class="button primary" type="button" data-plan-download-all>Download Full Plan Set</button>'
+                '</div></div>'
+            )
+
+        floor_body=(
+            floor_template
+            .replace("{{PROJECT_TITLE}}",esc(ident.get("title")))
+            .replace("{{INTRO}}","Available construction-plan sheets are shown in packet order. Plumbing, Mechanical / HVAC, Electrical, and other sheets appear automatically when their DXF files are added.")
+            .replace("{{FLOOR_PLAN_TOOLBAR}}",toolbar)
+            .replace("{{FLOOR_PLAN_CARDS}}",''.join(cards) or '<div class="empty">Floor plans have not been published yet.</div>')
+        )
         floor_page=apply_base(floor_body,site=site,nav=nav,root_prefix="../../../",title=f"Floor Plans — {ident.get('title')}",description=f"Floor plans for {ident.get('title')}",og_image=og,canonical=project_url+"floor-plans/",page_kind="project-support",project_context={"title":ident.get("title",""),"url":project_url,"category":CATEGORY_LABELS[p["category"]]})
         (fp_folder/"index.html").write_text(floor_page,encoding="utf-8")
 

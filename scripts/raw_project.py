@@ -32,6 +32,36 @@ WORD_NUMBERS = {
     "twelve": 12,
 }
 
+# Canonical plan-set order used by both the one-folder importer and the website.
+# Missing sheet types stay invisible; when matching DXF files are added later they
+# automatically slot into this sequence. Plumbing -> Mechanical -> Electrical
+# follows the established building-services discipline order.
+BLUEPRINT_ORDER = {
+    "general": 0,
+    "site": 10,
+    "foundation": 20,
+    "architectural": 30,
+    "roof": 40,
+    "structural": 50,
+    "plumbing": 60,
+    "mechanical": 70,
+    "electrical": 80,
+    "optional": 90,
+}
+
+BLUEPRINT_DISCIPLINE_LABELS = {
+    "general": "General",
+    "site": "Site",
+    "foundation": "Foundation",
+    "architectural": "Architectural",
+    "roof": "Roof",
+    "structural": "Structural",
+    "plumbing": "Plumbing",
+    "mechanical": "Mechanical / HVAC",
+    "electrical": "Electrical",
+    "optional": "Additional",
+}
+
 
 class RawProjectError(ValueError):
     pass
@@ -308,19 +338,113 @@ def infer_category(text: str) -> str:
     return "concept-home"
 
 
-def _floor_level(path: Path, project_slug: str) -> str:
+def _strip_project_stem(path: Path, project_slug: str) -> str:
     stem = slugify(path.stem)
     if stem.startswith(project_slug + "-"):
         stem = stem[len(project_slug) + 1:]
-    if "drawing-index" in stem or stem == "index":
-        return "Drawing Index"
-    if any(term in stem for term in ("ground-floor", "main-floor", "first-floor")):
-        return "Ground Floor"
+    return stem
+
+
+def _floor_rank(stem: str) -> tuple[int, str | None]:
+    if "basement" in stem or "lower-level" in stem:
+        return 0, "Basement"
+    if any(term in stem for term in ("ground-floor", "main-floor", "first-floor", "level-1")):
+        return 10, "Ground Floor"
     if any(term in stem for term in ("upper-floor", "second-floor", "level-2")):
-        return "Upper Floor"
-    if "basement" in stem:
-        return "Basement"
-    return titleize(stem)
+        return 20, "Upper Floor"
+    if any(term in stem for term in ("third-floor", "level-3")):
+        return 30, "Third Floor"
+    if any(term in stem for term in ("fourth-floor", "level-4")):
+        return 40, "Fourth Floor"
+    match = re.search(r"(?:floor|level)[-_ ]?(\d+)", stem)
+    if match:
+        number = int(match.group(1))
+        return number * 10, f"Level {number}"
+    return 50, None
+
+
+def _blueprint_info(path: Path, project_slug: str) -> dict[str, Any]:
+    stem = _strip_project_stem(path, project_slug)
+    floor_rank, floor_label = _floor_rank(stem)
+
+    if "drawing-index" in stem or stem in {"index", "cover", "cover-sheet", "drawing-cover"}:
+        discipline, label, type_rank = "general", "Drawing Index", 0
+    elif "site-plan" in stem or stem.startswith("site-") or stem == "site":
+        discipline, label, type_rank = "site", "Site Plan", 0
+    elif "foundation" in stem:
+        discipline, label, type_rank = "foundation", "Foundation Plan", floor_rank
+    elif any(term in stem for term in ("plumbing", "water-plan", "sanitary-plan")):
+        discipline = "plumbing"
+        label = f"Plumbing — {floor_label}" if floor_label else "Plumbing Plan"
+        type_rank = floor_rank
+    elif any(term in stem for term in ("mechanical", "hvac", "heating", "cooling")):
+        discipline = "mechanical"
+        label = f"Mechanical / HVAC — {floor_label}" if floor_label else "Mechanical / HVAC Plan"
+        type_rank = floor_rank
+    elif any(term in stem for term in ("electrical", "lighting-plan", "power-plan")):
+        discipline = "electrical"
+        label = f"Electrical — {floor_label}" if floor_label else "Electrical Plan"
+        type_rank = floor_rank
+    elif "roof" in stem:
+        discipline, label, type_rank = "roof", "Roof Plan", 0
+    elif any(term in stem for term in ("structural", "framing", "frame-plan", "joist", "truss-plan")):
+        discipline = "structural"
+        label = f"Structural / Framing — {floor_label}" if floor_label else "Structural / Framing Plan"
+        type_rank = floor_rank
+    elif floor_label:
+        discipline, label, type_rank = "architectural", floor_label, floor_rank
+    elif any(term in stem for term in ("elevation", "section", "detail", "schedule", "reflected-ceiling", "rcp", "fire-protection", "sprinkler", "low-voltage")):
+        discipline, label, type_rank = "optional", titleize(stem), 0
+    else:
+        discipline, label, type_rank = "optional", titleize(stem), 50
+
+    return {
+        "level": label,
+        "discipline": discipline,
+        "discipline_label": BLUEPRINT_DISCIPLINE_LABELS[discipline],
+        "sheet_order": BLUEPRINT_ORDER[discipline] * 100 + type_rank,
+    }
+
+
+def _floor_level(path: Path, project_slug: str) -> str:
+    return _blueprint_info(path, project_slug)["level"]
+
+
+def normalize_blueprint_item(item: dict[str, Any]) -> dict[str, Any]:
+    normalized = dict(item)
+    if not normalized.get("sheet_order") or not normalized.get("discipline_label"):
+        label = str(normalized.get("level") or "Plan Sheet")
+        inferred = _blueprint_info(Path(label + ".dxf"), "")
+        normalized.setdefault("discipline", inferred["discipline"])
+        normalized.setdefault("discipline_label", inferred["discipline_label"])
+        normalized.setdefault("sheet_order", inferred["sheet_order"])
+    return normalized
+
+
+def blueprint_sort_key(item: dict[str, Any]) -> tuple[int, str]:
+    normalized = normalize_blueprint_item(item)
+    try:
+        order = int(normalized.get("sheet_order", 999999))
+    except (TypeError, ValueError):
+        order = 999999
+    return order, str(normalized.get("level") or "").lower()
+
+
+def _same_stem_companion(source: Path, all_files: list[Path], suffixes: set[str], note_mode: bool = False) -> Path | None:
+    source_stem = source.stem.lower()
+    candidates: list[Path] = []
+    for candidate in all_files:
+        if candidate.resolve() == source.resolve() or candidate.suffix.lower() not in suffixes:
+            continue
+        stem = candidate.stem.lower()
+        same = stem == source_stem
+        if note_mode:
+            same = same or stem in {f"{source_stem}.notes", f"{source_stem}-notes", f"{source_stem}_notes", f"{source_stem} notes"}
+        if same:
+            candidates.append(candidate)
+    if not candidates:
+        return None
+    return min(candidates, key=lambda path: (len(path.relative_to(source.parent).parts) if source.parent in path.parents else 99, path.name.lower()))
 
 
 def inspect_raw_project(project_folder: Path) -> tuple[Path, dict[str, Any], list[str]]:
@@ -638,14 +762,21 @@ def auto_project_from_folder(project_folder: Path) -> tuple[dict[str, Any], list
     floor_plans = []
     for dxf in files["dxfs"]:
         canonical_stem = slugify(dxf.stem)
+        info = _blueprint_info(dxf, slug)
+        source_pdf = _same_stem_companion(dxf, files["all"], {".pdf"})
+        source_notes = _same_stem_companion(dxf, files["all"], {".txt", ".md"}, note_mode=True)
         floor_plans.append({
-            "level": _floor_level(dxf, slug),
+            **info,
             "image": f"floor-plans/{canonical_stem}.svg",
-            "pdf": "",
+            "pdf": f"floor-plans/{canonical_stem}.pdf" if source_pdf else "",
             "dxf": f"floor-plans/{canonical_stem}.dxf",
-            "caption": "Automatically generated browser preview with the original DXF available for download.",
+            "notes": f"floor-plans/{canonical_stem}.notes.txt",
+            "caption": "Browser preview generated from the source DXF. Available technical files are kept with this sheet.",
             "_source_dxf": dxf,
+            "_source_pdf": source_pdf,
+            "_source_notes": source_notes,
         })
+    floor_plans.sort(key=blueprint_sort_key)
 
     project = {
         "slug": slug,
@@ -889,6 +1020,16 @@ def stage_raw_project(project: dict[str, Any], destination: Path) -> None:
         dxf_destination.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(source, dxf_destination)
         render_dxf_to_svg(source, destination / item["image"], f"{title} — {item['level']}")
+        source_pdf: Path | None = item.get("_source_pdf")
+        if source_pdf and item.get("pdf"):
+            pdf_destination = destination / item["pdf"]
+            pdf_destination.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(source_pdf, pdf_destination)
+        source_notes: Path | None = item.get("_source_notes")
+        if source_notes and item.get("notes"):
+            notes_destination = destination / item["notes"]
+            notes_destination.parent.mkdir(parents=True, exist_ok=True)
+            notes_destination.write_text(_read_text(source_notes), encoding="utf-8")
 
     tour_dir = destination / "tour"
     tour_dir.mkdir(parents=True, exist_ok=True)
