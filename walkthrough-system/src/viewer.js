@@ -18,17 +18,16 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
 renderer.setSize(window.innerWidth, window.innerHeight, false);
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.15;
+renderer.toneMappingExposure = 1.05;
 renderer.shadowMap.enabled = false;
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x8da8b6);
-scene.fog = new THREE.FogExp2(0x9aafb8, 0.0015);
+scene.fog = new THREE.FogExp2(0x9aafb8, 0.0018);
 
 const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.03, 5000);
-// Bright, nearly neutral fill keeps all facades readable without shadow maps.
-scene.add(new THREE.HemisphereLight(0xffffff, 0xf8f8f8, 2.8));
-const sun = new THREE.DirectionalLight(0xffffff, 0.22);
+scene.add(new THREE.HemisphereLight(0xffffff, 0x5a6255, 2.1));
+const sun = new THREE.DirectionalLight(0xffffff, 2.6);
 sun.position.set(15, 30, 20);
 scene.add(sun);
 
@@ -219,6 +218,28 @@ async function loadConfig() {
   scene.background = new THREE.Color(config.background || defaults.background);
 }
 
+function makeWalkthroughUnlitMaterial(material) {
+  if (!material || material.isMeshBasicMaterial) return material;
+  const flat = new THREE.MeshBasicMaterial();
+  flat.name = material.name || '';
+  if (material.color?.isColor) flat.color.copy(material.color);
+  flat.map = material.map || null;
+  flat.alphaMap = material.alphaMap || null;
+  flat.transparent = Boolean(material.transparent);
+  flat.opacity = Number.isFinite(material.opacity) ? material.opacity : 1;
+  flat.alphaTest = Number.isFinite(material.alphaTest) ? material.alphaTest : 0;
+  flat.side = material.side;
+  flat.depthTest = material.depthTest;
+  flat.depthWrite = material.depthWrite;
+  flat.colorWrite = material.colorWrite;
+  flat.blending = material.blending;
+  flat.premultipliedAlpha = material.premultipliedAlpha;
+  flat.vertexColors = material.vertexColors;
+  flat.wireframe = Boolean(material.wireframe);
+  flat.toneMapped = material.toneMapped;
+  return flat;
+}
+
 function prepareModel(root) {
   modelRoot = root;
   root.scale.setScalar(Number(config.model_scale) || 1);
@@ -239,6 +260,13 @@ function prepareModel(root) {
   root.traverse(object => {
     if (!object.isMesh || !object.geometry) return;
     const text = objectSearchText(object);
+    // Remove directional light/shadow shading from the displayed model while
+    // retaining each material's base color, texture, opacity, and transparency.
+    object.material = Array.isArray(object.material)
+      ? object.material.map(makeWalkthroughUnlitMaterial)
+      : makeWalkthroughUnlitMaterial(object.material);
+    object.castShadow = false;
+    object.receiveShadow = false;
     object.frustumCulled = true;
     if (!object.geometry.boundsTree) {
       try { object.geometry.computeBoundsTree(); } catch (error) { console.warn('BVH skipped for', object.name, error); }
