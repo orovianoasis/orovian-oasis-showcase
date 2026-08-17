@@ -221,42 +221,30 @@ async function loadConfig() {
   scene.background = new THREE.Color(config.background || defaults.background);
 }
 
-function shouldUseUniformSurfaceMaterial(searchText) {
-  // Chief/GLTF exports can carry interpolated normals across large architectural
-  // planes. That produces diagonal or streaky light gradients even with shadow
-  // maps disabled. Keep those broad surfaces visually uniform while leaving
-  // glass, doors, rails, furnishings, landscaping, and water physically lit.
-  return /(wall|slab|ceiling|soffit|parapet|fascia|column|pier|beam|bulkhead|partition|floor platform|floor-platform|floor system)/i.test(searchText)
-    && !/(glass|window|door|garage|handle|knob|frame|trim|railing|baluster|stair rail|stair_rail|plant|tree|shrub|fixture|furniture|appliance|water|pool|spa)/i.test(searchText);
-}
+function repairHardSurfaceNormals(object) {
+  // The Luxury Home model is built mostly from indexed boxes/prisms that share
+  // the same 8 corner vertices across multiple faces. Their exported normals point
+  // diagonally through those corners, so lighting is interpolated across each wall
+  // and creates the triangular dark bands visible in the walkthrough.
+  //
+  // For low-poly hard-surface meshes, split the indexed vertices per triangle and
+  // recompute normals. Coplanar triangles then receive identical face normals, so
+  // walls stay evenly colored while the original material, texture, and lighting
+  // remain fully intact. Curved/high-poly geometry is left alone.
+  const geometry = object?.geometry;
+  if (!geometry?.getAttribute) return false;
+  const position = geometry.getAttribute('position');
+  if (!position) return false;
+  const triangleCount = geometry.index ? geometry.index.count / 3 : position.count / 3;
+  if (position.count > 24 || triangleCount > 32) return false;
 
-function makeUniformSurfaceMaterial(material) {
-  if (!material) return material;
-  const display = new THREE.MeshBasicMaterial({
-    name: material.name,
-    color: material.color ? material.color.clone() : new THREE.Color(0xffffff),
-    map: material.map || null,
-    alphaMap: material.alphaMap || null,
-    transparent: Boolean(material.transparent),
-    opacity: Number.isFinite(material.opacity) ? material.opacity : 1,
-    side: material.side,
-    visible: material.visible,
-    fog: material.fog !== false,
-    wireframe: Boolean(material.wireframe),
-    vertexColors: Boolean(material.vertexColors),
-  });
-  display.alphaTest = material.alphaTest || 0;
-  display.depthWrite = material.depthWrite !== false;
-  display.depthTest = material.depthTest !== false;
-  display.premultipliedAlpha = Boolean(material.premultipliedAlpha);
-  display.toneMapped = true;
-  return display;
-}
-
-function keepWalkthroughMaterial(material, searchText) {
-  return shouldUseUniformSurfaceMaterial(searchText)
-    ? makeUniformSurfaceMaterial(material)
-    : material;
+  const repaired = geometry.index ? geometry.toNonIndexed() : geometry.clone();
+  repaired.deleteAttribute('normal');
+  repaired.computeVertexNormals();
+  repaired.computeBoundingBox();
+  repaired.computeBoundingSphere();
+  object.geometry = repaired;
+  return true;
 }
 
 function prepareModel(root) {
@@ -279,11 +267,9 @@ function prepareModel(root) {
   root.traverse(object => {
     if (!object.isMesh || !object.geometry) return;
     const text = objectSearchText(object);
-    // Keep original material depth; lighting is softened globally so back-facing
-    // surfaces remain readable without cast shadows.
-    object.material = Array.isArray(object.material)
-      ? object.material.map(material => keepWalkthroughMaterial(material, text))
-      : keepWalkthroughMaterial(object.material, text);
+    // Repair low-poly architectural geometry before BVH/collision data is built.
+    // Materials are intentionally untouched so the original colors and LOOK controls remain.
+    repairHardSurfaceNormals(object);
     object.castShadow = false;
     object.receiveShadow = false;
     object.frustumCulled = true;
