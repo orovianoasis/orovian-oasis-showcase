@@ -221,11 +221,43 @@ async function loadConfig() {
   scene.background = new THREE.Color(config.background || defaults.background);
 }
 
-function keepWalkthroughMaterial(material) {
-  // Preserve the model's original physically based materials so textures, color,
-  // roughness, and depth remain visible. Lighting is balanced above instead of
-  // replacing materials with fully unlit surfaces.
-  return material;
+const flattenedMaterialCache = new WeakMap();
+
+function shouldFlattenSurface(searchText) {
+  return /(wall|slab|ceiling|soffit|parapet|fascia|column|pier|beam|bulkhead|partition|floor platform|floor-platform|floor system)/i.test(searchText)
+    && !/(glass|window|door|garage|handle|knob|frame|trim|railing|baluster|stair rail|stair_rail|plant|tree|shrub|fixture|furniture|appliance|water|pool|spa)/i.test(searchText);
+}
+
+function createDisplayMaterial(material) {
+  if (!material || flattenedMaterialCache.has(material)) return flattenedMaterialCache.get(material) || material;
+  const display = new THREE.MeshBasicMaterial({
+    name: material.name,
+    color: material.color ? material.color.clone() : new THREE.Color(0xffffff),
+    map: material.map || null,
+    alphaMap: material.alphaMap || null,
+    transparent: Boolean(material.transparent),
+    opacity: Number.isFinite(material.opacity) ? material.opacity : 1,
+    side: material.side,
+    visible: material.visible,
+    fog: material.fog !== false,
+    wireframe: Boolean(material.wireframe),
+    vertexColors: Boolean(material.vertexColors),
+  });
+  display.alphaTest = material.alphaTest || 0;
+  display.depthWrite = material.depthWrite !== false;
+  display.depthTest = material.depthTest !== false;
+  display.premultipliedAlpha = Boolean(material.premultipliedAlpha);
+  display.toneMapped = true;
+  if (display.map) display.map.colorSpace = THREE.SRGBColorSpace;
+  flattenedMaterialCache.set(material, display);
+  return display;
+}
+
+function keepWalkthroughMaterial(material, searchText) {
+  // Convert large architectural surfaces to display-oriented materials so broad
+  // wall/ceiling planes keep a clean, consistent color instead of showing noisy
+  // directional-light gradients from the 3D export.
+  return shouldFlattenSurface(searchText) ? createDisplayMaterial(material) : material;
 }
 
 function prepareModel(root) {
@@ -251,8 +283,8 @@ function prepareModel(root) {
     // Keep original material depth; lighting is softened globally so back-facing
     // surfaces remain readable without cast shadows.
     object.material = Array.isArray(object.material)
-      ? object.material.map(keepWalkthroughMaterial)
-      : keepWalkthroughMaterial(object.material);
+      ? object.material.map(material => keepWalkthroughMaterial(material, text))
+      : keepWalkthroughMaterial(object.material, text);
     object.castShadow = false;
     object.receiveShadow = false;
     object.frustumCulled = true;
