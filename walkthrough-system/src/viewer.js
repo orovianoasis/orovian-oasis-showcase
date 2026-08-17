@@ -18,7 +18,7 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
 renderer.setSize(window.innerWidth, window.innerHeight, false);
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.20;
+renderer.toneMappingExposure = 1.06;
 renderer.shadowMap.enabled = false;
 
 const scene = new THREE.Scene();
@@ -29,8 +29,8 @@ const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerH
 // Bright, direction-independent architectural fill. The hard-surface normal repair
 // handles the old diagonal wall bands; this lighting layer now keeps the repaired
 // surfaces readable from every direction without bringing cast shadows back.
-scene.add(new THREE.HemisphereLight(0xffffff, 0xffffff, 2.30));
-const sun = new THREE.DirectionalLight(0xffffff, 0.40);
+scene.add(new THREE.HemisphereLight(0xffffff, 0xffffff, 1.45));
+const sun = new THREE.DirectionalLight(0xffffff, 0.32);
 sun.position.set(15, 30, 20);
 scene.add(sun);
 
@@ -221,6 +221,34 @@ async function loadConfig() {
   scene.background = new THREE.Color(config.background || defaults.background);
 }
 
+function normalizeVertexColorMaterial(object) {
+  // These generated GLBs intentionally store appearance in COLOR_0 vertex colors
+  // and contain no glTF material table. GLTFLoader therefore falls back to the
+  // glTF default PBR material: metalness 1 / roughness 1. With no environment map,
+  // that makes walls behave like fully rough metal and collapse toward black.
+  // Convert only that synthetic vertex-colored default into a matte architectural
+  // surface while leaving any real/custom materials alone.
+  const geometry = object?.geometry;
+  if (!geometry?.getAttribute?.('color')) return false;
+  const materials = Array.isArray(object.material) ? object.material : [object.material];
+  let changed = false;
+  materials.filter(Boolean).forEach(material => {
+    const looksLikeGltfDefault = material.isMeshStandardMaterial
+      && Number(material.metalness) >= 0.95
+      && Number(material.roughness) >= 0.95
+      && !material.map
+      && !material.metalnessMap
+      && !material.roughnessMap;
+    if (!looksLikeGltfDefault) return;
+    material.metalness = 0;
+    material.roughness = 0.92;
+    material.vertexColors = true;
+    material.needsUpdate = true;
+    changed = true;
+  });
+  return changed;
+}
+
 function repairHardSurfaceNormals(object) {
   // The Luxury Home model is built mostly from indexed boxes/prisms that share
   // the same 8 corner vertices across multiple faces. Their exported normals point
@@ -270,6 +298,7 @@ function prepareModel(root) {
     // Repair low-poly architectural geometry before BVH/collision data is built.
     // Materials are intentionally untouched so the original colors and LOOK controls remain.
     repairHardSurfaceNormals(object);
+    normalizeVertexColorMaterial(object);
     object.castShadow = false;
     object.receiveShadow = false;
     object.frustumCulled = true;
