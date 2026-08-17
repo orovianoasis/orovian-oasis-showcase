@@ -8,6 +8,7 @@
   const selectedButton = toolbar.querySelector('[data-plan-download-selected]');
   const allButton = toolbar.querySelector('[data-plan-download-all]');
   const selectionStatus = toolbar.querySelector('[data-plan-selection-status]');
+  const formatSelect = toolbar.querySelector('[data-plan-format]');
   const projectName = toolbar.dataset.planProject || 'Plan_Set';
 
   const notesModal = document.querySelector('[data-plan-notes-modal]');
@@ -39,11 +40,24 @@
     updateSelection();
   });
 
+  function currentFormat() {
+    return formatSelect?.value || 'pdf';
+  }
+
+  function formatLabel() {
+    const format = currentFormat();
+    if (format === 'dxf') return 'DXF';
+    if (format === 'both') return 'PDF_DXF';
+    return 'PDF';
+  }
+
   function planFiles(sourceCards) {
+    const format = currentFormat();
     return sourceCards.flatMap(card => Array.from(card.querySelectorAll('[data-plan-file]')).map(node => ({
+      kind: node.dataset.planFileKind,
       url: node.dataset.planFileUrl,
       name: node.dataset.planFileName,
-    }))).filter(file => file.url && file.name);
+    }))).filter(file => file.url && file.name && (format === 'both' || file.kind === format));
   }
 
   // Small dependency-free ZIP writer using ZIP's STORE method. No compression is
@@ -148,14 +162,14 @@
       setTimeout(() => URL.revokeObjectURL(url), 1200);
     } catch (error) {
       console.error(error);
-      alert('The plan package could not be prepared. Try the individual download buttons, or reload the page and try again.');
+      alert('The plan package could not be prepared. Try the Files menu on an individual sheet, or reload the page and try again.');
     } finally {
-      if (button) { button.textContent = original; button.disabled = suffix === 'Selected_Plan_Sheets' ? selectedCards().length === 0 : false; }
+      if (button) { button.textContent = original; button.disabled = button === selectedButton ? selectedCards().length === 0 : false; }
     }
   }
 
-  selectedButton?.addEventListener('click', () => downloadCards(selectedCards(), 'Selected_Plan_Sheets', selectedButton));
-  allButton?.addEventListener('click', () => downloadCards(cards, 'Full_Plan_Set', allButton));
+  selectedButton?.addEventListener('click', () => downloadCards(selectedCards(), `Selected_Plan_Sheets_${formatLabel()}`, selectedButton));
+  allButton?.addEventListener('click', () => downloadCards(cards, `Full_Plan_Set_${formatLabel()}`, allButton));
 
   function closeNotes() {
     if (!notesModal) return;
@@ -169,6 +183,7 @@
     button.addEventListener('click', async () => {
       if (!notesModal || !notesContent || !notesHeading) return;
       previousFocus = document.activeElement;
+      button.closest('details')?.removeAttribute('open');
       notesHeading.textContent = button.dataset.planNotesTitle || 'Plan Notes';
       notesContent.textContent = 'Loading notes…';
       notesModal.classList.add('is-open');
@@ -186,6 +201,16 @@
   });
   notesCloseButtons.forEach(button => button.addEventListener('click', closeNotes));
   document.addEventListener('keydown', event => { if (event.key === 'Escape' && notesModal?.classList.contains('is-open')) closeNotes(); });
+
+  const fileMenus = Array.from(document.querySelectorAll('.plan-files-menu'));
+  fileMenus.forEach(menu => menu.addEventListener('toggle', () => {
+    if (!menu.open) return;
+    fileMenus.forEach(other => { if (other !== menu) other.removeAttribute('open'); });
+  }));
+  document.addEventListener('click', event => {
+    if (event.target.closest('.plan-files-menu')) return;
+    fileMenus.forEach(menu => menu.removeAttribute('open'));
+  });
 
   updateSelection();
 })();

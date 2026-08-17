@@ -658,33 +658,46 @@ def build(args):
                 f'<span class="floor-plan-preview-label">🔍 Open &amp; zoom</span></a>'
             )
 
-            links=[]
+            primary_links=[]
+            file_menu_items=[]
             if item.get("pdf"):
-                links.append(f'<a class="button" href="../{esc(item["pdf"])}" target="_blank" rel="noopener">Open PDF</a>')
+                pdf_url = f'../{item["pdf"]}'
+                primary_links.append(f'<a class="button primary" href="{esc(pdf_url)}" target="_blank" rel="noopener">Open Plan</a>')
+                file_menu_items.append(f'<a class="plan-files-menu-item" href="{esc(pdf_url)}" download>Download PDF</a>')
             if item.get("dxf"):
-                links.append(f'<a class="button" href="../{esc(item["dxf"])}" download>Download DXF</a>')
-            links.append(f'<button class="button" type="button" data-plan-notes data-plan-notes-url="../{esc(notes_path)}" data-plan-notes-title="{esc(level)}">Notes</button>')
+                dxf_url = f'../{item["dxf"]}'
+                file_menu_items.append(f'<a class="plan-files-menu-item" href="{esc(dxf_url)}" download>Download DXF</a>')
+            file_menu_items.append(
+                f'<button class="plan-files-menu-item" type="button" data-plan-notes '
+                f'data-plan-notes-url="../{esc(notes_path)}" data-plan-notes-title="{esc(level)}">View Notes</button>'
+            )
+            files_menu = (
+                '<details class="plan-files-menu">'
+                '<summary class="button">Files <span class="plan-files-chevron" aria-hidden="true">▾</span></summary>'
+                f'<div class="plan-files-menu-popover">{"".join(file_menu_items)}</div>'
+                '</details>'
+            )
+            primary_links.append(files_menu)
 
-            plan_folder = f"{index:02d}_{_sheet_slug(level)}"
+            archive_stem = f"{index:02d}_{_sheet_slug(level)}"
             files=[]
-            for relative in (item.get("dxf"), item.get("pdf"), notes_path):
+            for kind, relative in (("pdf", item.get("pdf")), ("dxf", item.get("dxf"))):
                 if not relative:
                     continue
                 file_path = folder / str(relative)
                 if not file_path.is_file():
                     continue
-                archive_name = f"{plan_folder}/{Path(str(relative)).name}"
-                files.append((f"../{str(relative)}", archive_name))
+                archive_name = f"{archive_stem}{Path(str(relative)).suffix.lower()}"
+                files.append((kind, f"../{str(relative)}", archive_name))
             file_nodes=''.join(
-                f'<span hidden data-plan-file data-plan-file-url="{esc(url)}" data-plan-file-name="{esc(name)}"></span>'
-                for url, name in files
+                f'<span hidden data-plan-file data-plan-file-kind="{esc(kind)}" data-plan-file-url="{esc(url)}" data-plan-file-name="{esc(name)}"></span>'
+                for kind, url, name in files
             )
-            caption = item.get("caption") or "Published plan sheet and available technical downloads."
             cards.append(
                 f'<article class="panel floor-card{compact_class}" data-reveal data-plan-card data-plan-order="{index}">'
                 f'<div class="floor-card-meta"><label class="plan-select"><input type="checkbox" data-plan-select aria-label="Select {esc(level)} for download"><span>Select</span></label>'
                 f'<span class="blueprint-discipline">{esc(discipline_label)}</span></div>'
-                f'<h2>{esc(level)}</h2>{preview}<p class="muted">{esc(caption)}</p><div class="actions">{"".join(links)}</div>{file_nodes}</article>'
+                f'<h2>{esc(level)}</h2>{preview}<div class="actions plan-card-actions">{"".join(primary_links)}</div>{file_nodes}</article>'
             )
 
         toolbar = ""
@@ -692,9 +705,12 @@ def build(args):
             project_zip_name = _sheet_slug(ident.get("title") or p["slug"])
             toolbar = (
                 f'<div class="blueprint-toolbar" data-blueprint-toolbar data-plan-project="{esc(project_zip_name)}">'
-                '<div class="blueprint-toolbar-copy"><div class="eyebrow">Plan Set</div><strong>Choose individual sheets or download the complete available set.</strong>'
+                '<div class="blueprint-toolbar-copy"><div class="eyebrow">Plan Set</div><strong>Select sheets, choose a file format, then download.</strong>'
                 '<span data-plan-selection-status>0 sheets selected</span></div>'
                 '<div class="blueprint-toolbar-actions">'
+                '<label class="plan-format-control"><span>Format</span><select data-plan-format aria-label="Plan download format">'
+                '<option value="pdf" selected>PDF</option><option value="dxf">DXF / CAD</option><option value="both">PDF + DXF</option>'
+                '</select></label>'
                 '<button class="button" type="button" data-plan-select-all>Select All</button>'
                 '<button class="button" type="button" data-plan-clear disabled>Clear</button>'
                 '<button class="button" type="button" data-plan-download-selected disabled>Download Selected</button>'
@@ -705,7 +721,7 @@ def build(args):
         floor_body=(
             floor_template
             .replace("{{PROJECT_TITLE}}",esc(ident.get("title")))
-            .replace("{{INTRO}}","Available construction-plan sheets are shown in packet order. Plumbing, Mechanical / HVAC, Electrical, and other sheets appear automatically when their DXF files are added.")
+            .replace("{{INTRO}}","Available plan sheets are shown in packet order. Open any plan as a PDF, or choose PDF, DXF / CAD, or both when downloading a selected or full plan set.")
             .replace("{{FLOOR_PLAN_TOOLBAR}}",toolbar)
             .replace("{{FLOOR_PLAN_CARDS}}",''.join(cards) or '<div class="empty">Floor plans have not been published yet.</div>')
         )

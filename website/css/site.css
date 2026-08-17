@@ -640,7 +640,7 @@ body[data-page-kind="project"] .project-stack .list li{text-align:center}
   flex-direction:column;
   height:auto;
   min-height:0;
-  overflow:hidden;
+  overflow:visible;
 }
 .floor-card h2{margin-bottom:14px}
 .floor-card .muted{margin:14px auto 0;max-width:620px}
@@ -897,6 +897,69 @@ body[data-page-kind="home"] .footer-logo-orbit .logo-orbit-disc{background:#0807
 .blueprint-toolbar-actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}
 .blueprint-toolbar-actions .button{margin:0}
 .blueprint-toolbar-actions .button:disabled{opacity:.42;cursor:not-allowed;transform:none}
+
+.plan-card-actions{position:relative;align-items:center}
+.plan-files-menu{position:relative;z-index:20}
+.plan-files-menu[open]{z-index:60}
+.plan-files-menu summary{list-style:none;cursor:pointer;user-select:none}
+.plan-files-menu summary::-webkit-details-marker{display:none}
+.plan-files-chevron{font-size:.82em;transition:transform .18s ease}
+.plan-files-menu[open] .plan-files-chevron{transform:rotate(180deg)}
+.plan-files-menu-popover{
+  position:absolute;
+  right:0;
+  top:calc(100% + 9px);
+  z-index:80;
+  width:min(220px,78vw);
+  padding:7px;
+  border:1px solid rgba(255,255,255,.16);
+  border-radius:16px;
+  background:rgba(22,14,29,.98);
+  box-shadow:0 22px 65px rgba(0,0,0,.52);
+  backdrop-filter:blur(18px);
+}
+.plan-files-menu-item{
+  display:flex;
+  align-items:center;
+  width:100%;
+  min-height:42px;
+  padding:9px 11px;
+  border:0;
+  border-radius:11px;
+  background:transparent;
+  color:var(--paper);
+  font:800 .78rem/1.25 var(--sans);
+  text-align:left;
+  text-decoration:none;
+  cursor:pointer;
+}
+.plan-files-menu-item:hover,.plan-files-menu-item:focus-visible{background:rgba(112,240,202,.1);color:var(--mint);outline:none}
+.plan-format-control{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  min-height:50px;
+  padding:0 12px 0 15px;
+  border:1px solid rgba(255,248,238,.22);
+  border-radius:999px;
+  background:rgba(255,255,255,.035);
+  color:var(--muted);
+  font-size:.7rem;
+  font-weight:900;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+}
+.plan-format-control select{
+  max-width:132px;
+  border:0;
+  outline:0;
+  background:#201529;
+  color:var(--paper);
+  border-radius:999px;
+  padding:8px 28px 8px 10px;
+  font:900 .75rem/1 var(--sans);
+  cursor:pointer;
+}
 .floor-card-meta{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
 .plan-select{display:inline-flex;align-items:center;gap:7px;color:var(--muted);font-size:.76rem;font-weight:850;cursor:pointer}
 .plan-select input{width:18px;height:18px;margin:0;accent-color:var(--mint)}

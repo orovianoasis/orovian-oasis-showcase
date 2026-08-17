@@ -543,6 +543,11 @@ html.mobile-view .menu-popover{max-height:min(72svh,620px);overflow:auto;overscr
   .blueprint-toolbar-copy{min-width:0}
   .blueprint-toolbar-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
   .blueprint-toolbar-actions .button{width:100%;min-width:0;padding:9px 8px;font-size:.72rem;line-height:1.2}
+  .plan-format-control{grid-column:1/-1;width:100%;justify-content:space-between;min-height:46px;padding:0 12px 0 14px}
+  .plan-format-control select{max-width:none;min-width:132px}
+  .plan-card-actions{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px}
+  .plan-card-actions>.button,.plan-card-actions>.plan-files-menu,.plan-files-menu>summary{width:100%;min-width:0}
+  .plan-files-menu-popover{right:0;width:min(230px,82vw)}
   .floor-card-meta{margin-bottom:8px}
   .blueprint-discipline{font-size:.61rem;padding:4px 7px}
   .plan-select{font-size:.7rem}

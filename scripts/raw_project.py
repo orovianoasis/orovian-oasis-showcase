@@ -778,7 +778,6 @@ def auto_project_from_folder(project_folder: Path) -> tuple[dict[str, Any], list
             "pdf": f"floor-plans/{canonical_stem}.pdf",
             "dxf": f"floor-plans/{canonical_stem}.dxf",
             "notes": f"floor-plans/{canonical_stem}.notes.txt",
-            "caption": "Browser preview generated from the source DXF. Available technical files are kept with this sheet.",
             "_source_dxf": dxf,
             "_source_pdf": source_pdf,
             "_source_notes": source_notes,
