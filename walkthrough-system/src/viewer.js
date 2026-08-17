@@ -18,7 +18,7 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
 renderer.setSize(window.innerWidth, window.innerHeight, false);
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.06;
+renderer.toneMappingExposure = 0.90;
 renderer.shadowMap.enabled = false;
 
 const scene = new THREE.Scene();
@@ -26,11 +26,11 @@ scene.background = new THREE.Color(0x8da8b6);
 scene.fog = new THREE.FogExp2(0x9aafb8, 0.0018);
 
 const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.03, 5000);
-// Bright, direction-independent architectural fill. The hard-surface normal repair
-// handles the old diagonal wall bands; this lighting layer now keeps the repaired
-// surfaces readable from every direction without bringing cast shadows back.
-scene.add(new THREE.HemisphereLight(0xffffff, 0xffffff, 1.45));
-const sun = new THREE.DirectionalLight(0xffffff, 0.32);
+// Neutral daylight for the corrected matte materials. The previous emergency
+// fill was intentionally very strong while the model was behaving metallic; once
+// metalness is repaired that same light washes out the stored vertex colors.
+scene.add(new THREE.HemisphereLight(0xffffff, 0xd8d2c8, 0.90));
+const sun = new THREE.DirectionalLight(0xffffff, 0.28);
 sun.position.set(15, 30, 20);
 scene.add(sun);
 
