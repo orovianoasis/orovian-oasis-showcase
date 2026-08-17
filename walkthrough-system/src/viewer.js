@@ -159,10 +159,11 @@ function lookAtAngles(from, target) {
   pitch = Math.asin(THREE.MathUtils.clamp(direction.y, -1, 1));
 }
 function applyLookDelta(deltaX, deltaY, horizontalScale, verticalScale) {
-  // One permanent first-person look convention. Exterior preset buttons only
-  // change camera position and never alter the swipe or mouse direction.
-  yaw = normalizeYaw(yaw - deltaX * horizontalScale);
-  pitch = THREE.MathUtils.clamp(pitch - deltaY * verticalScale, -1.48, 1.48);
+  // Inverted free-look convention for mouse/touch dragging only. Dragging the
+  // view right turns the camera left; dragging up looks down, and vice versa.
+  // D-pad and keyboard controls use their own paths and are intentionally unchanged.
+  yaw = normalizeYaw(yaw + deltaX * horizontalScale);
+  pitch = THREE.MathUtils.clamp(pitch + deltaY * verticalScale, -1.48, 1.48);
   // Commit look input immediately so movement in the same frame uses the exact
   // direction the user is already seeing.
   updateCameraRotation();
