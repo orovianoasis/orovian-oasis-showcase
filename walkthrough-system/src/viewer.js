@@ -18,7 +18,7 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
 renderer.setSize(window.innerWidth, window.innerHeight, false);
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.05;
+renderer.toneMappingExposure = 1.03;
 renderer.shadowMap.enabled = false;
 
 const scene = new THREE.Scene();
@@ -26,8 +26,11 @@ scene.background = new THREE.Color(0x8da8b6);
 scene.fog = new THREE.FogExp2(0x9aafb8, 0.0018);
 
 const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.03, 5000);
-scene.add(new THREE.HemisphereLight(0xffffff, 0x5a6255, 2.1));
-const sun = new THREE.DirectionalLight(0xffffff, 2.6);
+// Soft, balanced daylight: bright fill reaches every facade while a low-strength
+// directional light keeps enough modeling to preserve material depth and color.
+// Shadow maps remain disabled, so there are no cast shadows.
+scene.add(new THREE.HemisphereLight(0xffffff, 0xb8bbb4, 2.25));
+const sun = new THREE.DirectionalLight(0xffffff, 0.85);
 sun.position.set(15, 30, 20);
 scene.add(sun);
 
@@ -218,26 +221,11 @@ async function loadConfig() {
   scene.background = new THREE.Color(config.background || defaults.background);
 }
 
-function makeWalkthroughUnlitMaterial(material) {
-  if (!material || material.isMeshBasicMaterial) return material;
-  const flat = new THREE.MeshBasicMaterial();
-  flat.name = material.name || '';
-  if (material.color?.isColor) flat.color.copy(material.color);
-  flat.map = material.map || null;
-  flat.alphaMap = material.alphaMap || null;
-  flat.transparent = Boolean(material.transparent);
-  flat.opacity = Number.isFinite(material.opacity) ? material.opacity : 1;
-  flat.alphaTest = Number.isFinite(material.alphaTest) ? material.alphaTest : 0;
-  flat.side = material.side;
-  flat.depthTest = material.depthTest;
-  flat.depthWrite = material.depthWrite;
-  flat.colorWrite = material.colorWrite;
-  flat.blending = material.blending;
-  flat.premultipliedAlpha = material.premultipliedAlpha;
-  flat.vertexColors = material.vertexColors;
-  flat.wireframe = Boolean(material.wireframe);
-  flat.toneMapped = material.toneMapped;
-  return flat;
+function keepWalkthroughMaterial(material) {
+  // Preserve the model's original physically based materials so textures, color,
+  // roughness, and depth remain visible. Lighting is balanced above instead of
+  // replacing materials with fully unlit surfaces.
+  return material;
 }
 
 function prepareModel(root) {
@@ -260,11 +248,11 @@ function prepareModel(root) {
   root.traverse(object => {
     if (!object.isMesh || !object.geometry) return;
     const text = objectSearchText(object);
-    // Remove directional light/shadow shading from the displayed model while
-    // retaining each material's base color, texture, opacity, and transparency.
+    // Keep original material depth; lighting is softened globally so back-facing
+    // surfaces remain readable without cast shadows.
     object.material = Array.isArray(object.material)
-      ? object.material.map(makeWalkthroughUnlitMaterial)
-      : makeWalkthroughUnlitMaterial(object.material);
+      ? object.material.map(keepWalkthroughMaterial)
+      : keepWalkthroughMaterial(object.material);
     object.castShadow = false;
     object.receiveShadow = false;
     object.frustumCulled = true;
