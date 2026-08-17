@@ -261,6 +261,7 @@ def build_project(folder: Path, blender: str, force: bool = False) -> str:
     template = (SYSTEM / "viewer-template.html").read_text(encoding="utf-8")
     (generated / "viewer.html").write_text(template.replace("__PROJECT_TITLE__", html.escape(title, quote=True)), encoding="utf-8")
     shutil.copy2(SYSTEM / "viewer.bundle.js", generated / "viewer.bundle.js")
+    shutil.copy2(SYSTEM / "look-controls.js", generated / "look-controls.js")
     (generated / "walkthrough-config.json").write_text(json.dumps(config, indent=2), encoding="utf-8")
     (generated / "collision.json").write_text(json.dumps({
         "generated": True,
