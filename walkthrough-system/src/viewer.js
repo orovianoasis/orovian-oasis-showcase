@@ -53,6 +53,9 @@ let loaded = false;
 let fly = false;
 let showRoof = true;
 let showSlabs = true;
+// Current uploaded build starts with inverted free-look enabled. This toggle only
+// affects mouse/touch camera-look deltas; movement and keyboard turning are separate.
+let invertFreeLook = true;
 let yaw = 0;
 let pitch = 0;
 let fov = 70;
@@ -159,11 +162,12 @@ function lookAtAngles(from, target) {
   pitch = Math.asin(THREE.MathUtils.clamp(direction.y, -1, 1));
 }
 function applyLookDelta(deltaX, deltaY, horizontalScale, verticalScale) {
-  // Inverted free-look convention for mouse/touch dragging only. Dragging the
-  // view right turns the camera left; dragging up looks down, and vice versa.
-  // D-pad and keyboard controls use their own paths and are intentionally unchanged.
-  yaw = normalizeYaw(yaw + deltaX * horizontalScale);
-  pitch = THREE.MathUtils.clamp(pitch + deltaY * verticalScale, -1.48, 1.48);
+  // Free-look is the only control path affected by the INVERT toggle.
+  // ON preserves this uploaded build's inverted drag behavior. OFF restores the
+  // conventional drag direction. D-pad movement and keyboard turning never use it.
+  const lookSign = invertFreeLook ? 1 : -1;
+  yaw = normalizeYaw(yaw + deltaX * horizontalScale * lookSign);
+  pitch = THREE.MathUtils.clamp(pitch + deltaY * verticalScale * lookSign, -1.48, 1.48);
   // Commit look input immediately so movement in the same frame uses the exact
   // direction the user is already seeing.
   updateCameraRotation();
@@ -919,7 +923,14 @@ function toggleTools() {
   button.classList.toggle('active', !hidden);
   button.setAttribute('aria-pressed', String(!hidden));
 }
-bindTap('toggleUI',toggleUI); bindTap('toggleTools',toggleTools); bindTap('enter',() => canvas.requestPointerLock?.());
+function toggleInvertLook() {
+  invertFreeLook = !invertFreeLook;
+  const button = document.getElementById('toggleInvert');
+  button.textContent = invertFreeLook ? 'INVERT ON' : 'INVERT OFF';
+  button.classList.toggle('active', invertFreeLook);
+  button.setAttribute('aria-pressed', String(invertFreeLook));
+}
+bindTap('toggleUI',toggleUI); bindTap('toggleInvert',toggleInvertLook); bindTap('toggleTools',toggleTools); bindTap('enter',() => canvas.requestPointerLock?.());
 
 function animate() {
   requestAnimationFrame(animate);

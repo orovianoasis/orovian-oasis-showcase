@@ -38,7 +38,7 @@ canvas{width:100%;height:100%;display:block;touch-action:none;background:linear-
 <b>Views:</b> <b>FRONT</b>, <b>BACK</b>, <b>SIDE L</b>, and <b>SIDE R</b> frame the full property and acreage from the selected elevated side. Swipe and D-pad directions remain identical in every view. <b>ROOF</b> and <b>SLABS</b> show or hide matched building layers.<br>
 <b>Doors:</b> Double-tap a recognized entry, interior, or garage door to open or close it.</div>
 <button id="enter" type="button">Enter Walkthrough</button><div id="status">Loading model…</div></div>
-<div id="quickToggles" aria-label="Display toggles"><button class="hudToggle" id="toggleUI" type="button" aria-pressed="false">INFO ON</button><button class="hudToggle" id="toggleTools" type="button" aria-pressed="false">TOOLS ON</button></div>
+<div id="quickToggles" aria-label="Display and look toggles"><button class="hudToggle" id="toggleUI" type="button" aria-pressed="false">INFO ON</button><button class="hudToggle active" id="toggleInvert" type="button" aria-pressed="true" title="Invert mouse/touch free-look drag">INVERT ON</button><button class="hudToggle" id="toggleTools" type="button" aria-pressed="false">TOOLS ON</button></div>
 <div id="mobileControls" aria-label="Mobile walkthrough controls">
   <div id="dpad" aria-label="Movement controls"><button class="touchBtn" id="moveForward" type="button" aria-label="Move forward">▲</button><button class="touchBtn" id="moveLeft" type="button" aria-label="Move left">◀</button><button id="resetBtn" type="button" aria-label="Reset to starting view">RESET</button><button class="touchBtn" id="moveBack" type="button" aria-label="Move backward">▼</button><button class="touchBtn" id="moveRight" type="button" aria-label="Move right">▶</button></div>
   <div id="lookHint"><span>Drag: look</span><span>Pinch: zoom</span><span>Double-tap: doors</span></div>
@@ -46,6 +46,6 @@ canvas{width:100%;height:100%;display:block;touch-action:none;background:linear-
   <div class="mobileActionGroup" id="mobileActionsRight" aria-label="Height and building layers"><button class="actionBtn" id="riseBtn" type="button">UP</button><button class="actionBtn" id="lowerBtn" type="button">DOWN</button><button class="actionBtn" id="roofBtn" type="button">ROOF</button><button class="actionBtn" id="upperBtn" type="button">SLABS</button></div>
 </div>
 <canvas id="gl" aria-label="Interactive 3D walkthrough"></canvas>
-<script src="viewer.bundle.js?v=4.0.0"></script>
+<script src="viewer.bundle.js?v=4.1.0"></script>
 </body>
 </html>
