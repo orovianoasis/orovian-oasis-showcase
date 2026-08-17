@@ -18,7 +18,7 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
 renderer.setSize(window.innerWidth, window.innerHeight, false);
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.05;
+renderer.toneMappingExposure = 1.20;
 renderer.shadowMap.enabled = false;
 
 const scene = new THREE.Scene();
@@ -26,12 +26,11 @@ scene.background = new THREE.Color(0x8da8b6);
 scene.fog = new THREE.FogExp2(0x9aafb8, 0.0018);
 
 const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.03, 5000);
-// Color-first walkthrough lighting. Using the same sky and ground color turns the
-// hemisphere light into broad, direction-independent fill, so a wall keeps its
-// stored GLB color whether it faces north, south, toward, or away from the camera.
-// A very small sun contribution keeps just enough shape without creating a black side.
-scene.add(new THREE.HemisphereLight(0xffffff, 0xffffff, 1.15));
-const sun = new THREE.DirectionalLight(0xffffff, 0.22);
+// Bright, direction-independent architectural fill. The hard-surface normal repair
+// handles the old diagonal wall bands; this lighting layer now keeps the repaired
+// surfaces readable from every direction without bringing cast shadows back.
+scene.add(new THREE.HemisphereLight(0xffffff, 0xffffff, 2.30));
+const sun = new THREE.DirectionalLight(0xffffff, 0.40);
 sun.position.set(15, 30, 20);
 scene.add(sun);
 

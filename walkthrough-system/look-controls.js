@@ -1,5 +1,5 @@
 (() => {
-  const STORAGE_KEY = 'orovian-look-settings-v1';
+  const STORAGE_KEY = 'orovian-look-settings-v2';
   const DEFAULTS = Object.freeze({ brightness: 100, color: 100, depth: 100, shade: 100 });
   const PRESETS = Object.freeze({
     soft: { brightness: 104, color: 96, depth: 92, shade: 118 },
