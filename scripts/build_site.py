@@ -10,7 +10,7 @@ import tomllib
 import urllib.parse
 from pathlib import Path
 
-from raw_project import RawProjectError, auto_project_from_folder, stage_raw_project, blueprint_sort_key, normalize_blueprint_item
+from raw_project import RawProjectError, auto_project_from_folder, stage_raw_project, blueprint_sort_key, normalize_blueprint_item, render_dxf_to_pdf
 
 ROOT = Path(__file__).resolve().parents[1]
 CONTENT = ROOT / "content"
@@ -418,6 +418,32 @@ def copy_project_assets(project, destination):
         if source.exists(): shutil.copytree(source,destination/name,dirs_exist_ok=True)
 
 
+def _ensure_plan_pdf(project_folder, item, project_title):
+    """Use an authored PDF when present; otherwise generate one from the DXF."""
+    dxf_relative = str(item.get("dxf") or "").strip()
+    pdf_relative = str(item.get("pdf") or "").strip()
+
+    # The copied source PDF is the override. Do not replace it with an auto-render.
+    if pdf_relative and (project_folder / pdf_relative).is_file():
+        return pdf_relative
+    if not dxf_relative:
+        return pdf_relative
+
+    dxf_path = project_folder / dxf_relative
+    if not dxf_path.is_file():
+        return pdf_relative
+
+    if not pdf_relative:
+        pdf_relative = Path(dxf_relative).with_suffix(".pdf").as_posix()
+
+    render_dxf_to_pdf(
+        dxf_path,
+        project_folder / pdf_relative,
+        f"{project_title} — {item.get('level') or 'Plan Sheet'}",
+    )
+    return pdf_relative
+
+
 def _plan_notes_path(item):
     explicit = str(item.get("notes") or "").strip()
     if explicit:
@@ -613,7 +639,11 @@ def build(args):
         prepared_plan_items=[]
         for index, item in enumerate(floor_plans, start=1):
             item = dict(item)
-            notes_path = _ensure_plan_notes(folder, item, ident.get("title") or p["slug"])
+            project_title = ident.get("title") or p["slug"]
+            pdf_path = _ensure_plan_pdf(folder, item, project_title)
+            if pdf_path:
+                item["pdf"] = pdf_path
+            notes_path = _ensure_plan_notes(folder, item, project_title)
             item["notes"] = notes_path
             prepared_plan_items.append(item)
 

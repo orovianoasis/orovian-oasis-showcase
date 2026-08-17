@@ -9,6 +9,13 @@ from datetime import date
 from pathlib import Path
 from typing import Any
 
+try:
+    from reportlab.pdfgen import canvas as pdf_canvas
+    from reportlab.lib.pagesizes import LEDGER, landscape, portrait
+except ImportError:  # pragma: no cover - GitHub workflows install reportlab.
+    pdf_canvas = None
+    LEDGER = landscape = portrait = None
+
 IMAGE_SUFFIXES = {".webp", ".png", ".jpg", ".jpeg", ".svg", ".avif"}
 IGNORED_DIRECTORY_NAMES = {".git", "__MACOSX", "node_modules", "dist"}
 IGNORED_TOUR_SUFFIXES = {
@@ -768,7 +775,7 @@ def auto_project_from_folder(project_folder: Path) -> tuple[dict[str, Any], list
         floor_plans.append({
             **info,
             "image": f"floor-plans/{canonical_stem}.svg",
-            "pdf": f"floor-plans/{canonical_stem}.pdf" if source_pdf else "",
+            "pdf": f"floor-plans/{canonical_stem}.pdf",
             "dxf": f"floor-plans/{canonical_stem}.dxf",
             "notes": f"floor-plans/{canonical_stem}.notes.txt",
             "caption": "Browser preview generated from the source DXF. Available technical files are kept with this sheet.",
@@ -901,41 +908,72 @@ def _placeholder_svg(title: str, note: str) -> str:
 </svg>'''
 
 
+def _dxf_text_value(values: dict[int, list[str]]) -> str:
+    chunks = [*values.get(1, []), *values.get(3, [])]
+    text = " ".join(part for part in chunks if part).strip()
+    # Keep the fallback renderer readable without trying to implement every MTEXT
+    # control code. Chief-authored DXFs commonly use \\P for line breaks.
+    text = text.replace("\\P", "\n").replace("\\~", " ")
+    text = re.sub(r"\\[A-Za-z][^;]*;", "", text)
+    text = text.replace("{", "").replace("}", "")
+    return text.strip()
+
+
+def _dxf_drawing(source: Path) -> tuple[list[tuple[float, float]], list[tuple[str, Any]]]:
+    entities = _dxf_entities(source)
+    points: list[tuple[float, float]] = []
+    primitives: list[tuple[str, Any]] = []
+    for entity_type, values in entities:
+        if entity_type == "LINE":
+            x1, y1, x2, y2 = _float(values, 10), _float(values, 20), _float(values, 11), _float(values, 21)
+            points.extend(((x1, y1), (x2, y2)))
+            primitives.append(("line", (x1, y1, x2, y2)))
+        elif entity_type == "CIRCLE":
+            cx, cy, radius = _float(values, 10), _float(values, 20), abs(_float(values, 40))
+            points.extend(((cx - radius, cy - radius), (cx + radius, cy + radius)))
+            primitives.append(("circle", (cx, cy, radius)))
+        elif entity_type == "ARC":
+            cx, cy, radius = _float(values, 10), _float(values, 20), abs(_float(values, 40))
+            start, end = _float(values, 50), _float(values, 51)
+            if end < start:
+                end += 360
+            arc_points = []
+            steps = max(4, int((end - start) / 6) + 1)
+            for step in range(steps + 1):
+                angle = math.radians(start + (end - start) * step / steps)
+                arc_points.append((cx + radius * math.cos(angle), cy + radius * math.sin(angle)))
+            points.extend(arc_points)
+            primitives.append(("arc", (cx, cy, radius, start, end)))
+        elif entity_type == "LWPOLYLINE":
+            xs = values.get(10, [])
+            ys = values.get(20, [])
+            poly_points: list[tuple[float, float]] = []
+            for x_raw, y_raw in zip(xs, ys):
+                try:
+                    poly_points.append((float(x_raw), float(y_raw)))
+                except ValueError:
+                    continue
+            if len(poly_points) >= 2:
+                closed = bool(int(_float(values, 70, 0)) & 1)
+                points.extend(poly_points)
+                primitives.append(("polyline", (poly_points, closed)))
+        elif entity_type in {"TEXT", "MTEXT"}:
+            x, y = _float(values, 10), _float(values, 20)
+            text_value = _dxf_text_value(values)
+            height = abs(_float(values, 40, 12.0)) or 12.0
+            rotation = _float(values, 50, 0.0)
+            if text_value:
+                lines = text_value.splitlines() or [text_value]
+                estimated_width = max(height * 0.62 * max(len(line) for line in lines), height)
+                estimated_height = height * max(1, len(lines)) * 1.25
+                points.extend(((x, y - estimated_height * 0.25), (x + estimated_width, y + estimated_height)))
+                primitives.append(("text", (x, y, height, rotation, text_value)))
+    return points, primitives
+
+
 def render_dxf_to_svg(source: Path, destination: Path, title: str) -> None:
     try:
-        entities = _dxf_entities(source)
-        points: list[tuple[float, float]] = []
-        primitives: list[tuple[str, Any]] = []
-        for entity_type, values in entities:
-            if entity_type == "LINE":
-                x1, y1, x2, y2 = _float(values, 10), _float(values, 20), _float(values, 11), _float(values, 21)
-                points.extend(((x1, y1), (x2, y2)))
-                primitives.append(("line", (x1, y1, x2, y2)))
-            elif entity_type == "CIRCLE":
-                cx, cy, radius = _float(values, 10), _float(values, 20), abs(_float(values, 40))
-                points.extend(((cx - radius, cy - radius), (cx + radius, cy + radius)))
-                primitives.append(("circle", (cx, cy, radius)))
-            elif entity_type == "ARC":
-                cx, cy, radius = _float(values, 10), _float(values, 20), abs(_float(values, 40))
-                start, end = _float(values, 50), _float(values, 51)
-                if end < start:
-                    end += 360
-                arc_points = []
-                steps = max(4, int((end - start) / 6) + 1)
-                for step in range(steps + 1):
-                    angle = math.radians(start + (end - start) * step / steps)
-                    arc_points.append((cx + radius * math.cos(angle), cy + radius * math.sin(angle)))
-                points.extend(arc_points)
-                primitives.append(("polyline", arc_points))
-            elif entity_type in {"TEXT", "MTEXT"}:
-                x, y = _float(values, 10), _float(values, 20)
-                text_value = " ".join(values.get(1, [])).strip()
-                height = abs(_float(values, 40, 12.0)) or 12.0
-                rotation = _float(values, 50, 0.0)
-                if text_value:
-                    estimated_width = max(height * 0.62 * len(text_value), height)
-                    points.extend(((x, y - height), (x + estimated_width, y + height * 0.35)))
-                    primitives.append(("text", (x, y, height, rotation, text_value)))
+        points, primitives = _dxf_drawing(source)
         if not points:
             raise ValueError("no supported DXF geometry")
 
@@ -947,7 +985,6 @@ def render_dxf_to_svg(source: Path, destination: Path, title: str) -> None:
         height = max(max_y - min_y, 1.0)
         margin = max(width, height) * 0.06
         view_min_x = min_x - margin
-        view_min_y = min_y - margin
         view_width = width + margin * 2
         view_height = height + margin * 2
         stroke = max(view_width, view_height) / 1100
@@ -963,16 +1000,30 @@ def render_dxf_to_svg(source: Path, destination: Path, title: str) -> None:
             elif kind == "circle":
                 cx, cy, radius = data
                 elements.append(f'<circle cx="{cx:.4f}" cy="{sy(cy):.4f}" r="{radius:.4f}"/>')
+            elif kind == "arc":
+                cx, cy, radius, start, end = data
+                arc_points = []
+                steps = max(4, int((end - start) / 6) + 1)
+                for step in range(steps + 1):
+                    angle = math.radians(start + (end - start) * step / steps)
+                    arc_points.append((cx + radius * math.cos(angle), cy + radius * math.sin(angle)))
+                points_text = " ".join(f"{x:.4f},{sy(y):.4f}" for x, y in arc_points)
+                elements.append(f'<polyline points="{points_text}"/>')
             elif kind == "polyline":
-                points_text = " ".join(f"{x:.4f},{sy(y):.4f}" for x, y in data)
+                poly_points, closed = data
+                draw_points = [*poly_points, poly_points[0]] if closed else poly_points
+                points_text = " ".join(f"{x:.4f},{sy(y):.4f}" for x, y in draw_points)
                 elements.append(f'<polyline points="{points_text}"/>')
             elif kind == "text":
                 x, y, font_size, rotation, text_value = data
-                safe = html.escape(text_value)
-                elements.append(
-                    f'<text x="{x:.4f}" y="{sy(y):.4f}" font-size="{font_size:.4f}" '
-                    f'transform="rotate({-rotation:.4f} {x:.4f} {sy(y):.4f})">{safe}</text>'
-                )
+                lines = text_value.splitlines() or [text_value]
+                for line_index, line in enumerate(lines):
+                    safe = html.escape(line)
+                    line_y = sy(y - line_index * font_size * 1.25)
+                    elements.append(
+                        f'<text x="{x:.4f}" y="{line_y:.4f}" font-size="{font_size:.4f}" '
+                        f'transform="rotate({-rotation:.4f} {x:.4f} {line_y:.4f})">{safe}</text>'
+                    )
 
         svg = f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="{view_min_x:.4f} {sy(max_y + margin):.4f} {view_width:.4f} {view_height:.4f}" role="img" aria-label="{html.escape(title)}">
 <rect x="{view_min_x:.4f}" y="{sy(max_y + margin):.4f}" width="{view_width:.4f}" height="{view_height:.4f}" fill="#fbf8f4"/>
@@ -985,6 +1036,95 @@ def render_dxf_to_svg(source: Path, destination: Path, title: str) -> None:
         svg = _placeholder_svg(title, "DXF download included")
     destination.parent.mkdir(parents=True, exist_ok=True)
     destination.write_text(svg, encoding="utf-8")
+
+
+def _pdf_safe_text(value: str) -> str:
+    return value.encode("cp1252", errors="replace").decode("cp1252")
+
+
+def render_dxf_to_pdf(source: Path, destination: Path, title: str) -> None:
+    '''Render a vector PDF from DXF unless an authored same-stem PDF is supplied.'''
+    if pdf_canvas is None:
+        raise RawProjectError("automatic DXF-to-PDF generation requires reportlab (pip install reportlab)")
+
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    points, primitives = _dxf_drawing(source)
+    if not points:
+        c = pdf_canvas.Canvas(str(destination), pagesize=landscape(LEDGER), pageCompression=1)
+        c.setTitle(_pdf_safe_text(title))
+        c.setFont("Helvetica-Bold", 22)
+        c.drawString(48, 720, _pdf_safe_text(title))
+        c.setFont("Helvetica", 12)
+        c.drawString(48, 690, "Automatic preview could not find supported DXF geometry. Use the DXF source for the authoritative drawing.")
+        c.save()
+        return
+
+    min_x = min(x for x, _ in points)
+    max_x = max(x for x, _ in points)
+    min_y = min(y for _, y in points)
+    max_y = max(y for _, y in points)
+    drawing_width = max(max_x - min_x, 1.0)
+    drawing_height = max(max_y - min_y, 1.0)
+    ratio = drawing_width / drawing_height
+    page_size = landscape(LEDGER) if ratio >= 1 else portrait(LEDGER)
+    page_width, page_height = page_size
+    margin = 30.0
+    available_width = page_width - margin * 2
+    available_height = page_height - margin * 2
+    scale = min(available_width / drawing_width, available_height / drawing_height)
+    offset_x = margin + (available_width - drawing_width * scale) / 2
+    offset_y = margin + (available_height - drawing_height * scale) / 2
+
+    def px(x: float) -> float:
+        return offset_x + (x - min_x) * scale
+
+    def py(y: float) -> float:
+        return offset_y + (y - min_y) * scale
+
+    c = pdf_canvas.Canvas(str(destination), pagesize=page_size, pageCompression=1)
+    c.setTitle(_pdf_safe_text(title))
+    c.setAuthor("Orovian Oasis automated plan renderer")
+    c.setSubject("Automatically generated from the source DXF when no authored PDF is supplied.")
+    c.setStrokeColorRGB(0.06, 0.06, 0.07)
+    c.setFillColorRGB(0.06, 0.06, 0.07)
+    c.setLineCap(1)
+    c.setLineJoin(1)
+    c.setLineWidth(0.65)
+
+    for kind, data in primitives:
+        if kind == "line":
+            x1, y1, x2, y2 = data
+            c.line(px(x1), py(y1), px(x2), py(y2))
+        elif kind == "circle":
+            cx, cy, radius = data
+            c.circle(px(cx), py(cy), radius * scale, stroke=1, fill=0)
+        elif kind == "arc":
+            cx, cy, radius, start, end = data
+            c.arc(px(cx - radius), py(cy - radius), px(cx + radius), py(cy + radius), startAng=start, extent=end - start)
+        elif kind == "polyline":
+            poly_points, closed = data
+            if len(poly_points) < 2:
+                continue
+            path = c.beginPath()
+            path.moveTo(px(poly_points[0][0]), py(poly_points[0][1]))
+            for x, y in poly_points[1:]:
+                path.lineTo(px(x), py(y))
+            if closed:
+                path.close()
+            c.drawPath(path, stroke=1, fill=0)
+        elif kind == "text":
+            x, y, text_height, rotation, text_value = data
+            font_size = max(5.0, min(28.0, text_height * scale * 0.88))
+            c.saveState()
+            c.translate(px(x), py(y))
+            c.rotate(rotation)
+            c.setFont("Helvetica", font_size)
+            for line_index, line in enumerate(text_value.splitlines() or [text_value]):
+                c.drawString(0, -line_index * font_size * 1.18, _pdf_safe_text(line))
+            c.restoreState()
+
+    c.showPage()
+    c.save()
 
 
 def _write_cover_placeholder(destination: Path, title: str) -> None:
@@ -1021,10 +1161,14 @@ def stage_raw_project(project: dict[str, Any], destination: Path) -> None:
         shutil.copy2(source, dxf_destination)
         render_dxf_to_svg(source, destination / item["image"], f"{title} — {item['level']}")
         source_pdf: Path | None = item.get("_source_pdf")
-        if source_pdf and item.get("pdf"):
+        if item.get("pdf"):
             pdf_destination = destination / item["pdf"]
             pdf_destination.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copy2(source_pdf, pdf_destination)
+            if source_pdf:
+                # Authored/manual same-stem PDF always overrides the generated fallback.
+                shutil.copy2(source_pdf, pdf_destination)
+            else:
+                render_dxf_to_pdf(source, pdf_destination, f"{title} — {item['level']}")
         source_notes: Path | None = item.get("_source_notes")
         if source_notes and item.get("notes"):
             notes_destination = destination / item["notes"]
