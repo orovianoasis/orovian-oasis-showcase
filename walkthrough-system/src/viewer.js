@@ -18,7 +18,7 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
 renderer.setSize(window.innerWidth, window.innerHeight, false);
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.03;
+renderer.toneMappingExposure = 1.05;
 renderer.shadowMap.enabled = false;
 
 const scene = new THREE.Scene();
@@ -26,11 +26,12 @@ scene.background = new THREE.Color(0x8da8b6);
 scene.fog = new THREE.FogExp2(0x9aafb8, 0.0018);
 
 const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.03, 5000);
-// Soft, balanced daylight: bright fill reaches every facade while a low-strength
-// directional light keeps enough modeling to preserve material depth and color.
-// Shadow maps remain disabled, so there are no cast shadows.
-scene.add(new THREE.HemisphereLight(0xffffff, 0xb8bbb4, 2.25));
-const sun = new THREE.DirectionalLight(0xffffff, 0.85);
+// Color-first walkthrough lighting. Using the same sky and ground color turns the
+// hemisphere light into broad, direction-independent fill, so a wall keeps its
+// stored GLB color whether it faces north, south, toward, or away from the camera.
+// A very small sun contribution keeps just enough shape without creating a black side.
+scene.add(new THREE.HemisphereLight(0xffffff, 0xffffff, 1.15));
+const sun = new THREE.DirectionalLight(0xffffff, 0.22);
 sun.position.set(15, 30, 20);
 scene.add(sun);
 
